@@ -1,0 +1,1007 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Padel Club - Gestión Integral</title>
+    <script src="https://unpkg.com/mithril/mithril.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root {
+        --primary-blue: #00567a;
+        --secondary-green: #2ecc71;
+        --bg-gray: #f4f7f6;
+      }
+      body {
+        background-color: var(--bg-gray);
+        font-family:
+          "Segoe UI",
+          system-ui,
+          -apple-system,
+          sans-serif;
+      }
+      .btn-primary {
+        background-color: var(--primary-blue);
+        color: white;
+        transition: all 0.2s;
+      }
+      .btn-primary:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+      }
+
+      /* Estética de Pista */
+      .padel-court-visual {
+        aspect-ratio: 1/1.5;
+        background: #2a82a4;
+        border: 4px solid white;
+        position: relative;
+        border-radius: 8px;
+        box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.2);
+      }
+      .court-line-center {
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: rgba(255, 255, 255, 0.8);
+      }
+      .court-line-service {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: rgba(255, 255, 255, 0.8);
+      }
+
+      .position-btn {
+        position: absolute;
+        width: 38%;
+        height: 18%;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.7rem;
+        transition: all 0.2s;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .position-btn.active {
+        border: 3px solid #ffeb3b;
+        background-color: #fffde7 !important;
+        transform: scale(1.05);
+      }
+
+      .tab-active {
+        border-bottom: 3px solid var(--primary-blue);
+        color: var(--primary-blue);
+        font-weight: bold;
+      }
+
+      .toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #1e293b;
+        color: white;
+        padding: 14px 28px;
+        border-radius: 12px;
+        z-index: 100;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* Calendario */
+      .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+      }
+      .calendar-day-header {
+        text-align: center;
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: #94a3b8;
+        padding: 10px 0;
+        text-transform: uppercase;
+      }
+      .calendar-day-cell {
+        aspect-ratio: 1.2/1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border-radius: 10px;
+        transition: all 0.2s;
+        position: relative;
+        font-size: 0.9rem;
+      }
+      .calendar-day-cell:hover:not(.empty-cell) {
+        background-color: #e2e8f0;
+      }
+      .calendar-day-selected {
+        background-color: var(--primary-blue) !important;
+        color: white !important;
+        font-weight: bold;
+        box-shadow: 0 4px 12px rgba(0, 86, 122, 0.3);
+      }
+      .has-bookings::after {
+        content: "";
+        position: absolute;
+        bottom: 6px;
+        width: 5px;
+        height: 5px;
+        background-color: var(--secondary-green);
+        border-radius: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <script>
+      // --- UTILIDADES ---
+      const formatDate = (date) => {
+        return date.toLocaleDateString("es-ES", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        });
+      };
+      const generateInviteCode = () =>
+        Math.random().toString(36).substring(2, 8).toUpperCase();
+
+      // --- ESTADO GLOBAL ---
+      const State = {
+        currentView: "pistas",
+        selectedDate: formatDate(new Date()),
+        selectedTime: "11:00",
+        viewDate: new Date(),
+        data: {
+          [formatDate(new Date())]: [
+            {
+              courtId: 2,
+              time: "11:00",
+              type: "public",
+              players: ["Dani L.", "Marta G."],
+              positions: [0, 2],
+              inviteCode: null,
+            },
+          ],
+        },
+        courts: [
+          { id: 1, name: "Pista Central (Cristal)", price: "12.00 €" },
+          { id: 2, name: "Pista 2 (Muro)", price: "10.00 €" },
+          { id: 3, name: "Pista 3 (Panorámica)", price: "14.00 €" },
+          { id: 4, name: "Pista 4 (Individual)", price: "8.00 €" },
+        ],
+        modal: {
+          show: false,
+          courtId: null,
+          time: "",
+          isPrivate: false,
+          selectedPos: null,
+          occupiedPositions: [],
+          date: "",
+          inviteCode: null,
+          inputCode: "", // Para unirse a privadas
+        },
+        toast: { show: false, message: "" },
+      };
+
+      const HOURS = [
+        "09:00",
+        "10:30",
+        "12:00",
+        "16:30",
+        "18:00",
+        "19:30",
+        "21:00",
+      ];
+
+      // --- ACCIONES ---
+      const Actions = {
+        showToast: (msg) => {
+          State.toast.message = msg;
+          State.toast.show = true;
+          m.redraw();
+          setTimeout(() => {
+            State.toast.show = false;
+            m.redraw();
+          }, 3000);
+        },
+        changeMonth: (offset) => {
+          const newDate = new Date(State.viewDate);
+          newDate.setMonth(newDate.getMonth() + offset);
+          State.viewDate = newDate;
+        },
+        selectDate: (dateStr) => {
+          State.selectedDate = dateStr;
+        },
+
+        openBooking: (courtId, time, date = State.selectedDate) => {
+          const dayMatches = State.data[date] || [];
+          const match = dayMatches.find(
+            (m) => m.courtId === courtId && m.time === time,
+          );
+
+          if (match && match.players.includes("Tú")) {
+            return Actions.showToast("Ya estás inscrito en esta partida.");
+          }
+
+          State.modal = {
+            show: true,
+            courtId,
+            time,
+            date,
+            isPrivate: match ? match.type === "private" : false,
+            selectedPos: null,
+            occupiedPositions: match ? match.positions : [],
+            inviteCode: match ? match.inviteCode : null,
+            inputCode: "",
+          };
+        },
+
+        confirmMatch: () => {
+          if (State.modal.selectedPos === null)
+            return Actions.showToast("Selecciona una posición en la pista");
+
+          // Validación de código para privadas
+          if (
+            State.modal.inviteCode &&
+            State.modal.inputCode !== State.modal.inviteCode
+          ) {
+            return Actions.showToast("Código de invitación incorrecto");
+          }
+
+          if (!State.data[State.modal.date]) State.data[State.modal.date] = [];
+          const dayMatches = State.data[State.modal.date];
+          const existing = dayMatches.find(
+            (m) =>
+              m.courtId === State.modal.courtId && m.time === State.modal.time,
+          );
+
+          if (existing) {
+            existing.players.push("Tú");
+            existing.positions.push(State.modal.selectedPos);
+            if (existing.players.length === 4)
+              Actions.showToast("¡Partida completa! Redirigiendo a pago...");
+          } else {
+            const code = State.modal.isPrivate ? generateInviteCode() : null;
+            dayMatches.push({
+              courtId: State.modal.courtId,
+              time: State.modal.time,
+              type: State.modal.isPrivate ? "private" : "public",
+              inviteCode: code,
+              players: ["Tú"],
+              positions: [State.modal.selectedPos],
+            });
+            if (code)
+              prompt("Copia tu código de invitación para tus amigos:", code);
+          }
+
+          State.modal.show = false;
+          Actions.showToast("Reserva realizada con éxito");
+        },
+
+        cancelReservation: (date, courtId, time) => {
+          const dayMatches = State.data[date];
+          if (!dayMatches) return;
+          const idx = dayMatches.findIndex(
+            (m) => m.courtId === courtId && m.time === time,
+          );
+          if (idx === -1) return;
+
+          const match = dayMatches[idx];
+          const pIdx = match.players.indexOf("Tú");
+          const posIdx = match.positions[pIdx];
+
+          match.players.splice(pIdx, 1);
+          match.positions.splice(match.positions.indexOf(posIdx), 1);
+
+          if (match.players.length === 0) dayMatches.splice(idx, 1);
+          Actions.showToast("Reserva cancelada");
+        },
+      };
+
+      // --- COMPONENTES ---
+
+      const Toast = {
+        view: () =>
+          m(
+            "div",
+            { class: `toast ${State.toast.show ? "show" : ""}` },
+            State.toast.message,
+          ),
+      };
+
+      const Calendar = {
+        getDaysInMonth: (year, month) => {
+          const date = new Date(year, month, 1);
+          const days = [];
+          let firstDay = date.getDay() - 1;
+          if (firstDay === -1) firstDay = 6;
+          for (let i = 0; i < firstDay; i++) days.push({ day: null });
+          while (date.getMonth() === month) {
+            days.push({
+              day: date.getDate(),
+              full: formatDate(new Date(date)),
+            });
+            date.setDate(date.getDate() + 1);
+          }
+          return days;
+        },
+        view: () => {
+          const year = State.viewDate.getFullYear();
+          const month = State.viewDate.getMonth();
+          const monthName = State.viewDate.toLocaleDateString("es-ES", {
+            month: "long",
+            year: "numeric",
+          });
+          const days = Calendar.getDaysInMonth(year, month);
+          return m(
+            "div",
+            { class: "bg-white rounded-2xl shadow-sm border p-5 mb-8" },
+            [
+              m("div", { class: "flex justify-between items-center mb-6" }, [
+                m(
+                  "h2",
+                  { class: "text-xl font-bold capitalize text-slate-800" },
+                  monthName,
+                ),
+                m("div", { class: "flex gap-2" }, [
+                  m(
+                    "button",
+                    {
+                      class: "p-2 hover:bg-slate-100 rounded-lg",
+                      onclick: () => Actions.changeMonth(-1),
+                    },
+                    "←",
+                  ),
+                  m(
+                    "button",
+                    {
+                      class: "p-2 hover:bg-slate-100 rounded-lg",
+                      onclick: () => Actions.changeMonth(1),
+                    },
+                    "→",
+                  ),
+                ]),
+              ]),
+              m("div", { class: "calendar-grid" }, [
+                ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"].map((d) =>
+                  m("div", { class: "calendar-day-header" }, d),
+                ),
+                days.map((d) => {
+                  if (!d.day)
+                    return m("div", { class: "calendar-day-cell empty-cell" });
+                  const isSelected = State.selectedDate === d.full;
+                  const hasBookings = State.data[d.full]?.length > 0;
+                  return m(
+                    "div",
+                    {
+                      class: `calendar-day-cell ${isSelected ? "calendar-day-selected" : "text-slate-600"} ${hasBookings ? "has-bookings" : ""}`,
+                      onclick: () => Actions.selectDate(d.full),
+                    },
+                    d.day,
+                  );
+                }),
+              ]),
+            ],
+          );
+        },
+      };
+
+      const BookingModal = {
+        view: () =>
+          State.modal.show &&
+          m(
+            "div",
+            {
+              class:
+                "fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4",
+            },
+            [
+              m(
+                "div",
+                {
+                  class:
+                    "bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200",
+                },
+                [
+                  m("div", { class: "bg-[#00567a] p-6 text-white" }, [
+                    m("div", { class: "flex justify-between items-center" }, [
+                      m(
+                        "h3",
+                        { class: "text-xl font-bold" },
+                        "Configura tu Puesto",
+                      ),
+                      m(
+                        "button",
+                        {
+                          class: "text-2xl",
+                          onclick: () => (State.modal.show = false),
+                        },
+                        "×",
+                      ),
+                    ]),
+                    m(
+                      "p",
+                      { class: "text-blue-100 text-sm mt-1" },
+                      `${State.modal.date} a las ${State.modal.time}`,
+                    ),
+                  ]),
+                  m("div", { class: "p-8" }, [
+                    // Si es unirse a privada
+                    State.modal.inviteCode
+                      ? m("div", { class: "mb-6" }, [
+                          m(
+                            "label",
+                            {
+                              class:
+                                "block text-sm font-bold text-slate-700 mb-2",
+                            },
+                            "Código de Invitación Requerido:",
+                          ),
+                          m("input.input", {
+                            class:
+                              "w-full p-3 border-2 border-blue-100 rounded-xl focus:border-blue-500 outline-none uppercase text-center font-mono tracking-widest",
+                            placeholder: "EJ: X82A1Z",
+                            oninput: (e) =>
+                              (State.modal.inputCode = e.target.value),
+                          }),
+                        ])
+                      : m(
+                          "div",
+                          {
+                            class:
+                              "flex items-center mb-6 bg-slate-50 p-3 rounded-xl",
+                          },
+                          [
+                            m("input[type=checkbox]", {
+                              class:
+                                "w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500",
+                              id: "isPrivate",
+                              onchange: (e) =>
+                                (State.modal.isPrivate = e.target.checked),
+                            }),
+                            m(
+                              "label[for=isPrivate]",
+                              {
+                                class:
+                                  "ml-3 text-sm font-semibold text-slate-700",
+                              },
+                              "Hacer esta partida privada (solo con código)",
+                            ),
+                          ],
+                        ),
+
+                    m(
+                      "p",
+                      {
+                        class:
+                          "text-center text-xs text-slate-400 mb-4 uppercase tracking-wider font-bold",
+                      },
+                      "Selecciona tu posición",
+                    ),
+                    m(CourtPositionSelector),
+
+                    m(
+                      "button",
+                      {
+                        class: `w-full py-4 rounded-2xl mt-8 font-bold text-lg shadow-lg ${State.modal.selectedPos !== null ? "btn-primary" : "bg-slate-200 text-slate-400 cursor-not-allowed"}`,
+                        onclick: Actions.confirmMatch,
+                      },
+                      State.modal.inviteCode
+                        ? "Validar y Unirse"
+                        : "Reservar Ahora",
+                    ),
+                  ]),
+                ],
+              ),
+            ],
+          ),
+      };
+
+      const CourtPositionSelector = {
+        view: () => {
+          const positions = [
+            { id: 0, label: "Revés Izq", top: "15%", left: "6%" },
+            { id: 1, label: "Drive Izq", top: "68%", left: "6%" },
+            { id: 2, label: "Revés Der", top: "15%", left: "56%" },
+            { id: 3, label: "Drive Der", top: "68%", left: "56%" },
+          ];
+          return m("div", { class: "padel-court-visual mx-auto w-52" }, [
+            m("div", { class: "court-line-center" }),
+            m("div", { class: "court-line-service" }),
+            positions.map((p) =>
+              m(
+                "button",
+                {
+                  class: `position-btn ${State.modal.occupiedPositions.includes(p.id) ? "bg-slate-800/40 text-white/50 cursor-not-allowed" : State.modal.selectedPos === p.id ? "active bg-white text-blue-900" : "bg-white/90 text-slate-800 hover:bg-white"}`,
+                  style: `top: ${p.top}; left: ${p.left};`,
+                  disabled: State.modal.occupiedPositions.includes(p.id),
+                  onclick: () => (State.modal.selectedPos = p.id),
+                },
+                State.modal.occupiedPositions.includes(p.id) ? "✘" : p.label,
+              ),
+            ),
+          ]);
+        },
+      };
+
+      const PistasView = {
+        view: () =>
+          m(
+            "div",
+            { class: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" },
+            State.courts.map((c) => {
+              const match = (State.data[State.selectedDate] || []).find(
+                (m) => m.courtId === c.id && m.time === State.selectedTime,
+              );
+              const isFull = match?.players.length >= 4;
+              const hasMe = match?.players.includes("Tú");
+
+              return m(
+                "div",
+                {
+                  class:
+                    "bg-white rounded-2xl shadow-sm border border-slate-100 p-6 transition-all hover:shadow-md",
+                },
+                [
+                  m("div", { class: "flex justify-between items-start mb-4" }, [
+                    m("div", [
+                      m("h3", { class: "font-bold text-slate-800" }, c.name),
+                      m(
+                        "span",
+                        { class: "text-xs text-slate-400" },
+                        "90 min / Pista completa",
+                      ),
+                    ]),
+                    m(
+                      "span",
+                      {
+                        class:
+                          "text-blue-600 font-black text-sm bg-blue-50 px-2 py-1 rounded",
+                      },
+                      c.price,
+                    ),
+                  ]),
+
+                  match
+                    ? m("div", { class: "mb-6" }, [
+                        m(
+                          "div",
+                          {
+                            class:
+                              "flex justify-between text-xs font-bold mb-2",
+                          },
+                          [
+                            m(
+                              "span",
+                              {
+                                class:
+                                  match.type === "private"
+                                    ? "text-red-500"
+                                    : "text-orange-500",
+                              },
+                              match.type === "private"
+                                ? "🔒 PRIVADA"
+                                : "🌍 PÚBLICA",
+                            ),
+                            m(
+                              "span",
+                              { class: "text-slate-500" },
+                              `${match.players.length}/4 Jugadores`,
+                            ),
+                          ],
+                        ),
+                        m(
+                          "div",
+                          {
+                            class:
+                              "w-full bg-slate-100 h-2 rounded-full overflow-hidden",
+                          },
+                          m("div", {
+                            class: "bg-blue-500 h-full transition-all",
+                            style: `width: ${(match.players.length / 4) * 100}%`,
+                          }),
+                        ),
+                      ])
+                    : m(
+                        "div",
+                        {
+                          class:
+                            "mb-6 py-2 text-xs font-bold text-green-500 flex items-center",
+                        },
+                        [
+                          m("span", {
+                            class:
+                              "w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse",
+                          }),
+                          "PISTA DISPONIBLE",
+                        ],
+                      ),
+
+                  hasMe
+                    ? m(
+                        "button",
+                        {
+                          class:
+                            "w-full py-3 bg-blue-50 text-blue-600 rounded-xl font-bold text-xs cursor-default",
+                        },
+                        "ESTÁS INSCRITO",
+                      )
+                    : isFull
+                      ? m(
+                          "button",
+                          {
+                            class:
+                              "w-full py-3 bg-slate-100 text-slate-400 rounded-xl font-bold text-xs",
+                          },
+                          "PISTA COMPLETA",
+                        )
+                      : match?.type === "private"
+                        ? m(
+                            "button",
+                            {
+                              class:
+                                "w-full py-3 bg-red-50 text-red-500 rounded-xl font-bold text-xs hover:bg-red-100",
+                              onclick: () =>
+                                Actions.openBooking(c.id, State.selectedTime),
+                            },
+                            "UNIRSE CON CÓDIGO",
+                          )
+                        : m(
+                            "button",
+                            {
+                              class:
+                                "w-full py-3 border-2 border-[#2ecc71] text-[#2ecc71] hover:bg-[#2ecc71] hover:text-white rounded-xl font-black transition-all text-xs tracking-wider",
+                              onclick: () =>
+                                Actions.openBooking(c.id, State.selectedTime),
+                            },
+                            match ? "UNIRSE A PARTIDA" : "RESERVAR AHORA",
+                          ),
+                ],
+              );
+            }),
+          ),
+      };
+
+      const MatchmakingView = {
+        view: () => {
+          const allPublic = [];
+          Object.keys(State.data).forEach((date) => {
+            State.data[date].forEach((m) => {
+              if (
+                m.type === "public" &&
+                m.players.length < 4 &&
+                !m.players.includes("Tú")
+              )
+                allPublic.push({ ...m, date });
+            });
+          });
+
+          return m(
+            "div",
+            { class: "animate-in slide-in-from-bottom-4 duration-500" },
+            [
+              m(
+                "h2",
+                { class: "text-xl font-bold mb-6 text-slate-800" },
+                "Partidas Abiertas en el Club",
+              ),
+              allPublic.length === 0
+                ? m(
+                    "div",
+                    {
+                      class:
+                        "p-12 text-center bg-white rounded-3xl border-2 border-dashed border-slate-200",
+                    },
+                    [
+                      m("p", { class: "text-4xl mb-4" }, "🎾"),
+                      m(
+                        "p",
+                        { class: "text-slate-400 font-medium" },
+                        "No hay partidas públicas buscando jugadores ahora mismo.",
+                      ),
+                    ],
+                  )
+                : m(
+                    "div",
+                    { class: "grid gap-4" },
+                    allPublic.map((match) => {
+                      const court = State.courts.find(
+                        (c) => c.id === match.courtId,
+                      );
+                      return m(
+                        "div",
+                        {
+                          class:
+                            "bg-white p-6 rounded-2xl shadow-sm border flex flex-col md:flex-row justify-between items-center gap-4",
+                        },
+                        [
+                          m("div", [
+                            m(
+                              "div",
+                              {
+                                class:
+                                  "text-xs font-bold text-orange-500 uppercase tracking-widest mb-1",
+                              },
+                              "Matchmaking Activo",
+                            ),
+                            m(
+                              "div",
+                              { class: "font-black text-xl text-[#00567a]" },
+                              `${match.date} • ${match.time}`,
+                            ),
+                            m(
+                              "div",
+                              { class: "text-sm text-slate-500" },
+                              `${court.name} • ${match.players.length} jugadores esperando`,
+                            ),
+                          ]),
+                          m(
+                            "button",
+                            {
+                              class:
+                                "w-full md:w-auto px-10 py-4 btn-primary rounded-2xl font-black shadow-lg shadow-blue-900/20",
+                              onclick: () =>
+                                Actions.openBooking(
+                                  match.courtId,
+                                  match.time,
+                                  match.date,
+                                ),
+                            },
+                            "UNIRSE AHORA",
+                          ),
+                        ],
+                      );
+                    }),
+                  ),
+            ],
+          );
+        },
+      };
+
+      const MyBookingsView = {
+        view: () => {
+          const myMatches = [];
+          Object.keys(State.data).forEach((date) => {
+            State.data[date].forEach((m) => {
+              if (m.players.includes("Tú")) myMatches.push({ ...m, date });
+            });
+          });
+
+          return m(
+            "div",
+            { class: "animate-in slide-in-from-bottom-4 duration-500" },
+            [
+              m(
+                "h2",
+                { class: "text-xl font-bold mb-6 text-slate-800" },
+                "Mi Agenda de Juego",
+              ),
+              myMatches.length === 0
+                ? m(
+                    "div",
+                    {
+                      class:
+                        "p-12 text-center bg-white rounded-3xl border-2 border-dashed border-slate-200",
+                    },
+                    [
+                      m("p", { class: "text-4xl mb-4" }, "📅"),
+                      m(
+                        "p",
+                        { class: "text-slate-400 font-medium" },
+                        "Aún no tienes ninguna reserva confirmada.",
+                      ),
+                    ],
+                  )
+                : m(
+                    "div",
+                    { class: "grid gap-4" },
+                    myMatches.map((match) => {
+                      const court = State.courts.find(
+                        (c) => c.id === match.courtId,
+                      );
+                      return m(
+                        "div",
+                        {
+                          class:
+                            "bg-white p-6 rounded-2xl shadow-sm border flex justify-between items-center border-l-8 border-l-blue-500",
+                        },
+                        [
+                          m("div", [
+                            m(
+                              "div",
+                              { class: "font-black text-lg text-slate-800" },
+                              `${match.date} a las ${match.time}`,
+                            ),
+                            m(
+                              "div",
+                              { class: "text-sm text-slate-500 font-medium" },
+                              [
+                                court.name,
+                                m("span", { class: "mx-2" }, "•"),
+                                m(
+                                  "span",
+                                  { class: "text-blue-600" },
+                                  match.type === "private"
+                                    ? "Partida Privada"
+                                    : "Partida Pública",
+                                ),
+                              ],
+                            ),
+                            match.inviteCode &&
+                              m(
+                                "div",
+                                {
+                                  class:
+                                    "mt-2 text-xs font-mono bg-blue-50 text-blue-700 p-1 px-2 rounded inline-block",
+                                },
+                                `CÓDIGO: ${match.inviteCode}`,
+                              ),
+                          ]),
+                          m(
+                            "button",
+                            {
+                              class:
+                                "text-red-500 hover:bg-red-50 p-3 rounded-xl transition-colors font-bold text-sm",
+                              onclick: () =>
+                                Actions.cancelReservation(
+                                  match.date,
+                                  match.courtId,
+                                  match.time,
+                                ),
+                            },
+                            "CANCELAR",
+                          ),
+                        ],
+                      );
+                    }),
+                  ),
+            ],
+          );
+        },
+      };
+
+      const NavTabs = {
+        view: () =>
+          m(
+            "div",
+            {
+              class: "flex space-x-2 p-1.5 bg-[#0047ab] rounded-2xl mb-8",
+            },
+            [
+              [
+                ["pistas", "🎾 Reservar"],
+                ["matchmaking", "🤝 Matchmaking"],
+                ["mis-reservas", "📅 Mis Reservas"],
+              ].map(([id, label]) =>
+                m(
+                  "button",
+                  {
+                    class: `flex-1 py-3 px-4 text-sm font-bold rounded-xl transition-all ${
+                      State.currentView === id
+                        ? "bg-white text-[#0047ab] shadow-sm" // Botón Activo: Blanco con texto azul
+                        : "text-white hover:bg-blue-500/50" // Botón Inactivo: Texto blanco y hover sutil
+                    }`,
+                    onclick: () => (State.currentView = id),
+                  },
+                  label,
+                ),
+              ),
+            ],
+          ),
+      };
+
+      const MainLayout = {
+        view: () =>
+          m("div", { class: "max-w-5xl mx-auto p-4 md:p-12" }, [
+            m(
+              "header",
+              {
+                class:
+                  "mb-10 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left",
+              },
+              [
+                m("div", [
+                  m(
+                    "h1",
+                    {
+                      class:
+                        "text-4xl font-black text-[#00567a] tracking-tight",
+                    },
+                    "SERVICIO DE GESTIÓN DE RESERVAS",
+                  ),
+                  m(
+                    "p",
+                    { class: "text-slate-400 font-medium" },
+                    "Gestión de pistas y partidas en tiempo real",
+                  ),
+                ]),
+                m(
+                  "div",
+                  {
+                    class:
+                      "bg-white p-2 px-4 rounded-2xl shadow-sm border border-slate-100",
+                  },
+                  [
+                    // m(
+                    //   "span",
+                    //   {
+                    //     class:
+                    //       "text-xs font-bold text-slate-400 block uppercase",
+                    //   },
+                    //   "👤 Mi Perfil",
+                    // ),
+                    m(
+                      "span",
+                      {
+                        class: "text-xl font-bold text-slate-400",
+                      },
+                      "👤 Mi Perfil",
+                    ),
+                  ],
+                ),
+              ],
+            ),
+
+            m(NavTabs),
+
+            State.currentView === "pistas" && [
+              m(Calendar),
+              m("div", { class: "mb-4 flex items-center justify-between" }, [
+                m(
+                  "h2",
+                  { class: "text-xl font-bold text-slate-800" },
+                  "Horarios Disponibles",
+                ),
+                m(
+                  "span",
+                  {
+                    class:
+                      "text-xs font-bold text-slate-400 bg-slate-200 px-2 py-1 rounded",
+                  },
+                  State.selectedDate,
+                ),
+              ]),
+              m(
+                "div",
+                { class: "flex space-x-3 mb-8 overflow-x-auto pb-4" },
+                HOURS.map((h) =>
+                  m(
+                    "button",
+                    {
+                      class: `px-6 py-3 rounded-2xl font-bold text-sm transition-all border-2 ${State.selectedTime === h ? "bg-[#00567a] text-white border-[#00567a] shadow-lg" : "bg-white text-slate-600 border-transparent hover:border-slate-200"}`,
+                      onclick: () => (State.selectedTime = h),
+                    },
+                    h,
+                  ),
+                ),
+              ),
+              m(PistasView),
+            ],
+
+            State.currentView === "matchmaking" && m(MatchmakingView),
+            State.currentView === "mis-reservas" && m(MyBookingsView),
+
+            m(BookingModal),
+            m(Toast),
+          ]),
+      };
+
+      m.route(document.getElementById("app"), "/", { "/": MainLayout });
+    </script>
+  </body>
+</html>

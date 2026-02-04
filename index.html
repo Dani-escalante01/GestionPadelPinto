@@ -17,51 +17,113 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: #f8fafc;
         }
-        .hero-bg {
-            background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.7)), 
-                        url('https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=2070&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
+        
+        .hero-container {
+            position: relative;
+            height: 380px;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0f172a;
         }
-        .court-card-img {
-            height: 120px;
-            background-size: cover;
-            background-position: center;
-            border-radius: 12px 12px 0 0;
+        .hero-image {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.6;
+            filter: brightness(0.7);
         }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { height: 6px; }
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            color: white;
+            padding: 0 20px;
+        }
+
+        ::-webkit-scrollbar { height: 6px; width: 6px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         
-        .tab-active {
-            border-bottom: 3px solid var(--padel-green);
-            color: var(--padel-green) !important;
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
         }
-        .court-svg { filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+        
+        .day-cell {
+            aspect-ratio: 1 / 1;
+            max-width: 48px;
+            margin: 0 auto;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-up { animation: fadeIn 0.6s ease-out forwards; }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #e2e8f0;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px; width: 18px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #2ecc71; }
+        input:checked + .slider:before { transform: translateX(20px); }
     </style>
 </head>
 <body>
     <div id="app"></div>
 
     <script>
-        // --- DATA & MOCK IMAGES ---
+        // --- CONSTANTES ---
         const COURT_IMAGES = [
-            'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?q=80&w=2070&auto=format&fit=crop', // Central
-            'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=2070&auto=format&fit=crop', // Pista 2
-            'https://images.unsplash.com/photo-1599423300746-b62533397364?q=80&w=2070&auto=format&fit=crop', // Pista 3
+            'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?q=80&w=2070&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=2070&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1599423300746-b62533397364?q=80&w=2070&auto=format&fit=crop',
         ];
+        const HOURS = ["09:00", "10:30", "12:00", "13:30", "16:30", "18:00", "19:30", "21:00"];
+        const MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
-        const formatDate = (date) => date.toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" });
+        const formatDate = (date) => {
+            const d = new Date(date);
+            return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+        };
+        
         const generateInviteCode = () => Math.random().toString(36).substring(2, 8).toUpperCase();
 
-        // --- STATE ---
+        // --- ESTADO ---
         const State = {
             isLogged: false,
-            currentView: "public", // public, booking, matchmaking, agenda
+            currentView: "public",
             selectedDate: formatDate(new Date()),
             selectedTime: "10:30",
-            viewDate: new Date(),
+            viewMonth: new Date().getMonth(),
+            viewYear: new Date().getFullYear(),
             user: { name: "Carlos P.", id: "user_123" },
+            inviteInput: "",
             data: {
                 [formatDate(new Date())]: [
                     { courtId: 2, time: "10:30", type: "public", players: ["Dani L.", "Marta G."], positions: [0, 2], inviteCode: null, creator: "Dani L." },
@@ -75,40 +137,42 @@
                 { id: 4, name: "Pista 4 - Panorámica Azul", type: "Panorámica", price: "15€", img: COURT_IMAGES[0] },
                 { id: 5, name: "Pista 5 - Cristal Outdoor", type: "Cristal", price: "12€", img: COURT_IMAGES[1] },
                 { id: 6, name: "Pista 6 - Individual", type: "Individual", price: "9€", img: COURT_IMAGES[2] },
-                { id: 7, name: "Pista 7 - Muro", type: "Muro", price: "10€", img: COURT_IMAGES[0] },
-                { id: 8, name: "Pista 8 - Exhibición", type: "Panorámica", price: "20€", img: COURT_IMAGES[1] }
             ],
-            modal: { show: false, courtId: null, time: "", isPrivate: false, selectedPos: null, occupiedPositions: [], date: "", inviteCode: null, isJoining: false },
-            toast: { show: false, message: "" }
+            modal: { show: false, courtId: null, time: "", isPrivate: false, selectedPos: null, occupiedPositions: [], date: "", inviteCode: null },
+            confirmModal: { show: false, date: "", matchIndex: -1 },
+            toast: { show: false, message: "" },
+            heroImage: "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=2070&auto=format&fit=crop",
         };
 
-        const HOURS = ["09:00", "10:30", "12:00", "13:30", "16:30", "18:00", "19:30", "21:00"];
-
-        // --- ACTIONS ---
+        // --- ACCIONES ---
         const Actions = {
-            login: () => { State.isLogged = true; State.currentView = 'booking'; m.redraw(); },
-            logout: () => { State.isLogged = false; State.currentView = 'public'; m.redraw(); },
+            changeMonth: (dir) => {
+                State.viewMonth += dir;
+                if (State.viewMonth < 0) { State.viewMonth = 11; State.viewYear--; }
+                else if (State.viewMonth > 11) { State.viewMonth = 0; State.viewYear++; }
+                m.redraw();
+            },
+            login: () => { State.isLogged = true; State.currentView = 'booking'; Actions.showToast("Bienvenido, Carlos"); },
+            logout: () => { State.isLogged = false; State.currentView = 'public'; },
             showToast: (msg) => {
                 State.toast.message = msg; State.toast.show = true; m.redraw();
                 setTimeout(() => { State.toast.show = false; m.redraw(); }, 3000);
             },
-            selectDate: (dateStr) => { State.selectedDate = dateStr; },
             openBooking: (courtId, time, date = State.selectedDate) => {
                 if (!State.isLogged) return Actions.showToast("Inicia sesión para reservar");
-                const dayMatches = State.data[date] || [];
-                const match = dayMatches.find(m => m.courtId === courtId && m.time === time);
+                const match = (State.data[date] || []).find(m => m.courtId === courtId && m.time === time);
                 
                 State.modal = {
                     show: true, courtId, time, date,
-                    isPrivate: match ? match.type === "private" : false,
+                    isPrivate: match ? (match.type === "private") : false, 
                     selectedPos: null,
                     occupiedPositions: match ? match.positions : [],
-                    inviteCode: match ? match.inviteCode : null,
-                    isJoining: !!match
+                    isJoining: !!match,
+                    generatedCode: match ? match.inviteCode : generateInviteCode()
                 };
             },
             confirmMatch: () => {
-                if (State.modal.selectedPos === null) return Actions.showToast("Elige tu lado de la pista");
+                if (State.modal.selectedPos === null) return;
                 if (!State.data[State.modal.date]) State.data[State.modal.date] = [];
                 const dayMatches = State.data[State.modal.date];
                 const existing = dayMatches.find(m => m.courtId === State.modal.courtId && m.time === State.modal.time);
@@ -120,150 +184,199 @@
                     dayMatches.push({
                         courtId: State.modal.courtId, time: State.modal.time,
                         type: State.modal.isPrivate ? "private" : "public",
-                        inviteCode: State.modal.isPrivate ? generateInviteCode() : null,
+                        inviteCode: State.modal.isPrivate ? State.modal.generatedCode : null,
                         players: ["Carlos P."], positions: [State.modal.selectedPos],
                         creator: "Carlos P."
                     });
                 }
                 State.modal.show = false;
-                Actions.showToast("Reserva confirmada con éxito");
+                Actions.showToast(`¡Reserva confirmada! ${State.modal.isPrivate ? 'Código: ' + State.modal.generatedCode : 'Partida Abierta'}`);
+            },
+            joinByCode: () => {
+                if (!State.inviteInput) return;
+                let found = null;
+                Object.keys(State.data).forEach(date => {
+                    const match = (State.data[date] || []).find(m => m.inviteCode === State.inviteInput.toUpperCase());
+                    if (match) found = { ...match, date };
+                });
+
+                if (found) {
+                    if (found.players.length >= 4) return Actions.showToast("La partida ya está completa");
+                    if (found.players.includes("Carlos P.")) return Actions.showToast("Ya estás en esta partida");
+                    Actions.openBooking(found.courtId, found.time, found.date);
+                    State.inviteInput = "";
+                } else {
+                    Actions.showToast("Código no válido");
+                }
+            },
+            cancelBooking: (date, matchIndex) => {
+                const match = State.data[date][matchIndex];
+                const playerIndex = match.players.indexOf("Carlos P.");
+                
+                if (playerIndex > -1) {
+                    match.players.splice(playerIndex, 1);
+                    match.positions.splice(playerIndex, 1);
+                    
+                    // Si no quedan jugadores, eliminar la partida
+                    if (match.players.length === 0) {
+                        State.data[date].splice(matchIndex, 1);
+                    }
+                    
+                    Actions.showToast("Reserva cancelada correctamente");
+                }
+                State.confirmModal.show = false;
+            },
+            scrollToBooking: () => {
+                document.getElementById('booking-section')?.scrollIntoView({ behavior: 'smooth' });
             }
         };
 
-        // --- COMPONENTS ---
+        // --- COMPONENTES ---
 
         const Navbar = {
-            view: () => m("nav", { class: "bg-white border-b sticky top-0 z-50 px-4" }, [
+            view: () => m("nav", { class: "bg-white/80 backdrop-blur-md border-b sticky top-0 z-50 px-4" }, [
                 m("div", { class: "max-w-6xl mx-auto flex justify-between items-center h-16" }, [
-                    m("div", { class: "flex items-center gap-2", onclick: () => State.currentView = State.isLogged ? 'booking' : 'public', style: "cursor:pointer" }, [
-                        m("div", { class: "w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center text-white font-black italic" }, "P"),
-                        m("span", { class: "font-extrabold text-xl tracking-tight text-slate-800" }, "PADELPRO")
+                    m("div", { class: "flex items-center gap-2 cursor-pointer", onclick: () => State.currentView = State.isLogged ? 'booking' : 'public' }, [
+                        m("div", { class: "w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-white font-black italic shadow-lg shadow-green-200" }, "P"),
+                        m("span", { class: "font-black text-lg tracking-tighter text-slate-800" }, "PADELPINTO")
                     ]),
                     m("div", { class: "flex items-center gap-6" }, [
                         State.isLogged ? [
-                            m("button", { class: `text-sm font-semibold text-slate-500 ${State.currentView === 'booking' ? 'tab-active' : ''}`, onclick: () => State.currentView = 'booking' }, "Reservar"),
-                            m("button", { class: `text-sm font-semibold text-slate-500 ${State.currentView === 'matchmaking' ? 'tab-active' : ''}`, onclick: () => State.currentView = 'matchmaking' }, "Partidas"),
-                            m("button", { class: `text-sm font-semibold text-slate-500 ${State.currentView === 'agenda' ? 'tab-active' : ''}`, onclick: () => State.currentView = 'agenda' }, "Mi Agenda"),
-                            m("div", { class: "w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold border-2 border-green-500 cursor-pointer", onclick: Actions.logout }, "CP")
-                        ] : m("button", { class: "bg-slate-900 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-slate-800 transition", onclick: Actions.login }, "Iniciar Sesión")
+                            m("button", { class: `text-[10px] font-black tracking-widest ${State.currentView === 'booking' ? 'text-green-500 border-b-2 border-green-500' : 'text-slate-400'} pb-1 transition-all`, onclick: () => State.currentView = 'booking' }, "RESERVAR"),
+                            m("button", { class: `text-[10px] font-black tracking-widest ${State.currentView === 'matchmaking' ? 'text-green-500 border-b-2 border-green-500' : 'text-slate-400'} pb-1 transition-all`, onclick: () => State.currentView = 'matchmaking' }, "PARTIDAS"),
+                            m("button", { class: `text-[10px] font-black tracking-widest ${State.currentView === 'agenda' ? 'text-green-500 border-b-2 border-green-500' : 'text-slate-400'} pb-1 transition-all`, onclick: () => State.currentView = 'agenda' }, "AGENDA"),
+                            m("div", { class: "w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold border-2 border-green-500 cursor-pointer", onclick: Actions.logout }, "CP")
+                        ] : m("button", { class: "bg-slate-900 text-white px-5 py-2 rounded-full text-xs font-bold hover:bg-slate-800 transition", onclick: Actions.login }, "Entrar")
                     ])
                 ])
             ])
         };
 
-        const PublicHero = {
-            view: () => m("section", { class: "hero-bg text-white py-24 px-4 text-center relative overflow-hidden mb-12" }, [
-                m("div", { class: "relative z-10 max-w-3xl mx-auto" }, [
-                    m("h1", { class: "text-5xl md:text-6xl font-extrabold mb-6 leading-tight" }, "Siente el poder del cristal."),
-                    m("p", { class: "text-lg text-slate-200 mb-10" }, "Únete a la mayor comunidad de pádel. Reserva las mejores pistas panorámicas o únete a partidas abiertas en segundos."),
-                    m("div", { class: "flex flex-col sm:flex-row justify-center gap-4" }, [
-                        m("button", { class: "bg-green-500 hover:bg-green-400 px-8 py-4 rounded-2xl font-bold text-slate-900 transition-all transform hover:scale-105 shadow-xl", onclick: Actions.login }, "Empezar a jugar ahora"),
-                        m("button", { class: "bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 px-8 py-4 rounded-2xl font-bold transition", onclick: () => { document.getElementById('browse-courts').scrollIntoView({behavior: 'smooth'}) } }, "Ver pistas disponibles")
-                    ])
-                ])
-            ])
-        };
-
-        const CalendarWidget = {
+        const Hero = {
             view: () => {
-                const days = [
-                    { name: "Hoy", date: formatDate(new Date()) },
-                    { name: "Mañana", date: formatDate(new Date(Date.now() + 86400000)) },
-                    { name: "Lun", date: "05/02/2026" },
-                    { name: "Mar", date: "06/02/2026" },
-                    { name: "Mie", date: "07/02/2026" },
-                ];
-                return m("div", { class: "flex gap-2 mb-8 overflow-x-auto pb-2 no-scrollbar" }, days.map(d => m("button", {
-                    class: `flex-shrink-0 px-6 py-3 rounded-2xl border transition-all ${State.selectedDate === d.date ? 'bg-slate-900 border-slate-900 text-white shadow-lg' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-400'}`,
-                    onclick: () => Actions.selectDate(d.date)
-                }, [
-                    m("div", { class: "text-[10px] uppercase font-bold opacity-60" }, d.name),
-                    m("div", { class: "text-lg font-black" }, d.date.split('/')[0])
-                ])));
+                const showButtons = State.currentView === 'public' || State.currentView === 'booking';
+                return m("header", { class: "hero-container" }, [
+                    m("img", { src: State.heroImage, class: "hero-image animate-fade-up" }),
+                    m("div", { class: "hero-content animate-fade-up" }, [
+                        m("span", { class: "inline-block px-3 py-1 bg-green-500 text-slate-900 text-[10px] font-black rounded-full mb-4" }, "COMUNIDAD PADEL PRO"),
+                        m("h1", { class: "text-4xl md:text-6xl font-black mb-4 tracking-tight" }, "Juguemos al Padel"),
+                        m("p", { class: "text-slate-200 text-sm md:text-lg max-w-xl mx-auto font-medium mb-8" }, "Reserva las mejores pistas panorámicas en segundos o únete a partidas abiertas."),
+                        
+                        showButtons && m("div", { class: "flex flex-col sm:flex-row justify-center gap-4" }, [
+                            State.isLogged 
+                                ? m("button", { class: "bg-green-500 hover:bg-green-400 px-8 py-4 rounded-2xl font-black text-slate-900 transition shadow-xl transform hover:scale-105", onclick: Actions.scrollToBooking }, "VER MIS RESERVAS")
+                                : m("button", { class: "bg-green-500 hover:bg-green-400 px-8 py-4 rounded-2xl font-black text-slate-900 transition shadow-xl transform hover:scale-105", onclick: Actions.login }, "EMPEZAR AHORA"),
+                            m("button", { class: "bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 px-8 py-4 rounded-2xl font-black transition", onclick: Actions.scrollToBooking }, "VER PISTAS")
+                        ])
+                    ])
+                ]);
             }
         };
 
-        const TimeSelector = {
-            view: () => m("div", { class: "flex gap-3 mb-8 overflow-x-auto pb-2 no-scrollbar" }, HOURS.map(h => m("button", {
-                class: `px-6 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap ${State.selectedTime === h ? 'bg-green-500 text-slate-900 shadow-md' : 'bg-white border text-slate-500 hover:border-green-500'}`,
-                onclick: () => State.selectedTime = h
-            }, h)))
+        const Calendar = {
+            view: () => {
+                const firstDay = new Date(State.viewYear, State.viewMonth, 1).getDay();
+                const daysInMonth = new Date(State.viewYear, State.viewMonth + 1, 0).getDate();
+                const blanks = Array(firstDay === 0 ? 6 : firstDay - 1).fill(null);
+                const days = Array.from({length: daysInMonth}, (_, i) => i + 1);
+
+                return m("div", { class: "bg-white p-5 rounded-[32px] border border-slate-100 shadow-sm mb-6" }, [
+                    m("div", { class: "flex justify-between items-center mb-5" }, [
+                        m("div", [
+                            m("p", { class: "text-[9px] font-black text-green-500 uppercase tracking-widest mb-0.5" }, "Calendario"),
+                            m("h3", { class: "text-base font-black text-slate-800" }, `${MONTHS[State.viewMonth]} ${State.viewYear}`)
+                        ]),
+                        m("div", { class: "flex gap-1" }, [
+                            m("button", { class: "w-8 h-8 flex items-center justify-center hover:bg-slate-50 rounded-xl transition", onclick: () => Actions.changeMonth(-1) }, "‹"),
+                            m("button", { class: "w-8 h-8 flex items-center justify-center hover:bg-slate-50 rounded-xl transition", onclick: () => Actions.changeMonth(1) }, "›")
+                        ])
+                    ]),
+                    m("div", { class: "calendar-grid text-[10px] font-bold text-slate-300 mb-2 text-center" }, 
+                        ["L", "M", "X", "J", "V", "S", "D"].map(d => m("div", d))
+                    ),
+                    m("div", { class: "calendar-grid" }, [
+                        ...blanks.map(() => m("div")),
+                        ...days.map(d => {
+                            const dateStr = formatDate(new Date(State.viewYear, State.viewMonth, d));
+                            const isSelected = State.selectedDate === dateStr;
+                            const hasData = State.data[dateStr] && State.data[dateStr].length > 0;
+                            return m("button", {
+                                class: `day-cell w-full rounded-2xl flex items-center justify-center text-xs font-bold transition-all relative ${isSelected ? 'bg-green-500 text-slate-900 shadow-lg shadow-green-100 scale-105 z-10' : 'hover:bg-slate-50 text-slate-600'}`,
+                                onclick: () => State.selectedDate = dateStr
+                            }, [
+                                m("span", d),
+                                hasData && m("div", { class: `w-1.5 h-1.5 rounded-full absolute bottom-2 ${isSelected ? 'bg-slate-900' : 'bg-green-500'}` })
+                            ]);
+                        })
+                    ])
+                ]);
+            }
         };
 
         const CourtGrid = {
-            view: () => m("div", { id: "browse-courts", class: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" }, State.courts.map(c => {
-                const dayMatches = State.data[State.selectedDate] || [];
-                const match = dayMatches.find(m => m.courtId === c.id && m.time === State.selectedTime);
-                const isFull = match?.players.length >= 4;
-                const userIn = match?.players.includes("Carlos P.");
+            view: () => m("div", { class: "grid grid-cols-1 sm:grid-cols-2 gap-4" }, 
+                State.courts.map(c => {
+                    const match = (State.data[State.selectedDate] || []).find(m => m.courtId === c.id && m.time === State.selectedTime);
+                    const isFull = match?.players.length >= 4;
+                    const userIn = match?.players.includes("Carlos P.");
+                    const label = isFull ? "CERRADO" : (match?.type === 'private' ? "PRIVADO" : "ABIERTO");
 
-                return m("div", { class: "bg-white rounded-[20px] shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden group" }, [
-                    m("div", { class: "court-card-img", style: `background-image: url(${c.img})` }, [
-                        m("div", { class: "p-3 flex justify-end" }, m("span", { class: "bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-black shadow-sm" }, c.price))
-                    ]),
-                    m("div", { class: "p-4" }, [
-                        m("div", { class: "flex justify-between items-start mb-2" }, [
-                            m("div", [
-                                m("h4", { class: "font-bold text-slate-800 text-sm line-clamp-1" }, c.name),
-                                m("span", { class: "text-[11px] text-slate-400 font-bold uppercase tracking-wider" }, c.type)
-                            ])
-                        ]),
-                        match ? m("div", { class: "mb-4" }, [
-                            m("div", { class: "flex justify-between text-[10px] font-bold mb-1" }, [
-                                m("span", { class: match.type === 'private' ? 'text-red-500' : 'text-amber-500' }, match.type === 'private' ? "PARTIDA PRIVADA" : "PARTIDA ABIERTA"),
-                                m("span", `${match.players.length}/4`)
+                    return m("div", { class: "bg-white rounded-3xl border border-slate-100 overflow-hidden flex shadow-sm hover:shadow-md transition-all group" }, [
+                        m("div", { class: "w-32 bg-cover bg-center", style: `background-image: url(${c.img})` }),
+                        m("div", { class: "p-4 flex-1" }, [
+                            m("h4", { class: "font-black text-slate-800 text-xs mb-1 truncate" }, c.name),
+                            m("div", { class: "flex justify-between items-center mb-3" }, [
+                                m("span", { class: "text-[9px] text-slate-400 font-bold uppercase" }, c.type),
+                                m("span", { class: "text-[10px] font-black text-green-600" }, c.price)
                             ]),
-                            m("div", { class: "w-full bg-slate-100 h-1.5 rounded-full overflow-hidden" }, 
-                                m("div", { class: "bg-green-500 h-full transition-all", style: `width: ${(match.players.length/4)*100}%` })
-                            )
-                        ]) : m("div", { class: "mb-4 flex items-center gap-1" }, [
-                            m("div", { class: "w-2 h-2 rounded-full bg-green-500 animate-pulse" }),
-                            m("span", { class: "text-[10px] font-black text-green-600" }, "DISPONIBLE AHORA")
-                        ]),
-                        userIn ? m("button", { class: "w-full py-3 rounded-xl bg-slate-100 text-slate-400 text-xs font-bold cursor-default" }, "YA ESTÁS INSCRITO") :
-                        m("button", { 
-                            class: `w-full py-3 rounded-xl text-xs font-bold transition transform active:scale-95 ${match ? 'bg-slate-900 text-white hover:bg-slate-800' : 'bg-green-500 text-slate-900 hover:bg-green-400 shadow-sm'}`,
-                            onclick: () => Actions.openBooking(c.id, State.selectedTime)
-                        }, isFull ? "COMPLETA" : (match ? "UNIRSE" : "RESERVAR PISTA"))
-                    ])
-                ]);
-            }))
+                            match && m("div", { class: "mb-3" }, [
+                                m("div", { class: "flex justify-between text-[8px] font-black mb-1" }, [
+                                    m("span", { class: isFull ? 'text-slate-400' : (match.type === 'private' ? 'text-red-400' : 'text-amber-500') }, label),
+                                    m("span", { class: "text-slate-400" }, `${match.players.length}/4`)
+                                ]),
+                                m("div", { class: "w-full bg-slate-50 h-1 rounded-full overflow-hidden" }, 
+                                    m("div", { class: isFull ? 'bg-slate-300' : 'bg-green-500', style: `width: ${(match.players.length/4)*100}%` })
+                                )
+                            ]),
+                            m("button", { 
+                                class: `w-full py-2.5 rounded-xl text-[10px] font-black transition ${userIn ? 'bg-slate-100 text-slate-400' : (isFull ? 'bg-slate-50 text-slate-300' : (match ? 'bg-slate-900 text-white shadow-lg' : 'bg-green-500 text-slate-900'))}`,
+                                onclick: () => !userIn && !isFull && Actions.openBooking(c.id, State.selectedTime)
+                            }, userIn ? "INSCRITO" : (isFull ? "LLENO" : (match ? "UNIRSE" : "RESERVAR")))
+                        ])
+                    ]);
+                })
+            )
         };
 
         const MatchmakingView = {
             view: () => {
                 const openMatches = [];
                 Object.keys(State.data).forEach(date => {
-                    State.data[date].forEach(m => {
-                        if (m.type === "public" || m.creator === "Carlos P.") openMatches.push({ ...m, date });
-                    });
+                    State.data[date].forEach(m => { if (m.type === "public") openMatches.push({ ...m, date }); });
                 });
 
-                return m("div", { class: "max-w-4xl mx-auto" }, [
-                    m("h2", { class: "text-2xl font-black text-slate-800 mb-6" }, "Partidas en tu Club"),
-                    openMatches.length === 0 ? m("div", { class: "text-center py-20 bg-white rounded-3xl border-2 border-dashed" }, "No hay partidas activas.") :
+                return m("div", { class: "flex-1 animate-fade-up" }, [
+                    m("h2", { class: "text-2xl font-black text-slate-800 mb-6" }, "Partidas Abiertas"),
+                    openMatches.length === 0 ? m("div", { class: "py-20 text-center bg-white rounded-3xl" }, "No hay partidas buscando jugadores.") :
                     m("div", { class: "grid gap-4" }, openMatches.map(match => {
                         const court = State.courts.find(c => c.id === match.courtId);
-                        const isMine = match.creator === "Carlos P.";
-                        return m("div", { class: "bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4" }, [
-                            m("div", { class: "flex items-center gap-4 w-full" }, [
-                                m("div", { class: "w-14 h-14 bg-slate-100 rounded-2xl flex flex-col items-center justify-center border" }, [
-                                    m("span", { class: "text-xs font-bold text-slate-400 uppercase" }, match.date.split('/')[1]),
-                                    m("span", { class: "text-xl font-black text-slate-800" }, match.date.split('/')[0])
+                        const isFull = match.players.length >= 4;
+                        return m("div", { class: "bg-white p-5 rounded-3xl shadow-sm flex items-center justify-between border border-slate-50" }, [
+                            m("div", { class: "flex gap-4 items-center" }, [
+                                m("div", { class: "w-12 h-12 rounded-2xl bg-slate-50 flex flex-col items-center justify-center font-black" }, [
+                                    m("span", { class: "text-[10px] text-slate-400" }, match.date.split('/')[1]),
+                                    m("span", { class: "text-sm" }, match.date.split('/')[0])
                                 ]),
                                 m("div", [
-                                    m("div", { class: "flex items-center gap-2" }, [
-                                        m("span", { class: "text-[10px] font-black px-2 py-0.5 rounded bg-amber-100 text-amber-600" }, "BUSCANDO JUGADORES"),
-                                        isMine && m("span", { class: "text-[10px] font-black px-2 py-0.5 rounded bg-blue-100 text-blue-600" }, "CREADA POR TI")
-                                    ]),
-                                    m("h3", { class: "font-black text-slate-800" }, `${match.time}h - ${court.name}`),
-                                    m("p", { class: "text-xs text-slate-500 font-semibold" }, `Faltan ${4 - match.players.length} jugadores · Nivel: Todos`)
+                                    m("p", { class: "text-xs font-black" }, `${match.time}H - ${court.name}`),
+                                    m("p", { class: "text-[10px] font-bold text-slate-400" }, isFull ? "PARTIDA CERRADA" : `${match.players.length}/4 jugadores inscritos`)
                                 ])
                             ]),
                             m("button", { 
-                                class: `w-full sm:w-auto px-8 py-3 rounded-xl font-bold transition ${isMine ? 'bg-slate-100 text-slate-500' : 'bg-green-500 text-slate-900 shadow-lg'}`,
-                                onclick: () => isMine ? (State.currentView = 'agenda') : Actions.openBooking(match.courtId, match.time, match.date)
-                            }, isMine ? "Gestionar" : "Unirse")
+                                class: `px-6 py-2 rounded-xl text-[10px] font-black shadow-lg ${isFull ? 'bg-slate-100 text-slate-400' : 'bg-green-500 text-slate-900 shadow-green-100'}`, 
+                                disabled: isFull,
+                                onclick: () => Actions.openBooking(match.courtId, match.time, match.date) 
+                            }, isFull ? "CERRADO" : "UNIRSE")
                         ]);
                     }))
                 ]);
@@ -274,27 +387,30 @@
             view: () => {
                 const myMatches = [];
                 Object.keys(State.data).forEach(date => {
-                    State.data[date].forEach(m => { if (m.players.includes("Carlos P.")) myMatches.push({ ...m, date }); });
+                    State.data[date].forEach((m, idx) => { 
+                        if (m.players.includes("Carlos P.")) myMatches.push({ ...m, date, originalIndex: idx }); 
+                    });
                 });
 
-                return m("div", { class: "max-w-4xl mx-auto" }, [
-                    m("h2", { class: "text-2xl font-black text-slate-800 mb-6" }, "Mis Próximas Reservas"),
-                    myMatches.length === 0 ? m("div", { class: "text-center py-20 bg-white rounded-3xl" }, "Aún no tienes partidos programados.") :
+                return m("div", { class: "flex-1 animate-fade-up" }, [
+                    m("h2", { class: "text-2xl font-black text-slate-800 mb-6" }, "Mi Agenda"),
+                    myMatches.length === 0 ? m("div", { class: "py-20 text-center bg-white rounded-3xl" }, "No tienes reservas próximamente.") :
                     m("div", { class: "grid gap-4" }, myMatches.map(match => {
                         const court = State.courts.find(c => c.id === match.courtId);
-                        return m("div", { class: "bg-white p-6 rounded-3xl shadow-sm border-l-[8px] border-green-500 flex flex-col sm:flex-row justify-between items-center" }, [
+                        return m("div", { class: "bg-white p-5 rounded-3xl shadow-sm border-l-4 border-green-500 flex justify-between items-center hover:shadow-md transition" }, [
                             m("div", [
-                                m("div", { class: "text-sm font-black text-slate-800" }, `${match.date} a las ${match.time}`),
-                                m("div", { class: "text-slate-400 text-xs font-bold uppercase mb-3" }, court.name),
-                                match.inviteCode && m("div", { class: "inline-flex items-center gap-2 bg-slate-900 text-white px-3 py-1.5 rounded-lg text-[11px] font-mono" }, [
-                                    m("span", "INVITACIÓN:"),
-                                    m("span", { class: "font-bold text-green-400" }, match.inviteCode)
-                                ])
+                                m("div", { class: "flex items-center gap-2 mb-1" }, [
+                                    m("p", { class: "text-xs font-black text-slate-900" }, `${match.date} - ${match.time}H`),
+                                    match.inviteCode && m("span", { class: "text-[8px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500 font-black tracking-widest" }, `ID: ${match.inviteCode}`)
+                                ]),
+                                m("p", { class: "text-[10px] font-bold text-slate-400 uppercase" }, court.name)
                             ]),
-                            m("div", { class: "flex gap-3 mt-4 sm:mt-0" }, [
-                                m("button", { class: "px-4 py-2 text-xs font-bold text-slate-400 hover:text-red-500 transition" }, "Cancelar"),
-                                m("button", { class: "bg-slate-900 text-white px-6 py-2 rounded-xl text-xs font-bold" }, "Compartir")
-                            ])
+                            m("button", { 
+                                class: "bg-red-50 text-red-500 hover:bg-red-500 hover:text-white px-4 py-2 rounded-xl text-[10px] font-black transition-all",
+                                onclick: () => {
+                                    State.confirmModal = { show: true, date: match.date, matchIndex: match.originalIndex };
+                                }
+                            }, "CANCELAR")
                         ]);
                     }))
                 ]);
@@ -302,31 +418,52 @@
         };
 
         const BookingModal = {
-            view: () => State.modal.show && m("div", { class: "fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4" }, [
-                m("div", { class: "bg-white w-full max-w-md rounded-[32px] overflow-hidden shadow-2xl" }, [
-                    m("div", { class: "bg-slate-900 p-6 text-white relative" }, [
-                        m("h3", { class: "text-xl font-black" }, "Confirma tu posición"),
-                        m("p", { class: "text-xs text-slate-400 font-bold" }, `${State.modal.date} · ${State.modal.time}`),
-                        m("button", { class: "absolute top-6 right-6 text-2xl opacity-50 hover:opacity-100", onclick: () => State.modal.show = false }, "×")
+            view: () => State.modal.show && m("div", { class: "fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4" }, [
+                m("div", { class: "bg-white w-full max-w-sm rounded-[40px] overflow-hidden shadow-2xl animate-fade-up" }, [
+                    m("div", { class: "bg-slate-900 p-8 text-white" }, [
+                        m("div", { class: "flex justify-between items-start" }, [
+                            m("div", [
+                                m("h3", { class: "text-xl font-black tracking-tight" }, State.modal.isJoining ? "Únete a la Partida" : "Configura tu Reserva"),
+                                m("p", { class: "text-[10px] text-slate-400 font-bold uppercase mt-1" }, `${State.modal.date} @ ${State.modal.time}H`)
+                            ]),
+                            m("button", { class: "text-slate-400 hover:text-white transition", onclick: () => State.modal.show = false }, "✕")
+                        ])
                     ]),
-                    m("div", { class: "p-8" }, [
-                        !State.modal.isJoining && m("div", { class: "flex items-center gap-3 mb-8 p-4 bg-slate-50 rounded-2xl" }, [
-                            m("input[type=checkbox]", { class: "w-5 h-5 accent-green-500", id: "priv", onchange: e => State.modal.isPrivate = e.target.checked }),
-                            m("label[for=priv]", { class: "text-sm font-bold text-slate-700" }, "Hacer esta reserva privada")
+                    m("div", { class: "p-8 text-center" }, [
+                        !State.modal.isJoining && m("div", { class: "flex items-center justify-between mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-100" }, [
+                            m("div", { class: "text-left" }, [
+                                m("p", { class: "text-xs font-black text-slate-800" }, "Partida Privada"),
+                                m("p", { class: "text-[9px] text-slate-400 font-bold" }, "Solo con código de invitación")
+                            ]),
+                            m("label", { class: "toggle-switch" }, [
+                                m("input", { 
+                                    type: "checkbox", 
+                                    checked: State.modal.isPrivate, 
+                                    onchange: (e) => State.modal.isPrivate = e.target.checked 
+                                }),
+                                m("span", { class: "slider" })
+                            ])
                         ]),
-                        m("div", { class: "relative w-full aspect-[2/3] max-w-[200px] mx-auto bg-green-600 rounded-lg border-2 border-white court-svg mb-6" }, [
-                            m("div", { class: "absolute inset-x-0 top-1/2 h-0.5 bg-white/40" }),
-                            m("div", { class: "absolute inset-y-0 left-1/2 w-0.5 bg-white/40" }),
+
+                        State.modal.isPrivate && m("div", { class: "mb-6 p-3 bg-green-50 rounded-2xl border border-dashed border-green-200" }, [
+                            m("p", { class: "text-[9px] font-black text-green-600 uppercase mb-1" }, "Código de Invitación"),
+                            m("p", { class: "text-lg font-black tracking-widest text-slate-800" }, State.modal.generatedCode)
+                        ]),
+
+                        m("p", { class: "text-[10px] font-black text-slate-400 uppercase mb-4" }, "Elige tu posición"),
+                        m("div", { class: "relative w-full aspect-[2/3] max-w-[160px] mx-auto bg-green-600 rounded-xl border-2 border-white/40 shadow-xl mb-8" }, [
+                            m("div", { class: "absolute inset-x-0 top-1/2 h-0.5 bg-white/20" }),
+                            m("div", { class: "absolute inset-y-0 left-1/2 w-0.5 bg-white/20" }),
                             [
-                                { id: 0, l: "Revés Izq", t: "15%", lf: "10%" },
-                                { id: 1, l: "Drive Izq", t: "70%", lf: "10%" },
-                                { id: 2, l: "Revés Der", t: "15%", lf: "55%" },
-                                { id: 3, l: "Drive Der", t: "70%", lf: "55%" }
+                                { id: 0, l: "Izq", t: "15%", lf: "12%" },
+                                { id: 1, l: "Izq", t: "70%", lf: "12%" },
+                                { id: 2, l: "Der", t: "15%", lf: "53%" },
+                                { id: 3, l: "Der", t: "70%", lf: "53%" }
                             ].map(p => {
                                 const occ = State.modal.occupiedPositions.includes(p.id);
                                 const sel = State.modal.selectedPos === p.id;
                                 return m("button", {
-                                    class: `absolute w-[35%] h-[15%] rounded-lg text-[10px] font-black transition-all ${occ ? 'bg-slate-800 text-white/20' : (sel ? 'bg-white text-green-600 scale-110 shadow-lg' : 'bg-white/90 text-slate-800')}`,
+                                    class: `absolute w-[35%] h-[15%] rounded-xl text-[9px] font-black transition-all ${occ ? 'bg-slate-800 text-white/10' : (sel ? 'bg-white text-green-600 scale-110 shadow-lg' : 'bg-white/90 text-slate-800 hover:bg-white')}`,
                                     style: `top: ${p.t}; left: ${p.lf}`,
                                     disabled: occ,
                                     onclick: () => State.modal.selectedPos = p.id
@@ -334,7 +471,7 @@
                             })
                         ]),
                         m("button", { 
-                            class: `w-full py-4 rounded-2xl font-black transition-all ${State.modal.selectedPos === null ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-green-500 text-slate-900 shadow-lg hover:bg-green-400'}`,
+                            class: `w-full py-4 rounded-2xl text-xs font-black transition-all ${State.modal.selectedPos === null ? 'bg-slate-100 text-slate-300' : 'bg-green-500 text-slate-900 shadow-xl shadow-green-100'}`,
                             disabled: State.modal.selectedPos === null,
                             onclick: Actions.confirmMatch
                         }, "CONFIRMAR RESERVA")
@@ -343,39 +480,74 @@
             ])
         };
 
+        const ConfirmModal = {
+            view: () => State.confirmModal.show && m("div", { class: "fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[150] flex items-center justify-center p-4" }, [
+                m("div", { class: "bg-white w-full max-w-xs rounded-[32px] p-6 text-center animate-fade-up shadow-2xl" }, [
+                    m("div", { class: "w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4" }, "!"),
+                    m("h3", { class: "text-lg font-black text-slate-800 mb-2" }, "¿Cancelar reserva?"),
+                    m("p", { class: "text-xs text-slate-400 font-medium mb-6" }, "Esta acción eliminará tu plaza en la pista. ¿Estás seguro?"),
+                    m("div", { class: "flex gap-3" }, [
+                        m("button", { 
+                            class: "flex-1 py-3 rounded-xl bg-slate-100 text-slate-600 text-xs font-black hover:bg-slate-200 transition",
+                            onclick: () => State.confirmModal.show = false
+                        }, "VOLVER"),
+                        m("button", { 
+                            class: "flex-1 py-3 rounded-xl bg-red-500 text-white text-xs font-black hover:bg-red-600 transition shadow-lg shadow-red-100",
+                            onclick: () => Actions.cancelBooking(State.confirmModal.date, State.confirmModal.matchIndex)
+                        }, "SÍ, CANCELAR")
+                    ])
+                ])
+            ])
+        };
+
         const MainLayout = {
             view: () => m("div", [
                 m(Navbar),
-                m("main", { class: "pb-20" }, [
-                    !State.isLogged && m(PublicHero),
-                    m("div", { class: "max-w-6xl mx-auto px-4 mt-8" }, [
-                        State.currentView === 'public' && [
-                            m("div", { class: "flex items-center justify-between mb-6" }, [
-                                m("h2", { class: "text-2xl font-black text-slate-800" }, "Pistas Libres"),
-                                m("span", { class: "text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full" }, "8 Pistas Disponibles")
-                            ]),
-                            m(CalendarWidget),
-                            m(TimeSelector),
-                            m(CourtGrid)
-                        ],
-                        State.currentView === 'booking' && [
-                            m("div", { class: "flex items-center justify-between mb-6" }, [
-                                m("h2", { class: "text-2xl font-black text-slate-800" }, "Reserva tu partida"),
-                                m("div", { class: "flex gap-2" }, [
-                                    m("span", { class: "text-xs font-bold text-slate-400" }, "60min"),
-                                    m("span", { class: "text-xs font-black text-green-500 underline" }, "Cambiar a 90min")
+                m(Hero),
+                m("main", { id: "booking-section", class: "max-w-6xl mx-auto p-4 py-12 flex flex-col md:flex-row gap-8" }, [
+                    (State.currentView === 'public' || State.currentView === 'booking') && m("aside", { class: "w-full md:w-80 flex-shrink-0" }, [
+                        m(Calendar),
+                        
+                        State.isLogged && m("div", { class: "bg-slate-900 p-6 rounded-[32px] mb-6 shadow-xl" }, [
+                            m("p", { class: "text-[9px] font-black text-green-500 uppercase tracking-widest mb-3" }, "Unirse con Código"),
+                            m("div", { class: "flex gap-2" }, [
+                                m("input", { 
+                                    class: "flex-1 bg-white/10 border border-white/10 rounded-xl px-4 py-2 text-white text-xs font-bold focus:outline-none focus:border-green-500 uppercase",
+                                    placeholder: "CÓDIGO",
+                                    value: State.inviteInput,
+                                    oninput: (e) => State.inviteInput = e.target.value
+                                }),
+                                m("button", { 
+                                    class: "bg-green-500 p-2 rounded-xl text-slate-900",
+                                    onclick: Actions.joinByCode
+                                }, "→")
+                            ])
+                        ]),
+
+                        m("p", { class: "text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 pl-1" }, "Seleccionar Hora"),
+                        m("div", { class: "grid grid-cols-4 gap-2" }, HOURS.map(h => m("button", {
+                            class: `py-3 rounded-2xl text-[10px] font-bold border transition-all ${State.selectedTime === h ? 'bg-slate-900 text-white border-slate-900 shadow-xl' : 'bg-white text-slate-500 border-slate-100 hover:border-green-200'}`,
+                            onclick: () => State.selectedTime = h
+                        }, h)))
+                    ]),
+                    
+                    (State.currentView === 'public' || State.currentView === 'booking') ? m("section", { class: "flex-1" }, [
+                        m("div", { class: "flex items-center justify-between mb-8" }, [
+                            m("div", { class: "flex items-center gap-4" }, [
+                                m("div", { class: "w-1 h-8 bg-green-500 rounded-full" }),
+                                m("div", [
+                                    m("h2", { class: "text-2xl font-black text-slate-800 tracking-tight" }, `Pistas Disponibles`),
+                                    m("p", { class: "text-[10px] text-slate-400 font-bold uppercase" }, `Viendo resultados para el ${State.selectedDate}`)
                                 ])
                             ]),
-                            m(CalendarWidget),
-                            m(TimeSelector),
-                            m(CourtGrid)
-                        ],
-                        State.currentView === 'matchmaking' && m(MatchmakingView),
-                        State.currentView === 'agenda' && m(AgendaView)
-                    ])
+                            m("span", { class: "text-[10px] font-black text-green-500 bg-green-50 px-3 py-1.5 rounded-full" }, `${State.selectedTime}H`)
+                        ]),
+                        m(CourtGrid)
+                    ]) : (State.currentView === 'matchmaking' ? m(MatchmakingView) : m(AgendaView))
                 ]),
                 m(BookingModal),
-                m("div", { class: `fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold shadow-2xl transition-all z-[200] ${State.toast.show ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'}` }, State.toast.message)
+                m(ConfirmModal),
+                m("div", { class: `fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-4 rounded-2xl text-xs font-bold shadow-2xl transition-all z-[200] ${State.toast.show ? 'translate-y-0 opacity-100' : 'translate-y-24 opacity-0'}` }, State.toast.message)
             ])
         };
 

@@ -1,1008 +1,385 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Padel Club - Gestión Integral</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Padel Pro - Reserva tu pista</title>
     <script src="https://unpkg.com/mithril/mithril.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-      :root {
-        --primary-blue: #00567a;
-        --secondary-green: #2ecc71;
-        --bg-gray: #f4f7f6;
-      }
-      body {
-        background-color: var(--bg-gray);
-        font-family:
-          "Segoe UI",
-          system-ui,
-          -apple-system,
-          sans-serif;
-      }
-      .btn-primary {
-        background-color: var(--primary-blue);
-        color: white;
-        transition: all 0.2s;
-      }
-      .btn-primary:hover {
-        opacity: 0.9;
-        transform: translateY(-1px);
-      }
-
-      /* Estética de Pista */
-      .padel-court-visual {
-        aspect-ratio: 1/1.5;
-        background: #2a82a4;
-        border: 4px solid white;
-        position: relative;
-        border-radius: 8px;
-        box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.2);
-      }
-      .court-line-center {
-        position: absolute;
-        left: 50%;
-        top: 0;
-        bottom: 0;
-        width: 2px;
-        background: rgba(255, 255, 255, 0.8);
-      }
-      .court-line-service {
-        position: absolute;
-        top: 50%;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: rgba(255, 255, 255, 0.8);
-      }
-
-      .position-btn {
-        position: absolute;
-        width: 38%;
-        height: 18%;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        font-size: 0.7rem;
-        transition: all 0.2s;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      }
-      .position-btn.active {
-        border: 3px solid #ffeb3b;
-        background-color: #fffde7 !important;
-        transform: scale(1.05);
-      }
-
-      .tab-active {
-        border-bottom: 3px solid var(--primary-blue);
-        color: var(--primary-blue);
-        font-weight: bold;
-      }
-
-      .toast {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: #1e293b;
-        color: white;
-        padding: 14px 28px;
-        border-radius: 12px;
-        z-index: 100;
-        opacity: 0;
-        transform: translateY(20px);
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      }
-      .toast.show {
-        opacity: 1;
-        transform: translateY(0);
-      }
-
-      /* Calendario */
-      .calendar-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 2px;
-      }
-      .calendar-day-header {
-        text-align: center;
-        font-size: 0.7rem;
-        font-weight: 800;
-        color: #94a3b8;
-        padding: 10px 0;
-        text-transform: uppercase;
-      }
-      .calendar-day-cell {
-        aspect-ratio: 1.2/1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        border-radius: 10px;
-        transition: all 0.2s;
-        position: relative;
-        font-size: 0.9rem;
-      }
-      .calendar-day-cell:hover:not(.empty-cell) {
-        background-color: #e2e8f0;
-      }
-      .calendar-day-selected {
-        background-color: var(--primary-blue) !important;
-        color: white !important;
-        font-weight: bold;
-        box-shadow: 0 4px 12px rgba(0, 86, 122, 0.3);
-      }
-      .has-bookings::after {
-        content: "";
-        position: absolute;
-        bottom: 6px;
-        width: 5px;
-        height: 5px;
-        background-color: var(--secondary-green);
-        border-radius: 50%;
-      }
+        :root {
+            --padel-green: #2ecc71;
+            --padel-blue: #0f172a;
+            --padel-accent: #3b82f6;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+        }
+        .hero-bg {
+            background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.7)), 
+                        url('https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+        .court-card-img {
+            height: 120px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 12px 12px 0 0;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { height: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        .tab-active {
+            border-bottom: 3px solid var(--padel-green);
+            color: var(--padel-green) !important;
+        }
+        .court-svg { filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <div id="app"></div>
 
     <script>
-      // --- UTILIDADES ---
-      const formatDate = (date) => {
-        return date.toLocaleDateString("es-ES", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        });
-      };
-      const generateInviteCode = () =>
-        Math.random().toString(36).substring(2, 8).toUpperCase();
+        // --- DATA & MOCK IMAGES ---
+        const COURT_IMAGES = [
+            'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?q=80&w=2070&auto=format&fit=crop', // Central
+            'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=2070&auto=format&fit=crop', // Pista 2
+            'https://images.unsplash.com/photo-1599423300746-b62533397364?q=80&w=2070&auto=format&fit=crop', // Pista 3
+        ];
 
-      // --- ESTADO GLOBAL ---
-      const State = {
-        currentView: "pistas",
-        selectedDate: formatDate(new Date()),
-        selectedTime: "11:00",
-        viewDate: new Date(),
-        data: {
-          [formatDate(new Date())]: [
-            {
-              courtId: 2,
-              time: "11:00",
-              type: "public",
-              players: ["Dani L.", "Marta G."],
-              positions: [0, 2],
-              inviteCode: null,
-            },
-          ],
-        },
-        courts: [
-          { id: 1, name: "Pista Central (Cristal)", price: "12.00 €" },
-          { id: 2, name: "Pista 2 (Muro)", price: "10.00 €" },
-          { id: 3, name: "Pista 3 (Panorámica)", price: "14.00 €" },
-          { id: 4, name: "Pista 4 (Individual)", price: "8.00 €" },
-        ],
-        modal: {
-          show: false,
-          courtId: null,
-          time: "",
-          isPrivate: false,
-          selectedPos: null,
-          occupiedPositions: [],
-          date: "",
-          inviteCode: null,
-          inputCode: "", // Para unirse a privadas
-        },
-        toast: { show: false, message: "" },
-      };
+        const formatDate = (date) => date.toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" });
+        const generateInviteCode = () => Math.random().toString(36).substring(2, 8).toUpperCase();
 
-      const HOURS = [
-        "09:00",
-        "10:30",
-        "12:00",
-        "16:30",
-        "18:00",
-        "19:30",
-        "21:00",
-      ];
-
-      // --- ACCIONES ---
-      const Actions = {
-        showToast: (msg) => {
-          State.toast.message = msg;
-          State.toast.show = true;
-          m.redraw();
-          setTimeout(() => {
-            State.toast.show = false;
-            m.redraw();
-          }, 3000);
-        },
-        changeMonth: (offset) => {
-          const newDate = new Date(State.viewDate);
-          newDate.setMonth(newDate.getMonth() + offset);
-          State.viewDate = newDate;
-        },
-        selectDate: (dateStr) => {
-          State.selectedDate = dateStr;
-        },
-
-        openBooking: (courtId, time, date = State.selectedDate) => {
-          const dayMatches = State.data[date] || [];
-          const match = dayMatches.find(
-            (m) => m.courtId === courtId && m.time === time,
-          );
-
-          if (match && match.players.includes("Tú")) {
-            return Actions.showToast("Ya estás inscrito en esta partida.");
-          }
-
-          State.modal = {
-            show: true,
-            courtId,
-            time,
-            date,
-            isPrivate: match ? match.type === "private" : false,
-            selectedPos: null,
-            occupiedPositions: match ? match.positions : [],
-            inviteCode: match ? match.inviteCode : null,
-            inputCode: "",
-          };
-        },
-
-        confirmMatch: () => {
-          if (State.modal.selectedPos === null)
-            return Actions.showToast("Selecciona una posición en la pista");
-
-          // Validación de código para privadas
-          if (
-            State.modal.inviteCode &&
-            State.modal.inputCode !== State.modal.inviteCode
-          ) {
-            return Actions.showToast("Código de invitación incorrecto");
-          }
-
-          if (!State.data[State.modal.date]) State.data[State.modal.date] = [];
-          const dayMatches = State.data[State.modal.date];
-          const existing = dayMatches.find(
-            (m) =>
-              m.courtId === State.modal.courtId && m.time === State.modal.time,
-          );
-
-          if (existing) {
-            existing.players.push("Tú");
-            existing.positions.push(State.modal.selectedPos);
-            if (existing.players.length === 4)
-              Actions.showToast("¡Partida completa! Redirigiendo a pago...");
-          } else {
-            const code = State.modal.isPrivate ? generateInviteCode() : null;
-            dayMatches.push({
-              courtId: State.modal.courtId,
-              time: State.modal.time,
-              type: State.modal.isPrivate ? "private" : "public",
-              inviteCode: code,
-              players: ["Tú"],
-              positions: [State.modal.selectedPos],
-            });
-            if (code)
-              prompt("Copia tu código de invitación para tus amigos:", code);
-          }
-
-          State.modal.show = false;
-          Actions.showToast("Reserva realizada con éxito");
-        },
-
-        cancelReservation: (date, courtId, time) => {
-          const dayMatches = State.data[date];
-          if (!dayMatches) return;
-          const idx = dayMatches.findIndex(
-            (m) => m.courtId === courtId && m.time === time,
-          );
-          if (idx === -1) return;
-
-          const match = dayMatches[idx];
-          const pIdx = match.players.indexOf("Tú");
-          const posIdx = match.positions[pIdx];
-
-          match.players.splice(pIdx, 1);
-          match.positions.splice(match.positions.indexOf(posIdx), 1);
-
-          if (match.players.length === 0) dayMatches.splice(idx, 1);
-          Actions.showToast("Reserva cancelada");
-        },
-      };
-
-      // --- COMPONENTES ---
-
-      const Toast = {
-        view: () =>
-          m(
-            "div",
-            { class: `toast ${State.toast.show ? "show" : ""}` },
-            State.toast.message,
-          ),
-      };
-
-      const Calendar = {
-        getDaysInMonth: (year, month) => {
-          const date = new Date(year, month, 1);
-          const days = [];
-          let firstDay = date.getDay() - 1;
-          if (firstDay === -1) firstDay = 6;
-          for (let i = 0; i < firstDay; i++) days.push({ day: null });
-          while (date.getMonth() === month) {
-            days.push({
-              day: date.getDate(),
-              full: formatDate(new Date(date)),
-            });
-            date.setDate(date.getDate() + 1);
-          }
-          return days;
-        },
-        view: () => {
-          const year = State.viewDate.getFullYear();
-          const month = State.viewDate.getMonth();
-          const monthName = State.viewDate.toLocaleDateString("es-ES", {
-            month: "long",
-            year: "numeric",
-          });
-          const days = Calendar.getDaysInMonth(year, month);
-          return m(
-            "div",
-            { class: "bg-white rounded-2xl shadow-sm border p-5 mb-8" },
-            [
-              m("div", { class: "flex justify-between items-center mb-6" }, [
-                m(
-                  "h2",
-                  { class: "text-xl font-bold capitalize text-slate-800" },
-                  monthName,
-                ),
-                m("div", { class: "flex gap-2" }, [
-                  m(
-                    "button",
-                    {
-                      class: "p-2 hover:bg-slate-100 rounded-lg",
-                      onclick: () => Actions.changeMonth(-1),
-                    },
-                    "←",
-                  ),
-                  m(
-                    "button",
-                    {
-                      class: "p-2 hover:bg-slate-100 rounded-lg",
-                      onclick: () => Actions.changeMonth(1),
-                    },
-                    "→",
-                  ),
-                ]),
-              ]),
-              m("div", { class: "calendar-grid" }, [
-                ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"].map((d) =>
-                  m("div", { class: "calendar-day-header" }, d),
-                ),
-                days.map((d) => {
-                  if (!d.day)
-                    return m("div", { class: "calendar-day-cell empty-cell" });
-                  const isSelected = State.selectedDate === d.full;
-                  const hasBookings = State.data[d.full]?.length > 0;
-                  return m(
-                    "div",
-                    {
-                      class: `calendar-day-cell ${isSelected ? "calendar-day-selected" : "text-slate-600"} ${hasBookings ? "has-bookings" : ""}`,
-                      onclick: () => Actions.selectDate(d.full),
-                    },
-                    d.day,
-                  );
-                }),
-              ]),
-            ],
-          );
-        },
-      };
-
-      const BookingModal = {
-        view: () =>
-          State.modal.show &&
-          m(
-            "div",
-            {
-              class:
-                "fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4",
-            },
-            [
-              m(
-                "div",
-                {
-                  class:
-                    "bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200",
-                },
-                [
-                  m("div", { class: "bg-[#00567a] p-6 text-white" }, [
-                    m("div", { class: "flex justify-between items-center" }, [
-                      m(
-                        "h3",
-                        { class: "text-xl font-bold" },
-                        "Configura tu Puesto",
-                      ),
-                      
-                      m(
-                        "button",
-                        {
-                          class: "text-2xl",
-                          onclick: () => (State.modal.show = false),
-                        },
-                        "×",
-                      ),
-                    ]),
-                    m(
-                      "p",
-                      { class: "text-blue-100 text-sm mt-1" },
-                      `${State.modal.date} a las ${State.modal.time}`,
-                    ),
-                  ]),
-                  m("div", { class: "p-8" }, [
-                    // Si es unirse a privada
-                    State.modal.inviteCode
-                      ? m("div", { class: "mb-6" }, [
-                          m(
-                            "label",
-                            {
-                              class:
-                                "block text-sm font-bold text-slate-700 mb-2",
-                            },
-                            "Código de Invitación Requerido:",
-                          ),
-                          m("input.input", {
-                            class:
-                              "w-full p-3 border-2 border-blue-100 rounded-xl focus:border-blue-500 outline-none uppercase text-center font-mono tracking-widest",
-                            placeholder: "EJ: X82A1Z",
-                            oninput: (e) =>
-                              (State.modal.inputCode = e.target.value),
-                          }),
-                        ])
-                      : 
-                          m(
-                          "div",
-                          {
-                            class:
-                              "flex items-center mb-6 bg-slate-50 p-3 rounded-xl",
-                          },
-                          [
-                            m("input[type=checkbox]", {
-                              class:
-                                "w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500",
-                              id: "isPrivate",
-                              onchange: (e) =>
-                                (State.modal.isPrivate = e.target.checked),
-                            }),
-                            m(
-                              "label[for=isPrivate]",
-                              {
-                                class:
-                                  "ml-3 text-sm font-semibold text-slate-700",
-                              },
-                              "Hacer esta partida privada (solo con código)",
-                            ),
-                          ],
-                        ),
-                    m(
-                      "p",
-                      {
-                        class:
-                          "text-center text-xs text-slate-400 mb-4 uppercase tracking-wider font-bold",
-                      },
-                      "Selecciona tu posición",
-                    ),
-                    m(CourtPositionSelector),
-
-                    m(
-                      "button",
-                      {
-                        class: `w-full py-4 rounded-2xl mt-8 font-bold text-lg shadow-lg ${State.modal.selectedPos !== null ? "btn-primary" : "bg-slate-200 text-slate-400 cursor-not-allowed"}`,
-                        onclick: Actions.confirmMatch,
-                      },
-                      State.modal.inviteCode
-                        ? "Validar y Unirse"
-                        : "Reservar Ahora",
-                    ),
-                  ]),
+        // --- STATE ---
+        const State = {
+            isLogged: false,
+            currentView: "public", // public, booking, matchmaking, agenda
+            selectedDate: formatDate(new Date()),
+            selectedTime: "10:30",
+            viewDate: new Date(),
+            user: { name: "Carlos P.", id: "user_123" },
+            data: {
+                [formatDate(new Date())]: [
+                    { courtId: 2, time: "10:30", type: "public", players: ["Dani L.", "Marta G."], positions: [0, 2], inviteCode: null, creator: "Dani L." },
+                    { courtId: 1, time: "18:00", type: "private", players: ["Carlos P."], positions: [1], inviteCode: "XP99", creator: "Carlos P." }
                 ],
-              ),
-            ],
-          ),
-      };
-
-      const CourtPositionSelector = {
-        view: () => {
-          const positions = [
-            { id: 0, label: "Revés Izq", top: "15%", left: "6%" },
-            { id: 1, label: "Drive Izq", top: "68%", left: "6%" },
-            { id: 2, label: "Revés Der", top: "15%", left: "56%" },
-            { id: 3, label: "Drive Der", top: "68%", left: "56%" },
-          ];
-          return m("div", { class: "padel-court-visual mx-auto w-52" }, [
-            m("div", { class: "court-line-center" }),
-            m("div", { class: "court-line-service" }),
-            positions.map((p) =>
-              m(
-                "button",
-                {
-                  class: `position-btn ${State.modal.occupiedPositions.includes(p.id) ? "bg-slate-800/40 text-white/50 cursor-not-allowed" : State.modal.selectedPos === p.id ? "active bg-white text-blue-900" : "bg-white/90 text-slate-800 hover:bg-white"}`,
-                  style: `top: ${p.top}; left: ${p.left};`,
-                  disabled: State.modal.occupiedPositions.includes(p.id),
-                  onclick: () => (State.modal.selectedPos = p.id),
-                },
-                State.modal.occupiedPositions.includes(p.id) ? "✘" : p.label,
-              ),
-            ),
-          ]);
-        },
-      };
-
-      const PistasView = {
-        view: () =>
-          m(
-            "div",
-            { class: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" },
-            State.courts.map((c) => {
-              const match = (State.data[State.selectedDate] || []).find(
-                (m) => m.courtId === c.id && m.time === State.selectedTime,
-              );
-              const isFull = match?.players.length >= 4;
-              const hasMe = match?.players.includes("Tú");
-
-              return m(
-                "div",
-                {
-                  class:
-                    "bg-white rounded-2xl shadow-sm border border-slate-100 p-6 transition-all hover:shadow-md",
-                },
-                [
-                  m("div", { class: "flex justify-between items-start mb-4" }, [
-                    m("div", [
-                      m("h3", { class: "font-bold text-slate-800" }, c.name),
-                      m(
-                        "span",
-                        { class: "text-xs text-slate-400" },
-                        "90 min / Pista completa",
-                      ),
-                    ]),
-                    m(
-                      "span",
-                      {
-                        class:
-                          "text-blue-600 font-black text-sm bg-blue-50 px-2 py-1 rounded",
-                      },
-                      c.price,
-                    ),
-                  ]),
-
-                  match
-                    ? m("div", { class: "mb-6" }, [
-                        m(
-                          "div",
-                          {
-                            class:
-                              "flex justify-between text-xs font-bold mb-2",
-                          },
-                          [
-                            m(
-                              "span",
-                              {
-                                class:
-                                  match.type === "private"
-                                    ? "text-red-500"
-                                    : "text-orange-500",
-                              },
-                              match.type === "private"
-                                ? "🔒 PRIVADA"
-                                : "🌍 PÚBLICA",
-                            ),
-                            m(
-                              "span",
-                              { class: "text-slate-500" },
-                              `${match.players.length}/4 Jugadores`,
-                            ),
-                          ],
-                        ),
-                        m(
-                          "div",
-                          {
-                            class:
-                              "w-full bg-slate-100 h-2 rounded-full overflow-hidden",
-                          },
-                          m("div", {
-                            class: "bg-blue-500 h-full transition-all",
-                            style: `width: ${(match.players.length / 4) * 100}%`,
-                          }),
-                        ),
-                      ])
-                    : m(
-                        "div",
-                        {
-                          class:
-                            "mb-6 py-2 text-xs font-bold text-green-500 flex items-center",
-                        },
-                        [
-                          m("span", {
-                            class:
-                              "w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse",
-                          }),
-                          "PISTA DISPONIBLE",
-                        ],
-                      ),
-
-                  hasMe
-                    ? m(
-                        "button",
-                        {
-                          class:
-                            "w-full py-3 bg-blue-50 text-blue-600 rounded-xl font-bold text-xs cursor-default",
-                        },
-                        "ESTÁS INSCRITO",
-                      )
-                    : isFull
-                      ? m(
-                          "button",
-                          {
-                            class:
-                              "w-full py-3 bg-slate-100 text-slate-400 rounded-xl font-bold text-xs",
-                          },
-                          "PISTA COMPLETA",
-                        )
-                      : match?.type === "private"
-                        ? m(
-                            "button",
-                            {
-                              class:
-                                "w-full py-3 bg-red-50 text-red-500 rounded-xl font-bold text-xs hover:bg-red-100",
-                              onclick: () =>
-                                Actions.openBooking(c.id, State.selectedTime),
-                            },
-                            "UNIRSE CON CÓDIGO",
-                          )
-                        : m(
-                            "button",
-                            {
-                              class:
-                                "w-full py-3 border-2 border-[#2ecc71] text-[#2ecc71] hover:bg-[#2ecc71] hover:text-white rounded-xl font-black transition-all text-xs tracking-wider",
-                              onclick: () =>
-                                Actions.openBooking(c.id, State.selectedTime),
-                            },
-                            match ? "UNIRSE A PARTIDA" : "RESERVAR AHORA",
-                          ),
-                ],
-              );
-            }),
-          ),
-      };
-
-      const MatchmakingView = {
-        view: () => {
-          const allPublic = [];
-          Object.keys(State.data).forEach((date) => {
-            State.data[date].forEach((m) => {
-              if (
-                m.type === "public" &&
-                m.players.length < 4 &&
-                !m.players.includes("Tú")
-              )
-                allPublic.push({ ...m, date });
-            });
-          });
-
-          return m(
-            "div",
-            { class: "animate-in slide-in-from-bottom-4 duration-500" },
-            [
-              m(
-                "h2",
-                { class: "text-xl font-bold mb-6 text-slate-800" },
-                "Partidas Abiertas en el Club",
-              ),
-              allPublic.length === 0
-                ? m(
-                    "div",
-                    {
-                      class:
-                        "p-12 text-center bg-white rounded-3xl border-2 border-dashed border-slate-200",
-                    },
-                    [
-                      m("p", { class: "text-4xl mb-4" }, "🎾"),
-                      m(
-                        "p",
-                        { class: "text-slate-400 font-medium" },
-                        "No hay partidas públicas buscando jugadores ahora mismo.",
-                      ),
-                    ],
-                  )
-                : m(
-                    "div",
-                    { class: "grid gap-4" },
-                    allPublic.map((match) => {
-                      const court = State.courts.find(
-                        (c) => c.id === match.courtId,
-                      );
-                      return m(
-                        "div",
-                        {
-                          class:
-                            "bg-white p-6 rounded-2xl shadow-sm border flex flex-col md:flex-row justify-between items-center gap-4",
-                        },
-                        [
-                          m("div", [
-                            m(
-                              "div",
-                              {
-                                class:
-                                  "text-xs font-bold text-orange-500 uppercase tracking-widest mb-1",
-                              },
-                              "Matchmaking Activo",
-                            ),
-                            m(
-                              "div",
-                              { class: "font-black text-xl text-[#00567a]" },
-                              `${match.date} • ${match.time}`,
-                            ),
-                            m(
-                              "div",
-                              { class: "text-sm text-slate-500" },
-                              `${court.name} • ${match.players.length} jugadores esperando`,
-                            ),
-                          ]),
-                          m(
-                            "button",
-                            {
-                              class:
-                                "w-full md:w-auto px-10 py-4 btn-primary rounded-2xl font-black shadow-lg shadow-blue-900/20",
-                              onclick: () =>
-                                Actions.openBooking(
-                                  match.courtId,
-                                  match.time,
-                                  match.date,
-                                ),
-                            },
-                            "UNIRSE AHORA",
-                          ),
-                        ],
-                      );
-                    }),
-                  ),
-            ],
-          );
-        },
-      };
-
-      const MyBookingsView = {
-        view: () => {
-          const myMatches = [];
-          Object.keys(State.data).forEach((date) => {
-            State.data[date].forEach((m) => {
-              if (m.players.includes("Tú")) myMatches.push({ ...m, date });
-            });
-          });
-
-          return m(
-            "div",
-            { class: "animate-in slide-in-from-bottom-4 duration-500" },
-            [
-              m(
-                "h2",
-                { class: "text-xl font-bold mb-6 text-slate-800" },
-                "Mi Agenda de Juego",
-              ),
-              myMatches.length === 0
-                ? m(
-                    "div",
-                    {
-                      class:
-                        "p-12 text-center bg-white rounded-3xl border-2 border-dashed border-slate-200",
-                    },
-                    [
-                      m("p", { class: "text-4xl mb-4" }, "📅"),
-                      m(
-                        "p",
-                        { class: "text-slate-400 font-medium" },
-                        "Aún no tienes ninguna reserva confirmada.",
-                      ),
-                    ],
-                  )
-                : m(
-                    "div",
-                    { class: "grid gap-4" },
-                    myMatches.map((match) => {
-                      const court = State.courts.find(
-                        (c) => c.id === match.courtId,
-                      );
-                      return m(
-                        "div",
-                        {
-                          class:
-                            "bg-white p-6 rounded-2xl shadow-sm border flex justify-between items-center border-l-8 border-l-blue-500",
-                        },
-                        [
-                          m("div", [
-                            m(
-                              "div",
-                              { class: "font-black text-lg text-slate-800" },
-                              `${match.date} a las ${match.time}`,
-                            ),
-                            m(
-                              "div",
-                              { class: "text-sm text-slate-500 font-medium" },
-                              [
-                                court.name,
-                                m("span", { class: "mx-2" }, "•"),
-                                m(
-                                  "span",
-                                  { class: "text-blue-600" },
-                                  match.type === "private"
-                                    ? "Partida Privada"
-                                    : "Partida Pública",
-                                ),
-                              ],
-                            ),
-                            match.inviteCode &&
-                              m(
-                                "div",
-                                {
-                                  class:
-                                    "mt-2 text-xs font-mono bg-blue-50 text-blue-700 p-1 px-2 rounded inline-block",
-                                },
-                                `CÓDIGO: ${match.inviteCode}`,
-                              ),
-                          ]),
-                          m(
-                            "button",
-                            {
-                              class:
-                                "text-red-500 hover:bg-red-50 p-3 rounded-xl transition-colors font-bold text-sm",
-                              onclick: () =>
-                                Actions.cancelReservation(
-                                  match.date,
-                                  match.courtId,
-                                  match.time,
-                                ),
-                            },
-                            "CANCELAR",
-                          ),
-                        ],
-                      );
-                    }),
-                  ),
-            ],
-          );
-        },
-      };
-
-      const NavTabs = {
-        view: () =>
-          m(
-            "div",
-            {
-              class: "flex space-x-2 p-1.5 bg-[#0047ab] rounded-2xl mb-8",
             },
-            [
-              [
-                ["pistas", "🎾 Reservar"],
-                ["matchmaking", "🤝 Matchmaking"],
-                ["mis-reservas", "📅 Mis Reservas"],
-              ].map(([id, label]) =>
-                m(
-                  "button",
-                  {
-                    class: `flex-1 py-3 px-4 text-sm font-bold rounded-xl transition-all ${
-                      State.currentView === id
-                        ? "bg-white text-[#0047ab] shadow-sm" // Botón Activo: Blanco con texto azul
-                        : "text-white hover:bg-blue-500/50" // Botón Inactivo: Texto blanco y hover sutil
-                    }`,
-                    onclick: () => (State.currentView = id),
-                  },
-                  label,
-                ),
-              ),
+            courts: [
+                { id: 1, name: "Pista Central World Padel Tour", type: "Panorámica", price: "18€", img: COURT_IMAGES[0] },
+                { id: 2, name: "Pista Premium Cristal 1", type: "Cristal", price: "14€", img: COURT_IMAGES[1] },
+                { id: 3, name: "Pista 3 - Muro Clásica", type: "Muro", price: "10€", img: COURT_IMAGES[2] },
+                { id: 4, name: "Pista 4 - Panorámica Azul", type: "Panorámica", price: "15€", img: COURT_IMAGES[0] },
+                { id: 5, name: "Pista 5 - Cristal Outdoor", type: "Cristal", price: "12€", img: COURT_IMAGES[1] },
+                { id: 6, name: "Pista 6 - Individual", type: "Individual", price: "9€", img: COURT_IMAGES[2] },
+                { id: 7, name: "Pista 7 - Muro", type: "Muro", price: "10€", img: COURT_IMAGES[0] },
+                { id: 8, name: "Pista 8 - Exhibición", type: "Panorámica", price: "20€", img: COURT_IMAGES[1] }
             ],
-          ),
-      };
+            modal: { show: false, courtId: null, time: "", isPrivate: false, selectedPos: null, occupiedPositions: [], date: "", inviteCode: null, isJoining: false },
+            toast: { show: false, message: "" }
+        };
 
-      const MainLayout = {
-        view: () =>
-          m("div", { class: "max-w-5xl mx-auto p-4 md:p-12" }, [
-            m(
-              "header",
-              {
-                class:
-                  "mb-10 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left",
-              },
-              [
-                m("div", [
-                  m(
-                    "h1",
-                    {
-                      class:
-                        "text-4xl font-black text-[#00567a] tracking-tight",
-                    },
-                    "SERVICIO DE GESTIÓN DE RESERVAS",
-                  ),
-                  m(
-                    "p",
-                    { class: "text-slate-400 font-medium" },
-                    "Gestión de pistas y partidas en tiempo real",
-                  ),
+        const HOURS = ["09:00", "10:30", "12:00", "13:30", "16:30", "18:00", "19:30", "21:00"];
+
+        // --- ACTIONS ---
+        const Actions = {
+            login: () => { State.isLogged = true; State.currentView = 'booking'; m.redraw(); },
+            logout: () => { State.isLogged = false; State.currentView = 'public'; m.redraw(); },
+            showToast: (msg) => {
+                State.toast.message = msg; State.toast.show = true; m.redraw();
+                setTimeout(() => { State.toast.show = false; m.redraw(); }, 3000);
+            },
+            selectDate: (dateStr) => { State.selectedDate = dateStr; },
+            openBooking: (courtId, time, date = State.selectedDate) => {
+                if (!State.isLogged) return Actions.showToast("Inicia sesión para reservar");
+                const dayMatches = State.data[date] || [];
+                const match = dayMatches.find(m => m.courtId === courtId && m.time === time);
+                
+                State.modal = {
+                    show: true, courtId, time, date,
+                    isPrivate: match ? match.type === "private" : false,
+                    selectedPos: null,
+                    occupiedPositions: match ? match.positions : [],
+                    inviteCode: match ? match.inviteCode : null,
+                    isJoining: !!match
+                };
+            },
+            confirmMatch: () => {
+                if (State.modal.selectedPos === null) return Actions.showToast("Elige tu lado de la pista");
+                if (!State.data[State.modal.date]) State.data[State.modal.date] = [];
+                const dayMatches = State.data[State.modal.date];
+                const existing = dayMatches.find(m => m.courtId === State.modal.courtId && m.time === State.modal.time);
+
+                if (existing) {
+                    existing.players.push("Carlos P.");
+                    existing.positions.push(State.modal.selectedPos);
+                } else {
+                    dayMatches.push({
+                        courtId: State.modal.courtId, time: State.modal.time,
+                        type: State.modal.isPrivate ? "private" : "public",
+                        inviteCode: State.modal.isPrivate ? generateInviteCode() : null,
+                        players: ["Carlos P."], positions: [State.modal.selectedPos],
+                        creator: "Carlos P."
+                    });
+                }
+                State.modal.show = false;
+                Actions.showToast("Reserva confirmada con éxito");
+            }
+        };
+
+        // --- COMPONENTS ---
+
+        const Navbar = {
+            view: () => m("nav", { class: "bg-white border-b sticky top-0 z-50 px-4" }, [
+                m("div", { class: "max-w-6xl mx-auto flex justify-between items-center h-16" }, [
+                    m("div", { class: "flex items-center gap-2", onclick: () => State.currentView = State.isLogged ? 'booking' : 'public', style: "cursor:pointer" }, [
+                        m("div", { class: "w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center text-white font-black italic" }, "P"),
+                        m("span", { class: "font-extrabold text-xl tracking-tight text-slate-800" }, "PADELPRO")
+                    ]),
+                    m("div", { class: "flex items-center gap-6" }, [
+                        State.isLogged ? [
+                            m("button", { class: `text-sm font-semibold text-slate-500 ${State.currentView === 'booking' ? 'tab-active' : ''}`, onclick: () => State.currentView = 'booking' }, "Reservar"),
+                            m("button", { class: `text-sm font-semibold text-slate-500 ${State.currentView === 'matchmaking' ? 'tab-active' : ''}`, onclick: () => State.currentView = 'matchmaking' }, "Partidas"),
+                            m("button", { class: `text-sm font-semibold text-slate-500 ${State.currentView === 'agenda' ? 'tab-active' : ''}`, onclick: () => State.currentView = 'agenda' }, "Mi Agenda"),
+                            m("div", { class: "w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold border-2 border-green-500 cursor-pointer", onclick: Actions.logout }, "CP")
+                        ] : m("button", { class: "bg-slate-900 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-slate-800 transition", onclick: Actions.login }, "Iniciar Sesión")
+                    ])
+                ])
+            ])
+        };
+
+        const PublicHero = {
+            view: () => m("section", { class: "hero-bg text-white py-24 px-4 text-center relative overflow-hidden mb-12" }, [
+                m("div", { class: "relative z-10 max-w-3xl mx-auto" }, [
+                    m("h1", { class: "text-5xl md:text-6xl font-extrabold mb-6 leading-tight" }, "Siente el poder del cristal."),
+                    m("p", { class: "text-lg text-slate-200 mb-10" }, "Únete a la mayor comunidad de pádel. Reserva las mejores pistas panorámicas o únete a partidas abiertas en segundos."),
+                    m("div", { class: "flex flex-col sm:flex-row justify-center gap-4" }, [
+                        m("button", { class: "bg-green-500 hover:bg-green-400 px-8 py-4 rounded-2xl font-bold text-slate-900 transition-all transform hover:scale-105 shadow-xl", onclick: Actions.login }, "Empezar a jugar ahora"),
+                        m("button", { class: "bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 px-8 py-4 rounded-2xl font-bold transition", onclick: () => { document.getElementById('browse-courts').scrollIntoView({behavior: 'smooth'}) } }, "Ver pistas disponibles")
+                    ])
+                ])
+            ])
+        };
+
+        const CalendarWidget = {
+            view: () => {
+                const days = [
+                    { name: "Hoy", date: formatDate(new Date()) },
+                    { name: "Mañana", date: formatDate(new Date(Date.now() + 86400000)) },
+                    { name: "Lun", date: "05/02/2026" },
+                    { name: "Mar", date: "06/02/2026" },
+                    { name: "Mie", date: "07/02/2026" },
+                ];
+                return m("div", { class: "flex gap-2 mb-8 overflow-x-auto pb-2 no-scrollbar" }, days.map(d => m("button", {
+                    class: `flex-shrink-0 px-6 py-3 rounded-2xl border transition-all ${State.selectedDate === d.date ? 'bg-slate-900 border-slate-900 text-white shadow-lg' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-400'}`,
+                    onclick: () => Actions.selectDate(d.date)
+                }, [
+                    m("div", { class: "text-[10px] uppercase font-bold opacity-60" }, d.name),
+                    m("div", { class: "text-lg font-black" }, d.date.split('/')[0])
+                ])));
+            }
+        };
+
+        const TimeSelector = {
+            view: () => m("div", { class: "flex gap-3 mb-8 overflow-x-auto pb-2 no-scrollbar" }, HOURS.map(h => m("button", {
+                class: `px-6 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap ${State.selectedTime === h ? 'bg-green-500 text-slate-900 shadow-md' : 'bg-white border text-slate-500 hover:border-green-500'}`,
+                onclick: () => State.selectedTime = h
+            }, h)))
+        };
+
+        const CourtGrid = {
+            view: () => m("div", { id: "browse-courts", class: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" }, State.courts.map(c => {
+                const dayMatches = State.data[State.selectedDate] || [];
+                const match = dayMatches.find(m => m.courtId === c.id && m.time === State.selectedTime);
+                const isFull = match?.players.length >= 4;
+                const userIn = match?.players.includes("Carlos P.");
+
+                return m("div", { class: "bg-white rounded-[20px] shadow-sm hover:shadow-xl transition-all border border-slate-100 overflow-hidden group" }, [
+                    m("div", { class: "court-card-img", style: `background-image: url(${c.img})` }, [
+                        m("div", { class: "p-3 flex justify-end" }, m("span", { class: "bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-black shadow-sm" }, c.price))
+                    ]),
+                    m("div", { class: "p-4" }, [
+                        m("div", { class: "flex justify-between items-start mb-2" }, [
+                            m("div", [
+                                m("h4", { class: "font-bold text-slate-800 text-sm line-clamp-1" }, c.name),
+                                m("span", { class: "text-[11px] text-slate-400 font-bold uppercase tracking-wider" }, c.type)
+                            ])
+                        ]),
+                        match ? m("div", { class: "mb-4" }, [
+                            m("div", { class: "flex justify-between text-[10px] font-bold mb-1" }, [
+                                m("span", { class: match.type === 'private' ? 'text-red-500' : 'text-amber-500' }, match.type === 'private' ? "PARTIDA PRIVADA" : "PARTIDA ABIERTA"),
+                                m("span", `${match.players.length}/4`)
+                            ]),
+                            m("div", { class: "w-full bg-slate-100 h-1.5 rounded-full overflow-hidden" }, 
+                                m("div", { class: "bg-green-500 h-full transition-all", style: `width: ${(match.players.length/4)*100}%` })
+                            )
+                        ]) : m("div", { class: "mb-4 flex items-center gap-1" }, [
+                            m("div", { class: "w-2 h-2 rounded-full bg-green-500 animate-pulse" }),
+                            m("span", { class: "text-[10px] font-black text-green-600" }, "DISPONIBLE AHORA")
+                        ]),
+                        userIn ? m("button", { class: "w-full py-3 rounded-xl bg-slate-100 text-slate-400 text-xs font-bold cursor-default" }, "YA ESTÁS INSCRITO") :
+                        m("button", { 
+                            class: `w-full py-3 rounded-xl text-xs font-bold transition transform active:scale-95 ${match ? 'bg-slate-900 text-white hover:bg-slate-800' : 'bg-green-500 text-slate-900 hover:bg-green-400 shadow-sm'}`,
+                            onclick: () => Actions.openBooking(c.id, State.selectedTime)
+                        }, isFull ? "COMPLETA" : (match ? "UNIRSE" : "RESERVAR PISTA"))
+                    ])
+                ]);
+            }))
+        };
+
+        const MatchmakingView = {
+            view: () => {
+                const openMatches = [];
+                Object.keys(State.data).forEach(date => {
+                    State.data[date].forEach(m => {
+                        if (m.type === "public" || m.creator === "Carlos P.") openMatches.push({ ...m, date });
+                    });
+                });
+
+                return m("div", { class: "max-w-4xl mx-auto" }, [
+                    m("h2", { class: "text-2xl font-black text-slate-800 mb-6" }, "Partidas en tu Club"),
+                    openMatches.length === 0 ? m("div", { class: "text-center py-20 bg-white rounded-3xl border-2 border-dashed" }, "No hay partidas activas.") :
+                    m("div", { class: "grid gap-4" }, openMatches.map(match => {
+                        const court = State.courts.find(c => c.id === match.courtId);
+                        const isMine = match.creator === "Carlos P.";
+                        return m("div", { class: "bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4" }, [
+                            m("div", { class: "flex items-center gap-4 w-full" }, [
+                                m("div", { class: "w-14 h-14 bg-slate-100 rounded-2xl flex flex-col items-center justify-center border" }, [
+                                    m("span", { class: "text-xs font-bold text-slate-400 uppercase" }, match.date.split('/')[1]),
+                                    m("span", { class: "text-xl font-black text-slate-800" }, match.date.split('/')[0])
+                                ]),
+                                m("div", [
+                                    m("div", { class: "flex items-center gap-2" }, [
+                                        m("span", { class: "text-[10px] font-black px-2 py-0.5 rounded bg-amber-100 text-amber-600" }, "BUSCANDO JUGADORES"),
+                                        isMine && m("span", { class: "text-[10px] font-black px-2 py-0.5 rounded bg-blue-100 text-blue-600" }, "CREADA POR TI")
+                                    ]),
+                                    m("h3", { class: "font-black text-slate-800" }, `${match.time}h - ${court.name}`),
+                                    m("p", { class: "text-xs text-slate-500 font-semibold" }, `Faltan ${4 - match.players.length} jugadores · Nivel: Todos`)
+                                ])
+                            ]),
+                            m("button", { 
+                                class: `w-full sm:w-auto px-8 py-3 rounded-xl font-bold transition ${isMine ? 'bg-slate-100 text-slate-500' : 'bg-green-500 text-slate-900 shadow-lg'}`,
+                                onclick: () => isMine ? (State.currentView = 'agenda') : Actions.openBooking(match.courtId, match.time, match.date)
+                            }, isMine ? "Gestionar" : "Unirse")
+                        ]);
+                    }))
+                ]);
+            }
+        };
+
+        const AgendaView = {
+            view: () => {
+                const myMatches = [];
+                Object.keys(State.data).forEach(date => {
+                    State.data[date].forEach(m => { if (m.players.includes("Carlos P.")) myMatches.push({ ...m, date }); });
+                });
+
+                return m("div", { class: "max-w-4xl mx-auto" }, [
+                    m("h2", { class: "text-2xl font-black text-slate-800 mb-6" }, "Mis Próximas Reservas"),
+                    myMatches.length === 0 ? m("div", { class: "text-center py-20 bg-white rounded-3xl" }, "Aún no tienes partidos programados.") :
+                    m("div", { class: "grid gap-4" }, myMatches.map(match => {
+                        const court = State.courts.find(c => c.id === match.courtId);
+                        return m("div", { class: "bg-white p-6 rounded-3xl shadow-sm border-l-[8px] border-green-500 flex flex-col sm:flex-row justify-between items-center" }, [
+                            m("div", [
+                                m("div", { class: "text-sm font-black text-slate-800" }, `${match.date} a las ${match.time}`),
+                                m("div", { class: "text-slate-400 text-xs font-bold uppercase mb-3" }, court.name),
+                                match.inviteCode && m("div", { class: "inline-flex items-center gap-2 bg-slate-900 text-white px-3 py-1.5 rounded-lg text-[11px] font-mono" }, [
+                                    m("span", "INVITACIÓN:"),
+                                    m("span", { class: "font-bold text-green-400" }, match.inviteCode)
+                                ])
+                            ]),
+                            m("div", { class: "flex gap-3 mt-4 sm:mt-0" }, [
+                                m("button", { class: "px-4 py-2 text-xs font-bold text-slate-400 hover:text-red-500 transition" }, "Cancelar"),
+                                m("button", { class: "bg-slate-900 text-white px-6 py-2 rounded-xl text-xs font-bold" }, "Compartir")
+                            ])
+                        ]);
+                    }))
+                ]);
+            }
+        };
+
+        const BookingModal = {
+            view: () => State.modal.show && m("div", { class: "fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4" }, [
+                m("div", { class: "bg-white w-full max-w-md rounded-[32px] overflow-hidden shadow-2xl" }, [
+                    m("div", { class: "bg-slate-900 p-6 text-white relative" }, [
+                        m("h3", { class: "text-xl font-black" }, "Confirma tu posición"),
+                        m("p", { class: "text-xs text-slate-400 font-bold" }, `${State.modal.date} · ${State.modal.time}`),
+                        m("button", { class: "absolute top-6 right-6 text-2xl opacity-50 hover:opacity-100", onclick: () => State.modal.show = false }, "×")
+                    ]),
+                    m("div", { class: "p-8" }, [
+                        !State.modal.isJoining && m("div", { class: "flex items-center gap-3 mb-8 p-4 bg-slate-50 rounded-2xl" }, [
+                            m("input[type=checkbox]", { class: "w-5 h-5 accent-green-500", id: "priv", onchange: e => State.modal.isPrivate = e.target.checked }),
+                            m("label[for=priv]", { class: "text-sm font-bold text-slate-700" }, "Hacer esta reserva privada")
+                        ]),
+                        m("div", { class: "relative w-full aspect-[2/3] max-w-[200px] mx-auto bg-green-600 rounded-lg border-2 border-white court-svg mb-6" }, [
+                            m("div", { class: "absolute inset-x-0 top-1/2 h-0.5 bg-white/40" }),
+                            m("div", { class: "absolute inset-y-0 left-1/2 w-0.5 bg-white/40" }),
+                            [
+                                { id: 0, l: "Revés Izq", t: "15%", lf: "10%" },
+                                { id: 1, l: "Drive Izq", t: "70%", lf: "10%" },
+                                { id: 2, l: "Revés Der", t: "15%", lf: "55%" },
+                                { id: 3, l: "Drive Der", t: "70%", lf: "55%" }
+                            ].map(p => {
+                                const occ = State.modal.occupiedPositions.includes(p.id);
+                                const sel = State.modal.selectedPos === p.id;
+                                return m("button", {
+                                    class: `absolute w-[35%] h-[15%] rounded-lg text-[10px] font-black transition-all ${occ ? 'bg-slate-800 text-white/20' : (sel ? 'bg-white text-green-600 scale-110 shadow-lg' : 'bg-white/90 text-slate-800')}`,
+                                    style: `top: ${p.t}; left: ${p.lf}`,
+                                    disabled: occ,
+                                    onclick: () => State.modal.selectedPos = p.id
+                                }, occ ? "X" : p.l);
+                            })
+                        ]),
+                        m("button", { 
+                            class: `w-full py-4 rounded-2xl font-black transition-all ${State.modal.selectedPos === null ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-green-500 text-slate-900 shadow-lg hover:bg-green-400'}`,
+                            disabled: State.modal.selectedPos === null,
+                            onclick: Actions.confirmMatch
+                        }, "CONFIRMAR RESERVA")
+                    ])
+                ])
+            ])
+        };
+
+        const MainLayout = {
+            view: () => m("div", [
+                m(Navbar),
+                m("main", { class: "pb-20" }, [
+                    !State.isLogged && m(PublicHero),
+                    m("div", { class: "max-w-6xl mx-auto px-4 mt-8" }, [
+                        State.currentView === 'public' && [
+                            m("div", { class: "flex items-center justify-between mb-6" }, [
+                                m("h2", { class: "text-2xl font-black text-slate-800" }, "Pistas Libres"),
+                                m("span", { class: "text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full" }, "8 Pistas Disponibles")
+                            ]),
+                            m(CalendarWidget),
+                            m(TimeSelector),
+                            m(CourtGrid)
+                        ],
+                        State.currentView === 'booking' && [
+                            m("div", { class: "flex items-center justify-between mb-6" }, [
+                                m("h2", { class: "text-2xl font-black text-slate-800" }, "Reserva tu partida"),
+                                m("div", { class: "flex gap-2" }, [
+                                    m("span", { class: "text-xs font-bold text-slate-400" }, "60min"),
+                                    m("span", { class: "text-xs font-black text-green-500 underline" }, "Cambiar a 90min")
+                                ])
+                            ]),
+                            m(CalendarWidget),
+                            m(TimeSelector),
+                            m(CourtGrid)
+                        ],
+                        State.currentView === 'matchmaking' && m(MatchmakingView),
+                        State.currentView === 'agenda' && m(AgendaView)
+                    ])
                 ]),
-                m(
-                  "div",
-                  {
-                    class:
-                      "bg-white p-2 px-4 rounded-2xl shadow-sm border border-slate-100",
-                  },
-                  [
-                    // m(
-                    //   "span",
-                    //   {
-                    //     class:
-                    //       "text-xs font-bold text-slate-400 block uppercase",
-                    //   },
-                    //   "👤 Mi Perfil",
-                    // ),
-                    m(
-                      "span",
-                      {
-                        class: "text-xl font-bold text-slate-400",
-                      },
-                      "👤 Mi Perfil",
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                m(BookingModal),
+                m("div", { class: `fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold shadow-2xl transition-all z-[200] ${State.toast.show ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'}` }, State.toast.message)
+            ])
+        };
 
-            m(NavTabs),
-
-            State.currentView === "pistas" && [
-              m(Calendar),
-              m("div", { class: "mb-4 flex items-center justify-between" }, [
-                m(
-                  "h2",
-                  { class: "text-xl font-bold text-slate-800" },
-                  "Horarios Disponibles",
-                ),
-                m(
-                  "span",
-                  {
-                    class:
-                      "text-xs font-bold text-slate-400 bg-slate-200 px-2 py-1 rounded",
-                  },
-                  State.selectedDate,
-                ),
-              ]),
-              m(
-                "div",
-                { class: "flex space-x-3 mb-8 overflow-x-auto pb-4" },
-                HOURS.map((h) =>
-                  m(
-                    "button",
-                    {
-                      class: `px-6 py-3 rounded-2xl font-bold text-sm transition-all border-2 ${State.selectedTime === h ? "bg-[#00567a] text-white border-[#00567a] shadow-lg" : "bg-white text-slate-600 border-transparent hover:border-slate-200"}`,
-                      onclick: () => (State.selectedTime = h),
-                    },
-                    h,
-                  ),
-                ),
-              ),
-              m(PistasView),
-            ],
-
-            State.currentView === "matchmaking" && m(MatchmakingView),
-            State.currentView === "mis-reservas" && m(MyBookingsView),
-
-            m(BookingModal),
-            m(Toast),
-          ]),
-      };
-
-      m.route(document.getElementById("app"), "/", { "/": MainLayout });
+        m.mount(document.getElementById('app'), MainLayout);
     </script>
-  </body>
+</body>
 </html>

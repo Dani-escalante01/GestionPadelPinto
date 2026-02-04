@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Padel Pro - Crear Cuenta</title>
+    <script src="https://unpkg.com/mithril/mithril.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --padel-green: #2ecc71;
+        --padel-blue: #0f172a;
+      }
+
+      body {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        background-color: #f8fafc;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .animate-fade-up {
+        animation: fadeIn 0.6s ease-out forwards;
+      }
+
+      .input-field:focus {
+        border-color: var(--padel-green);
+        box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.1);
+        outline: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app"></div>
+
+    <script>
+      const State = {
+        nombre: "",
+        email: "",
+        password: "",
+        nivel: "1.0",
+        isLoading: false,
+        heroImage:
+          "https://images.unsplash.com/photo-1599423300746-b62533397364?q=80&w=2070&auto=format&fit=crop",
+      };
+
+      const Actions = {
+        register: (e) => {
+          e.preventDefault();
+          State.isLoading = true;
+          // Simulamos registro y redirigimos a la home como logueado
+          setTimeout(() => {
+            window.location.href = "index.html?auth=success";
+          }, 1500);
+        },
+      };
+
+      const LeftPanel = {
+        view: () =>
+          m(".hidden.lg:flex.w-1/2.relative.bg-slate-900.overflow-hidden", [
+            m("img", {
+              src: State.heroImage,
+              class: "absolute inset-0 w-full h-full object-cover opacity-50",
+            }),
+            m(".relative.z-10.m-auto.text-center.px-12", [
+              m("h2.text-4xl.font-black.text-white.mb-6", "Únete al club."),
+              m(
+                "p.text-slate-300.text-lg",
+                "Crea tu perfil en 30 segundos y empieza a organizar tus partidas.",
+              ),
+            ]),
+          ]),
+      };
+
+      const RegisterForm = {
+        view: () =>
+          m(".w-full.lg:w-1/2.flex.items-center.justify-center.p-8.bg-white", [
+            m(".w-full.max-w-md.animate-fade-up", [
+              m("h1.text-3xl.font-black.text-slate-800.mb-2", "Crear cuenta"),
+              m(
+                "p.text-slate-400.font-medium.mb-8",
+                "Completa tus datos para empezar a jugar.",
+              ),
+
+              m("form", { onsubmit: Actions.register, class: "space-y-4" }, [
+                // Nombre
+                m("div", [
+                  m(
+                    "label.block.text-xs.font-bold.text-slate-700.uppercase.mb-2",
+                    "Nombre Completo",
+                  ),
+                  m(
+                    "input.input-field.w-full.px-5.py-3.bg-slate-50.border.border-slate-200.rounded-2xl.text-sm.font-bold",
+                    {
+                      placeholder: "Ej. Juan Pérez",
+                      oninput: (e) => (State.nombre = e.target.value),
+                    },
+                  ),
+                ]),
+                // Email
+                m("div", [
+                  m(
+                    "label.block.text-xs.font-bold.text-slate-700.uppercase.mb-2",
+                    "Email",
+                  ),
+                  m(
+                    "input.input-field.w-full.px-5.py-3.bg-slate-50.border.border-slate-200.rounded-2xl.text-sm.font-bold",
+                    {
+                      type: "email",
+                      placeholder: "tu@email.com",
+                      oninput: (e) => (State.email = e.target.value),
+                    },
+                  ),
+                ]),
+                // Nivel (Selector)
+                m("div", [
+                  m(
+                    "label.block.text-xs.font-bold.text-slate-700.uppercase.mb-2",
+                    "Nivel de Pádel",
+                  ),
+                  m(
+                    "select.input-field.w-full.px-5.py-3.bg-slate-50.border.border-slate-200.rounded-2xl.text-sm.font-bold.appearance-none",
+                    {
+                      onchange: (e) => (State.nivel = e.target.value),
+                    },
+                    [
+                      m("option", { value: "1.0" }, "Iniciación (1.0 - 2.0)"),
+                      m("option", { value: "3.0" }, "Intermedio (3.0 - 4.0)"),
+                      m("option", { value: "5.0" }, "Avanzado / Pro (5.0+)"),
+                    ],
+                  ),
+                ]),
+                // Password
+                m("div", [
+                  m(
+                    "label.block.text-xs.font-bold.text-slate-700.uppercase.mb-2",
+                    "Contraseña",
+                  ),
+                  m(
+                    "input.input-field.w-full.px-5.py-3.bg-slate-50.border.border-slate-200.rounded-2xl.text-sm.font-bold",
+                    {
+                      type: "password",
+                      placeholder: "••••••••",
+                      oninput: (e) => (State.password = e.target.value),
+                    },
+                  ),
+                ]),
+
+                m(
+                  "button",
+                  {
+                    type: "submit",
+                    class: `w-full py-4 rounded-2xl font-black text-sm transition-all transform active:scale-95 shadow-xl mt-4 ${
+                      State.isLoading
+                        ? "bg-slate-100 text-slate-400"
+                        : "bg-green-500 text-slate-900 shadow-green-100"
+                    }`,
+                  },
+                  State.isLoading ? "CREANDO CUENTA..." : "REGISTRARSE",
+                ),
+              ]),
+
+              m("p.mt-8.text-center.text-sm.font-medium.text-slate-500", [
+                "¿Ya tienes cuenta? ",
+                m(
+                  "a",
+                  {
+                    href: "login.html",
+                    class: "text-green-600 font-bold hover:underline",
+                  },
+                  "Inicia sesión",
+                ),
+              ]),
+            ]),
+          ]),
+      };
+
+      m.mount(document.getElementById("app"), {
+        view: () => m(".min-h-screen.flex", [m(LeftPanel), m(RegisterForm)]),
+      });
+    </script>
+  </body>
+</html>

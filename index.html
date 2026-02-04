@@ -16,6 +16,7 @@
         --padel-blue: #0f172a;
         --padel-accent: #3b82f6;
       }
+
       body {
         font-family: "Plus Jakarta Sans", sans-serif;
         background-color: #f8fafc;
@@ -31,6 +32,7 @@
         justify-content: center;
         background: #0f172a;
       }
+
       .hero-image {
         position: absolute;
         inset: 0;
@@ -40,6 +42,7 @@
         opacity: 0.6;
         filter: brightness(0.7);
       }
+
       .hero-content {
         position: relative;
         z-index: 10;
@@ -52,6 +55,7 @@
         height: 6px;
         width: 6px;
       }
+
       ::-webkit-scrollbar-thumb {
         background: #cbd5e1;
         border-radius: 10px;
@@ -74,11 +78,13 @@
           opacity: 0;
           transform: translateY(10px);
         }
+
         to {
           opacity: 1;
           transform: translateY(0);
         }
       }
+
       .animate-fade-up {
         animation: fadeIn 0.6s ease-out forwards;
       }
@@ -89,11 +95,13 @@
         width: 44px;
         height: 24px;
       }
+
       .toggle-switch input {
         opacity: 0;
         width: 0;
         height: 0;
       }
+
       .slider {
         position: absolute;
         cursor: pointer;
@@ -105,6 +113,7 @@
         transition: 0.4s;
         border-radius: 24px;
       }
+
       .slider:before {
         position: absolute;
         content: "";
@@ -116,14 +125,17 @@
         transition: 0.4s;
         border-radius: 50%;
       }
+
       input:checked + .slider {
         background-color: #2ecc71;
       }
+
       input:checked + .slider:before {
         transform: translateX(20px);
       }
     </style>
   </head>
+
   <body>
     <div id="app"></div>
 
@@ -170,6 +182,7 @@
       // --- ESTADO ---
       const State = {
         isLogged: false,
+        showUserMenu: false, // Controla si el menú es visible
         currentView: "public",
         selectedDate: formatDate(new Date()),
         selectedTime: "10:30",
@@ -275,11 +288,48 @@
         login: () => {
           State.isLogged = true;
           State.currentView = "booking";
-          Actions.showToast("Bienvenido, Carlos");
+          Actions.showToast("Bienvenido de nuevo");
         },
         logout: () => {
-          State.isLogged = false;
-          State.currentView = "public";
+          // 1. Iniciamos el efecto de carga
+          State.isTerminatingSession = true;
+          State.showUserMenu = false;
+          m.redraw();
+
+          // 2. Esperamos un momento (ej. 1.2 segundos)
+          setTimeout(() => {
+            State.isLogged = false;
+            State.isTerminatingSession = false; // Quitamos el efecto
+            State.currentView = "public";
+
+            // Limpiamos la URL por si acaso
+            window.history.replaceState(
+              {},
+              document.title,
+              window.location.pathname,
+            );
+
+            Actions.showToast("Has salido de tu sesión");
+            m.redraw();
+          }, 1200);
+        },
+        checkSession: () => {
+          const params = new URLSearchParams(window.location.search);
+          if (params.get("auth") === "success") {
+            State.isLogged = true;
+            State.currentView = "booking";
+            // Limpiamos la URL para que no diga "?auth=success" todo el tiempo
+            window.history.replaceState(
+              {},
+              document.title,
+              window.location.pathname,
+            );
+            Actions.showToast("¡Sesión iniciada correctamente!");
+          }
+        },
+        toggleUserMenu: (e) => {
+          e.stopPropagation(); // Evita que el click se propague
+          State.showUserMenu = !State.showUserMenu;
         },
         showToast: (msg) => {
           State.toast.message = msg;
@@ -448,7 +498,7 @@
                               onclick: () =>
                                 (State.currentView = "matchmaking"),
                             },
-                            "PARTIDAS",
+                            "PARTIDAS ABIERTAS",
                           ),
                           m(
                             "button",
@@ -456,27 +506,134 @@
                               class: `text-[10px] font-black tracking-widest ${State.currentView === "agenda" ? "text-green-500 border-b-2 border-green-500" : "text-slate-400"} pb-1 transition-all`,
                               onclick: () => (State.currentView = "agenda"),
                             },
-                            "AGENDA",
+                            "MI AGENDA",
                           ),
-                          m(
-                            "div",
-                            {
-                              class:
-                                "w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold border-2 border-green-500 cursor-pointer",
-                              onclick: Actions.logout,
-                            },
-                            "CP",
-                          ),
+                          m("div", { class: "relative" }, [
+                            // Círculo del Perfil
+                            m(
+                              "div",
+                              {
+                                class:
+                                  "w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold border-2 border-green-500 cursor-pointer hover:scale-105 transition-transform",
+                                onclick: Actions.toggleUserMenu,
+                              },
+                              "CP",
+                            ),
+
+                            // Menú Desplegable
+                            State.showUserMenu &&
+                              m(
+                                "div",
+                                {
+                                  class:
+                                    "absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-[100] animate-fade-up",
+                                  style: "transform-origin: top right;",
+                                },
+                                [
+                                  m(
+                                    "div",
+                                    {
+                                      class:
+                                        "px-4 py-2 border-b border-slate-50 mb-1",
+                                    },
+                                    [
+                                      m(
+                                        "p",
+                                        {
+                                          class:
+                                            "text-[10px] font-black text-slate-400 uppercase",
+                                        },
+                                        "Usuario",
+                                      ),
+                                      m(
+                                        "p",
+                                        {
+                                          class:
+                                            "text-xs font-bold text-slate-800",
+                                        },
+                                        "Carlos P.",
+                                      ),
+                                    ],
+                                  ),
+                                  m(
+                                    "button",
+                                    {
+                                      class:
+                                        "w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-green-500 transition",
+                                      onclick: () => {
+                                        State.currentView = "agenda";
+                                        State.showUserMenu = false;
+                                      },
+                                    },
+                                    "Mi Perfil",
+                                  ),
+                                  m(
+                                    "button",
+                                    {
+                                      class:
+                                        "w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-green-500 transition",
+                                      onclick: () => {
+                                        /* Otra opción */ State.showUserMenu = false;
+                                      },
+                                    },
+                                    "Configuración",
+                                  ),
+                                  m("hr", { class: "my-1 border-slate-50" }),
+                                  m(
+                                    "button",
+                                    {
+                                      class:
+                                        "w-full text-left px-4 py-2 text-xs font-bold text-red-500 hover:bg-red-50 transition",
+                                      onclick: Actions.logout,
+                                    },
+                                    "Cerrar sesión",
+                                  ),
+                                ],
+                              ),
+                          ]),
                         ]
-                      : m(
-                          "button",
-                          {
-                            class:
-                              "bg-slate-900 text-white px-5 py-2 rounded-full text-xs font-bold hover:bg-slate-800 transition",
-                            onclick: Actions.login,
-                          },
-                          "Entrar",
-                        ),
+                      : m("div", [
+                          State.isLogged
+                            ? // --- VISTA LOGUEADO (Con el menú desplegable que hicimos antes) ---
+                              m("div", { class: "relative" }, [
+                                m(
+                                  "div",
+                                  {
+                                    class:
+                                      "w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold border-2 border-green-500 cursor-pointer hover:scale-105 transition-transform",
+                                    onclick: Actions.toggleUserMenu,
+                                  },
+                                  "CP",
+                                ),
+                                // ... (aquí iría el código del menú State.showUserMenu && m("div", ...))
+                              ])
+                            : // --- VISTA NO LOGUEADO (Dos botones) ---
+                              m("div", { class: "flex items-center gap-3" }, [
+                                // Botón de Login
+                                m(
+                                  "button",
+                                  {
+                                    class:
+                                      "text-slate-600 hover:text-slate-900 px-4 py-2 text-xs font-bold transition",
+                                    onclick: () =>
+                                      (window.location.href = "login.html"),
+                                  },
+                                  "Entrar",
+                                ),
+
+                                // Botón de Registro
+                                m(
+                                  "button",
+                                  {
+                                    class:
+                                      "bg-green-500 hover:bg-green-400 text-slate-900 px-5 py-2 rounded-full text-xs font-black shadow-lg shadow-green-100 transition transform active:scale-95",
+                                    onclick: () =>
+                                      (window.location.href = "registro.html"),
+                                  },
+                                  "Crear cuenta",
+                                ),
+                              ]),
+                        ]),
                   ]),
                 ],
               ),
@@ -507,7 +664,7 @@
                 {
                   class: "text-4xl md:text-6xl font-black mb-4 tracking-tight",
                 },
-                "Juguemos al Padel",
+                "Juguemos Al Pádel",
               ),
               m(
                 "p",
@@ -1184,6 +1341,161 @@
           ),
       };
 
+      const Footer = {
+        view: () =>
+          m(
+            "footer",
+            { class: "bg-slate-900 text-white mt-20 pt-16 pb-8 px-4" },
+            [
+              m("div", { class: "max-w-6xl mx-auto" }, [
+                m(
+                  "div",
+                  { class: "grid grid-cols-1 md:grid-cols-3 gap-12 mb-12" },
+                  [
+                    // Columna 1: Branding
+                    m("div", [
+                      m("div", { class: "flex items-center gap-2 mb-6" }, [
+                        m(
+                          "div",
+                          {
+                            class:
+                              "w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-white font-black italic text-sm",
+                          },
+                          "P",
+                        ),
+                        m(
+                          "span",
+                          { class: "font-extrabold text-xl tracking-tighter" },
+                          "PADELPRO",
+                        ),
+                      ]),
+                      m(
+                        "p",
+                        { class: "text-slate-400 text-sm leading-relaxed" },
+                        "La plataforma líder para la gestión de pistas y comunidades de pádel. Reserva, juega y conecta con otros jugadores en un solo lugar.",
+                      ),
+                    ]),
+                    // Columna 2: Enlaces rápidos
+                    m("div", [
+                      m(
+                        "h4",
+                        {
+                          class:
+                            "font-bold mb-6 text-green-500 uppercase text-xs tracking-widest",
+                        },
+                        "Navegación",
+                      ),
+                      m("ul", { class: "space-y-4 text-sm text-slate-300" }, [
+                        m(
+                          "li",
+                          {
+                            class: "hover:text-white cursor-pointer transition",
+                          },
+                          "Centro de Ayuda",
+                        ),
+                        m(
+                          "li",
+                          {
+                            class: "hover:text-white cursor-pointer transition",
+                          },
+                          "Normas del Club",
+                        ),
+                        m(
+                          "li",
+                          {
+                            class: "hover:text-white cursor-pointer transition",
+                          },
+                          "Ranking Local",
+                        ),
+                        m(
+                          "li",
+                          {
+                            class: "hover:text-white cursor-pointer transition",
+                          },
+                          "Torneos",
+                        ),
+                      ]),
+                    ]),
+                    // Columna 3: Newsletter/Social
+                    m("div", [
+                      m(
+                        "h4",
+                        {
+                          class:
+                            "font-bold mb-6 text-green-500 uppercase text-xs tracking-widest",
+                        },
+                        "Mantente al día",
+                      ),
+                      m("div", { class: "flex gap-2 mb-4" }, [
+                        m("input[type=text]", {
+                          class:
+                            "bg-slate-800 border-none rounded-lg px-4 py-2 text-sm w-full focus:ring-2 focus:ring-green-500",
+                          placeholder: "Tu email",
+                        }),
+                        m(
+                          "button",
+                          {
+                            class:
+                              "bg-green-500 text-slate-900 px-4 py-2 rounded-lg font-bold text-sm",
+                          },
+                          "OK",
+                        ),
+                      ]),
+                      m("div", { class: "flex gap-4 text-slate-400" }, [
+                        m(
+                          "span",
+                          { class: "hover:text-white cursor-pointer" },
+                          "Instagram",
+                        ),
+                        m(
+                          "span",
+                          { class: "hover:text-white cursor-pointer" },
+                          "Twitter",
+                        ),
+                        m(
+                          "span",
+                          { class: "hover:text-white cursor-pointer" },
+                          "Facebook",
+                        ),
+                      ]),
+                    ]),
+                  ],
+                ),
+                m(
+                  "div",
+                  {
+                    class:
+                      "border-t border-slate-800 pt-8 flex flex-col md:row justify-between items-center gap-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest",
+                  },
+                  [
+                    m(
+                      "span",
+                      "© 2026 Padel Pro International. Todos los derechos reservados.",
+                    ),
+                    m("div", { class: "flex gap-6" }, [
+                      m(
+                        "span",
+                        { class: "hover:text-slate-300 cursor-pointer" },
+                        "Privacidad",
+                      ),
+                      m(
+                        "span",
+                        { class: "hover:text-slate-300 cursor-pointer" },
+                        "Términos",
+                      ),
+                      m(
+                        "span",
+                        { class: "hover:text-slate-300 cursor-pointer" },
+                        "Cookies",
+                      ),
+                    ]),
+                  ],
+                ),
+              ]),
+            ],
+          ),
+      };
+
       const MainLayout = {
         view: () =>
           m("div", [
@@ -1312,7 +1624,9 @@
               ],
             ),
             m(BookingModal),
+            m(Footer),
             m(ConfirmModal),
+
             m(
               "div",
               {
@@ -1320,10 +1634,44 @@
               },
               State.toast.message,
             ),
+
+            State.isTerminatingSession &&
+              m(
+                "div",
+                {
+                  class:
+                    "fixed inset-0 bg-white/80 backdrop-blur-md z-[250] flex flex-col items-center justify-center animate-fade-up",
+                },
+                [
+                  m("div", {
+                    class:
+                      "w-12 h-12 border-4 border-slate-200 border-t-green-500 rounded-full animate-spin mb-4",
+                  }),
+                  m(
+                    "p",
+                    {
+                      class:
+                        "text-slate-800 font-black text-sm tracking-widest uppercase",
+                    },
+                    "Cerrando sesión...",
+                  ),
+                ],
+              ),
           ]),
       };
 
-      m.mount(document.getElementById("app"), MainLayout);
+      m.mount(document.getElementById("app"), {
+        oninit: Actions.checkSession,
+        view: () => m("div", [m(MainLayout)]),
+      });
+
+      // Cerrar el menú si se hace click fuera
+      window.addEventListener("click", () => {
+        if (State.showUserMenu) {
+          State.showUserMenu = false;
+          m.redraw();
+        }
+      });
     </script>
   </body>
 </html>

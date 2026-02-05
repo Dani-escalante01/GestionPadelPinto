@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
@@ -10,7 +10,6 @@
       href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <!-- favicon -->
     <link
       rel="icon"
       type="image/svg+xml"
@@ -68,12 +67,35 @@
       const Actions = {
         register: (e) => {
           e.preventDefault();
+
+          // Validación de campos obligatorios
+          if (!State.nombre.trim() || !State.email.trim() || !State.password.trim()) {
+            alert("Por favor, completa todos los campos marcados como obligatorios.");
+            return;
+          }
+
+          // Validación de formato de email
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(State.email)) {
+            alert("Por favor, introduce un correo electrónico válido (ejemplo@dominio.com).");
+            return;
+          }
+
+          // Validación de seguridad básica para contraseña
+          if (State.password.length < 6) {
+            alert("La contraseña debe tener al menos 6 caracteres por seguridad.");
+            return;
+          }
+
           State.isLoading = true;
-          // Simulamos registro y redirigimos a la home como logueado
+          // Simulamos registro y redirigimos
           setTimeout(() => {
             window.location.href = "index.html?auth=success";
           }, 1500);
         },
+        googleLogin: () => {
+          alert("Conectando con Google...");
+        }
       };
 
       const LeftPanel = {
@@ -104,15 +126,15 @@
               ),
 
               m("form", { onsubmit: Actions.register, class: "space-y-4" }, [
-                // ... (campos de nombre, email, nivel y password se mantienen igual)
                 m("div", [
                   m(
                     "label.block.text-xs.font-bold.text-slate-700.uppercase.mb-2",
-                    "Nombre Completo",
+                    "Nombre Completo *",
                   ),
                   m(
                     "input.input-field.w-full.px-5.py-3.bg-slate-50.border.border-slate-200.rounded-2xl.text-sm.font-bold",
                     {
+                      required: true,
                       placeholder: "Ej. Juan Pérez",
                       oninput: (e) => (State.nombre = e.target.value),
                     },
@@ -121,12 +143,13 @@
                 m("div", [
                   m(
                     "label.block.text-xs.font-bold.text-slate-700.uppercase.mb-2",
-                    "Email",
+                    "Email *",
                   ),
                   m(
                     "input.input-field.w-full.px-5.py-3.bg-slate-50.border.border-slate-200.rounded-2xl.text-sm.font-bold",
                     {
                       type: "email",
+                      required: true,
                       placeholder: "tu@email.com",
                       oninput: (e) => (State.email = e.target.value),
                     },
@@ -152,12 +175,13 @@
                 m("div", [
                   m(
                     "label.block.text-xs.font-bold.text-slate-700.uppercase.mb-2",
-                    "Contraseña",
+                    "Contraseña *",
                   ),
                   m(
                     "input.input-field.w-full.px-5.py-3.bg-slate-50.border.border-slate-200.rounded-2xl.text-sm.font-bold",
                     {
                       type: "password",
+                      required: true,
                       placeholder: "••••••••",
                       oninput: (e) => (State.password = e.target.value),
                     },
@@ -167,10 +191,11 @@
                   "button",
                   {
                     type: "submit",
+                    disabled: State.isLoading,
                     class: `w-full py-4 rounded-2xl font-black text-sm transition-all transform active:scale-95 shadow-xl mt-4 ${
                       State.isLoading
-                        ? "bg-slate-100 text-slate-400"
-                        : "bg-green-500 text-slate-900 shadow-green-100"
+                        ? "bg-slate-100 text-slate-400 cursor-not-allowed"
+                        : "bg-green-500 text-slate-900 shadow-green-100 hover:bg-green-400"
                     }`,
                   },
                   State.isLoading ? "CREANDO CUENTA..." : "REGISTRARSE",

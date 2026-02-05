@@ -182,13 +182,17 @@
       // --- ESTADO ---
       const State = {
         isLogged: false,
-        showUserMenu: false, // Controla si el menú es visible
+        showUserMenu: false, //controla si el menú es visible por defecto
         currentView: "public",
         selectedDate: formatDate(new Date()),
         selectedTime: "10:30",
         viewMonth: new Date().getMonth(),
         viewYear: new Date().getFullYear(),
-        user: { name: "Carlos P.", id: "user_123" },
+        user: {
+          name: "Carlos P.",
+          id: "user_123",
+          foto: "https://api.dicebear.com/7.x/initials/svg?seed=CP&backgroundColor=2ecc71&textColor=0f172a", //foto con las iniciales (CP)
+        },
         inviteInput: "",
         data: {
           [formatDate(new Date())]: [
@@ -291,18 +295,18 @@
           Actions.showToast("Bienvenido de nuevo");
         },
         logout: () => {
-          // 1. Iniciamos el efecto de carga
+          //iniciamos el efecto de carga
           State.isTerminatingSession = true;
           State.showUserMenu = false;
           m.redraw();
 
-          // 2. Esperamos un momento (ej. 1.2 segundos)
+          //esperamos un momento (1,2 seg)
           setTimeout(() => {
             State.isLogged = false;
-            State.isTerminatingSession = false; // Quitamos el efecto
+            State.isTerminatingSession = false; //quitamos el efecto
             State.currentView = "public";
 
-            // Limpiamos la URL por si acaso
+            //limpiamos la URL por si acaso
             window.history.replaceState(
               {},
               document.title,
@@ -318,7 +322,7 @@
           if (params.get("auth") === "success") {
             State.isLogged = true;
             State.currentView = "booking";
-            // Limpiamos la URL para que no diga "?auth=success" todo el tiempo
+            //limpiamos la URL para que no diga "?auth=success" todo el tiempo
             window.history.replaceState(
               {},
               document.title,
@@ -328,7 +332,7 @@
           }
         },
         toggleUserMenu: (e) => {
-          e.stopPropagation(); // Evita que el click se propague
+          e.stopPropagation(); //evita que el click se propague
           State.showUserMenu = !State.showUserMenu;
         },
         showToast: (msg) => {
@@ -418,7 +422,7 @@
             match.players.splice(playerIndex, 1);
             match.positions.splice(playerIndex, 1);
 
-            // Si no quedan jugadores, eliminar la partida
+            //si no quedan jugadores, eliminar la partida
             if (match.players.length === 0) {
               State.data[date].splice(matchIndex, 1);
             }
@@ -509,7 +513,7 @@
                             "MI AGENDA",
                           ),
                           m("div", { class: "relative" }, [
-                            // Círculo del Perfil
+                            //circulo del perfil
                             m(
                               "div",
                               {
@@ -520,7 +524,7 @@
                               "CP",
                             ),
 
-                            // Menú Desplegable
+                            //menu desplegable
                             State.showUserMenu &&
                               m(
                                 "div",
@@ -561,8 +565,8 @@
                                       class:
                                         "w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-green-500 transition",
                                       onclick: () => {
-                                        State.currentView = "agenda";
-                                        State.showUserMenu = false;
+                                        window.location.href = "perfil.html";
+                                        State.showUserMenu = false; // Opcional: cerramos el menú antes de salir aunque la página se recargue
                                       },
                                     },
                                     "Mi Perfil",

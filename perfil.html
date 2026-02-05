@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,33 +7,19 @@
     <script src="https://unpkg.com/mithril/mithril.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
-        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
     <style>
-        body {
-            font-family: "Plus Jakarta Sans", sans-serif;
-            background-color: #f8fafc;
-        }
-
-        .profile-gradient {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        }
-
-        #citizen-card {
-            width: 400px;
-            height: 220px;
-            position: relative;
-            overflow: hidden;
-        }
+        body { font-family: "Plus Jakarta Sans", sans-serif; background-color: #f8fafc; }
+        .profile-gradient { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+        #citizen-card { width: 400px; height: 220px; position: relative; overflow: hidden; }
     </style>
-    </head>
-    
-    <body>
+</head>
+<body>
     <div id="app"></div>
 
     <script>
         const State = {
-            isEditing: false, // Controla si estamos editando
+            isEditing: false,
             user: {
                 nombre: "Carlos",
                 apellidos: "Pérez García",
@@ -44,24 +29,36 @@
                 victorias: 82,
                 foto: "https://media.licdn.com/dms/image/v2/D4D03AQEOP6WWeuAT4Q/profile-displayphoto-crop_800_800/B4DZowOnToGwAI-/0/1761745729736?e=1772064000&v=beta&t=x671SPTKjj55Pfb5XihA9X-Vb7eW5BlhVhA5841ntJI",
             },
-            tempUser: {}, // Copia temporal para la edición
+            tempUser: {},
             downloading: false,
         };
 
-        // --- ACCIONES ---
         const Actions = {
             toggleEdit: () => {
-                if (!State.isEditing) {
-                    // Al empezar a editar, hacemos una copia de los datos actuales
-                    State.tempUser = { ...State.user };
-                }
+                if (!State.isEditing) State.tempUser = { ...State.user };
                 State.isEditing = !State.isEditing;
             },
             saveProfile: () => {
-                // Guardamos los datos temporales en el perfil oficial
                 State.user = { ...State.tempUser };
                 State.isEditing = false;
-                // Aquí se puede añadir una llamada a una API o localStorage
+            },
+            // Maneja la subida de archivos locales
+            handleFileUpload: (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                // Validar que sea una imagen
+                if (!file.type.startsWith('image/')) {
+                    alert("Por favor, selecciona un archivo de imagen válido.");
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    State.tempUser.foto = event.target.result;
+                    m.redraw();
+                };
+                reader.readAsDataURL(file);
             }
         };
 
@@ -85,10 +82,7 @@
                         m("div", { class: "w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-white font-black" }, "P"),
                         m("span", { class: "font-black text-slate-800" }, "PADELPRO"),
                     ]),
-                    m("button", {
-                        class: "text-xs font-bold text-slate-500 hover:text-green-600 transition",
-                        onclick: () => (window.location.href = "index.html"),
-                    }, "← Volver a Reservas"),
+                    m("button", { class: "text-xs font-bold text-slate-500 hover:text-green-600 transition", onclick: () => (window.location.href = "index.html") }, "← Volver a Reservas"),
                 ]),
             ]),
         };
@@ -97,7 +91,11 @@
             view: () => m("div", { class: "mt-10" }, [
                 m("h3", { class: "text-sm font-black text-slate-800 uppercase tracking-wider mb-4" }, "Tu Tarjeta Digital"),
                 m("div", { id: "citizen-card", class: "profile-gradient rounded-3xl p-6 text-white shadow-2xl mb-4" }, [
-                    m("img", { src: State.user.foto, class: "w-16 h-16 rounded-2xl border-2 border-green-500 mb-4 bg-white shadow-lg" }),
+                    m("img", { 
+                        src: State.user.foto, 
+                        class: "w-16 h-16 rounded-2xl border-2 border-green-500 mb-4 bg-white shadow-lg object-cover",
+                        onerror: (e) => e.target.src = "https://api.dicebear.com/7.x/initials/svg?seed=CP&backgroundColor=2ecc71&textColor=0f172a" 
+                    }),
                     m("div", [
                         m("p", { class: "text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold" }, "Miembro Oficial"),
                         m("h2", { class: "text-xl font-extrabold" }, State.user.nombre),
@@ -119,13 +117,22 @@
                     m("div", { class: "h-40 profile-gradient" }),
                     m("div", { class: "px-8 pb-8" }, [
                         m("div", { class: "flex flex-col md:flex-row items-end gap-6 -mt-16 mb-8" }, [
-                            m("img", { src: State.user.foto, class: "w-32 h-32 rounded-[32px] border-8 border-white shadow-xl object-cover" }),
+                            m("div", { class: "relative group" }, [
+                                m("img", { 
+                                    src: State.isEditing ? State.tempUser.foto : State.user.foto, 
+                                    class: "w-32 h-32 rounded-[32px] border-8 border-white shadow-xl object-cover bg-white",
+                                    onerror: (e) => e.target.src = "https://api.dicebear.com/7.x/initials/svg?seed=CP&backgroundColor=2ecc71&textColor=0f172a"
+                                }),
+                                // Overlay de subida (solo en edición)
+                                State.isEditing && m("label", { class: "absolute inset-0 flex items-center justify-center bg-black/40 rounded-[32px] cursor-pointer text-white text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity" }, [
+                                    "SUBIR FOTO",
+                                    m("input", { type: "file", class: "hidden", accept: "image/*", onchange: Actions.handleFileUpload })
+                                ])
+                            ]),
                             m("div", { class: "flex-1 mb-2", style: "margin-top: 5rem;" }, [
                                 m("h1", { class: "text-3xl font-black text-slate-800" }, State.user.nombre + " " + State.user.apellidos),
                                 m("p", { class: "text-sm font-bold text-slate-400 uppercase tracking-widest" }, "Nivel " + State.user.nivel),
                             ]),
-
-                            // El botón de arriba SOLO sale si NO estamos editando
                             !State.isEditing && m("button", {
                                 class: "bg-slate-900 text-white px-6 py-3 rounded-2xl text-xs font-bold transition mb-2 hover:bg-slate-800",
                                 onclick: Actions.toggleEdit
@@ -135,48 +142,46 @@
                         m("div", { class: "grid grid-cols-1 md:grid-cols-3 gap-12" }, [
                             m("div", { class: "md:col-span-2" }, [
                                 m("h3", { class: "text-sm font-black text-slate-800 uppercase tracking-wider mb-6" }, "Detalles de la cuenta"),
-
                                 m("div", { class: "grid grid-cols-1 md:grid-cols-2 gap-4" }, [
-                                    // Campo Nombre
+                                    // Input de Link de Imagen (Solo en edición)
+                                    State.isEditing && m("div", { class: "p-4 bg-white rounded-2xl border-2 border-green-500 md:col-span-2 animate-fade-up" }, [
+                                        m("p", { class: "text-[10px] font-black text-green-600 uppercase mb-1" }, "Link de foto externa (URL)"),
+                                        m("input", { 
+                                            class: "bg-transparent text-sm font-bold text-slate-700 w-full outline-none", 
+                                            placeholder: "Pega aquí el enlace de tu foto...",
+                                            value: State.tempUser.foto.startsWith('data:') ? '' : State.tempUser.foto, 
+                                            oninput: (e) => State.tempUser.foto = e.target.value 
+                                        }),
+                                    ]),
                                     m("div", { class: "p-4 bg-slate-50 rounded-2xl border-2 transition " + (State.isEditing ? "border-green-200 bg-white" : "border-transparent") }, [
                                         m("p", { class: "text-[10px] font-black text-slate-400 uppercase mb-1" }, "Nombre"),
-                                        State.isEditing
+                                        State.isEditing 
                                             ? m("input", { class: "bg-transparent text-sm font-bold text-slate-700 w-full outline-none", value: State.tempUser.nombre, oninput: (e) => State.tempUser.nombre = e.target.value })
                                             : m("p", { class: "text-sm font-bold text-slate-700" }, State.user.nombre),
                                     ]),
-                                    // Campo Apellidos
                                     m("div", { class: "p-4 bg-slate-50 rounded-2xl border-2 transition " + (State.isEditing ? "border-green-200 bg-white" : "border-transparent") }, [
                                         m("p", { class: "text-[10px] font-black text-slate-400 uppercase mb-1" }, "Apellidos"),
-                                        State.isEditing
+                                        State.isEditing 
                                             ? m("input", { class: "bg-transparent text-sm font-bold text-slate-700 w-full outline-none", value: State.tempUser.apellidos, oninput: (e) => State.tempUser.apellidos = e.target.value })
                                             : m("p", { class: "text-sm font-bold text-slate-700" }, State.user.apellidos),
                                     ]),
-                                    // Campo Email
                                     m("div", { class: "p-4 bg-slate-50 rounded-2xl md:col-span-2 border-2 transition " + (State.isEditing ? "border-green-200 bg-white" : "border-transparent") }, [
                                         m("p", { class: "text-[10px] font-black text-slate-400 uppercase mb-1" }, "Email"),
-                                        State.isEditing
+                                        State.isEditing 
                                             ? m("input", { class: "bg-transparent text-sm font-bold text-slate-700 w-full outline-none", value: State.tempUser.email, oninput: (e) => State.tempUser.email = e.target.value })
                                             : m("p", { class: "text-sm font-bold text-slate-700" }, State.user.email),
                                     ]),
                                 ]),
-                                // BOTÓN DE GUARDAR (Abajo de los inputs, solo aparece al editar)
                                 State.isEditing && m("div", { class: "mt-6 flex gap-3" }, [
-                                    m("button", {
-                                        class: "bg-green-500 text-slate-900 px-8 py-4 rounded-2xl text-sm font-black shadow-lg shadow-green-100 hover:bg-green-400 transition transform active:scale-95",
-                                        onclick: Actions.saveProfile
-                                    }, "✓ Guardar cambios"),
-                                    m("button", {
-                                        class: "bg-slate-200 text-slate-600 px-6 py-4 rounded-2xl text-sm font-bold hover:bg-slate-300 transition",
-                                        onclick: () => State.isEditing = false
-                                    }, "Cancelar")
+                                    m("button", { class: "bg-green-500 text-slate-900 px-8 py-4 rounded-2xl text-sm font-black shadow-lg hover:bg-green-400 transition transform active:scale-95", onclick: Actions.saveProfile }, "✓ Guardar cambios"),
+                                    m("button", { class: "bg-slate-200 text-slate-600 px-6 py-4 rounded-2xl text-sm font-bold hover:bg-slate-300 transition", onclick: () => State.isEditing = false }, "Cancelar")
                                 ]),
                                 m(CitizenCardPreview),
                             ]),
 
-                            // Columna derecha (Stats)
                             m("div", { class: "space-y-6" }, [
                                 m("h3", { class: "text-sm font-black text-slate-800 uppercase tracking-wider" }, "Estadísticas"),
-                                m("div", { class: "bg-green-500 p-6 rounded-[32px] text-slate-900" }, [
+                                m("div", { class: "bg-green-500 p-6 rounded-[32px] text-slate-900 shadow-xl shadow-green-100" }, [
                                     m("div", { class: "flex justify-between items-center mb-4" }, [
                                         m("span", { class: "text-[10px] font-black uppercase" }, "Victorias"),
                                         m("span", { class: "text-2xl font-black" }, State.user.victorias),
@@ -198,5 +203,4 @@
         });
     </script>
 </body>
-
 </html>

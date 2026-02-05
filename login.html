@@ -74,7 +74,7 @@
               // Redirigimos a la home pasando el parámetro "auth=success"
               window.location.href = "index.html?auth=success";
             } else {
-              State.error = "Datos incorrectos";
+              State.error = "Datos incorrectos o incompletos";
               State.isLoading = false;
               m.redraw();
             }
@@ -175,7 +175,7 @@
                 m(
                   "p",
                   { class: "text-slate-400 font-medium mb-8" },
-                  "Introduce tus datos para acceder a tu cuenta.",
+                  "Introduzca sus datos para acceder a su cuenta.",
                 ),
 
                 // Formulario

@@ -1,164 +1,179 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PadelPinto - Mi Perfil</title>
-    <script src="https://unpkg.com/mithril/mithril.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
-    <style>
-      body { font-family: "Plus Jakarta Sans", sans-serif; background-color: #f8fafc; }
-      .profile-gradient { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
-      /* Estilo específico para que la tarjeta de descarga se vea bien */
-      #citizen-card { width: 400px; height: 220px; position: relative; overflow: hidden; }
-    </style>
-  </head>
 
-  <body>
-    <div id="app"></div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PadelPinto - Mi Perfil</title>
+  <script src="https://unpkg.com/mithril/mithril.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
+    rel="stylesheet" />
+  <style>
+    body {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      background-color: #f8fafc;
+    }
 
-    <script>
-      const State = {
-        user: {
-          nombre: "Carlos",
-          apellidos: "Pérez García",
-          email: "carlos.perez@gmail.com",
-          nivel: "Intermedio",
-          partidas: 124,
-          victorias: 82,
-          // Nota: Para descarga local, algunas imágenes externas pueden dar error de CORS. 
-          // Dicebear suele funcionar bien.
-          foto: "https://media.licdn.com/dms/image/v2/D4D03AQEOP6WWeuAT4Q/profile-displayphoto-crop_800_800/B4DZowOnToGwAI-/0/1761745729736?e=1772064000&v=beta&t=x671SPTKjj55Pfb5XihA9X-Vb7eW5BlhVhA5841ntJI",
-        },
-        downloading: false
-      };
+    .profile-gradient {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    }
 
-      // Función para descargar la tarjeta
-      const downloadCard = () => {
-        State.downloading = true;
-        const card = document.getElementById("citizen-card");
-        
-        html2canvas(card, {
-          useCORS: true, // Importante para cargar la imagen de la foto
-          scale: 2,      // Mejor calidad
-          backgroundColor: null
-        }).then(canvas => {
-          const link = document.createElement("a");
-          link.download = `Tarjeta_${State.user.nombre}.png`;
-          link.href = canvas.toDataURL("image/png");
-          link.click();
-          State.downloading = false;
-          m.redraw();
-        });
-      };
+    /* Estilo específico para que la tarjeta de descarga se vea bien */
+    #citizen-card {
+      width: 400px;
+      height: 220px;
+      position: relative;
+      overflow: hidden;
+    }
+  </style>
+</head>
 
-      const Navbar = {
-        view: () =>
-          m("nav", { class: "bg-white border-b sticky top-0 z-50 px-6 py-4" }, [
-            m("div", { class: "max-w-5xl mx-auto flex justify-between items-center" }, [
-              m("div", { class: "flex items-center gap-2 cursor-pointer", onclick: () => (window.location.href = "index.html") }, [
-                m("div", { class: "w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-white font-black" }, "P"),
-                m("span", { class: "font-black text-slate-800" }, "PADELPRO"),
-              ]),
-              m("button", { class: "text-xs font-bold text-slate-500 hover:text-green-600 transition" }, "← Volver a Reservas"),
-            ]),
-          ]),
-      };
+<body>
+  <div id="app"></div>
 
-      // Componente de la Tarjeta de Ciudadano (Previsualización)
-      const CitizenCardPreview = {
-        view: () => 
-          m("div", { class: "mt-10" }, [
-            m("h3", { class: "text-sm font-black text-slate-800 uppercase tracking-wider mb-4" }, "Tu Tarjeta Digital"),
-            
-            // Contenedor de la tarjeta que se convertirá en imagen
-            m("div", { 
-                id: "citizen-card", 
-                class: "profile-gradient rounded-3xl p-6 text-white shadow-2xl mb-4" 
-              }, [
-                // Foto superior izquierda
-                m("img", { 
-                  src: State.user.foto, 
-                  class: "w-16 h-16 rounded-2xl border-2 border-green-500 mb-4 bg-white" 
-                }),
-                // Información
-                m("div", [
-                  m("p", { class: "text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold" }, "Miembro Oficial"),
-                  m("h2", { class: "text-xl font-extrabold" }, State.user.nombre),
-                  m("h2", { class: "text-xl font-extrabold -mt-1" }, State.user.apellidos),
-                ]),
-                // Decoración lateral (Logo P)
-                m("div", { class: "absolute top-6 right-6 opacity-20 text-4xl font-black" }, "P"),
-                
-            ]),
+  <script>
+    const State = {
+      user: {
+        nombre: "Carlos",
+        apellidos: "Pérez García",
+        email: "carlos.perez@gmail.com",
+        nivel: "Intermedio",
+        partidas: 124,
+        victorias: 82,
+        // Nota: Para descarga local, algunas imágenes externas pueden dar error de CORS. 
+        // Dicebear suele funcionar bien.
+        foto: "https://media.licdn.com/dms/image/v2/D4D03AQEOP6WWeuAT4Q/profile-displayphoto-crop_800_800/B4DZowOnToGwAI-/0/1761745729736?e=1772064000&v=beta&t=x671SPTKjj55Pfb5XihA9X-Vb7eW5BlhVhA5841ntJI",
+      },
+      downloading: false
+    };
 
-            // Botón de descarga
-            m("button", {
-              class: `w-full md:w-auto px-8 py-3 rounded-2xl text-xs font-bold transition flex items-center justify-center gap-2 ${State.downloading ? 'bg-slate-400' : 'bg-green-500 hover:bg-green-600 text-slate-900'}`,
-              onclick: downloadCard,
-              disabled: State.downloading
-            }, [
-              State.downloading ? "Generando..." : "Descargar Tarjeta PNG"
-            ])
-          ])
-      };
+    // Función para descargar la tarjeta
+    const downloadCard = () => {
+      State.downloading = true;
+      const card = document.getElementById("citizen-card");
 
-      const ProfileCard = {
-        view: () =>
-          m("div", { class: "max-w-5xl mx-auto p-6" }, [
-            m("div", { class: "bg-white rounded-[40px] shadow-sm border border-slate-100 overflow-hidden" }, [
-              m("div", { class: "h-40 profile-gradient" }),
-              m("div", { class: "px-8 pb-8" }, [
-                m("div", { class: "flex flex-col md:flex-row items-end gap-6 -mt-16 mb-8" }, [
-                  m("img", { src: State.user.foto, class: "w-32 h-32 rounded-[32px] border-8 border-white shadow-xl object-cover" }),
-                  m("div", { class: "flex-1 mb-2", style: "margin-top: 5rem;" }, [
-                    m("h1", { class: "text-3xl font-black text-slate-800" }, State.user.nombre + " " + State.user.apellidos),
-                    m("p", { class: "text-sm font-bold text-slate-400 uppercase tracking-widest" }, "Nivel " + State.user.nivel),
-                  ]),
-                  m("button", { class: "bg-slate-900 text-white px-6 py-3 rounded-2xl text-xs font-bold hover:bg-slate-800 transition mb-2" }, "Editar Perfil"),
-                ]),
-
-                m("div", { class: "grid grid-cols-1 md:grid-cols-3 gap-12" }, [
-                  m("div", { class: "md:col-span-2" }, [
-                    m("h3", { class: "text-sm font-black text-slate-800 uppercase tracking-wider mb-6" }, "Detalles de la cuenta"),
-                    m("div", { class: "grid grid-cols-1 md:grid-cols-2 gap-4" }, [
-                      m("div", { class: "p-4 bg-slate-50 rounded-2xl" }, [
-                        m("p", { class: "text-[10px] font-black text-slate-400 uppercase mb-1" }, "Nombre"),
-                        m("p", { class: "text-sm font-bold text-slate-700" }, State.user.nombre),
-                      ]),
-                      m("div", { class: "p-4 bg-slate-50 rounded-2xl" }, [
-                        m("p", { class: "text-[10px] font-black text-slate-400 uppercase mb-1" }, "Apellidos"),
-                        m("p", { class: "text-sm font-bold text-slate-700" }, State.user.apellidos),
-                      ]),
-                    ]),
-                    // Insertamos la previsualización de la tarjeta aquí
-                    m(CitizenCardPreview)
-                  ]),
-
-                  m("div", { class: "space-y-6" }, [
-                    m("h3", { class: "text-sm font-black text-slate-800 uppercase tracking-wider" }, "Estadísticas"),
-                    m("div", { class: "bg-green-500 p-6 rounded-[32px] text-slate-900" }, [
-                      m("div", { class: "flex justify-between items-center mb-4" }, [
-                        m("span", { class: "text-[10px] font-black uppercase" }, "Victorias"),
-                        m("span", { class: "text-2xl font-black" }, State.user.victorias),
-                      ]),
-                      m("div", { class: "w-full bg-white/30 h-2 rounded-full mb-2" }, [
-                        m("div", { class: "bg-white h-full rounded-full", style: "width: " + (State.user.victorias / State.user.partidas) * 100 + "%" }),
-                      ]),
-                      m("p", { class: "text-[10px] font-bold" }, State.user.partidas + " partidas jugadas"),
-                    ]),
-                  ]),
-                ]),
-              ]),
-            ]),
-          ]),
-      };
-
-      m.mount(document.getElementById("app"), {
-        view: () => m("div", [m(Navbar), m(ProfileCard)]),
+      html2canvas(card, {
+        useCORS: true, // Importante para cargar la imagen de la foto
+        scale: 2,      // Mejor calidad
+        backgroundColor: null
+      }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = `Tarjeta_${State.user.nombre}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+        State.downloading = false;
+        m.redraw();
       });
-    </script>
-  </body>
+    };
+
+    const Navbar = {
+      view: () =>
+        m("nav", { class: "bg-white border-b sticky top-0 z-50 px-6 py-4" }, [
+          m("div", { class: "max-w-5xl mx-auto flex justify-between items-center" }, [
+            m("div", { class: "flex items-center gap-2 cursor-pointer", onclick: () => (window.location.href = "index.html") }, [
+              m("div", { class: "w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-white font-black" }, "P"),
+              m("span", { class: "font-black text-slate-800" }, "PADELPRO"),
+            ]),
+            m("button", { class: "text-xs font-bold text-slate-500 hover:text-green-600 transition" }, "← Volver a Reservas"),
+          ]),
+        ]),
+    };
+
+    // Componente de la Tarjeta de Ciudadano (Previsualización)
+    const CitizenCardPreview = {
+      view: () =>
+        m("div", { class: "mt-10" }, [
+          m("h3", { class: "text-sm font-black text-slate-800 uppercase tracking-wider mb-4" }, "Tu Tarjeta Digital"),
+
+          // Contenedor de la tarjeta que se convertirá en imagen
+          m("div", {
+            id: "citizen-card",
+            class: "profile-gradient rounded-3xl p-6 text-white shadow-2xl mb-4"
+          }, [
+            // Foto superior izquierda
+            m("img", {
+              src: State.user.foto,
+              class: "w-16 h-16 rounded-2xl border-2 border-green-500 mb-4 bg-white"
+            }),
+            // Información
+            m("div", [
+              m("p", { class: "text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold" }, "Miembro Oficial"),
+              m("h2", { class: "text-xl font-extrabold" }, State.user.nombre),
+              m("h2", { class: "text-xl font-extrabold -mt-1" }, State.user.apellidos),
+            ]),
+            // Decoración lateral (Logo P)
+            m("div", { class: "absolute top-6 right-6 opacity-20 text-4xl font-black" }, "P"),
+
+          ]),
+
+          // Botón de descarga
+          m("button", {
+            class: `w-full md:w-auto px-8 py-3 rounded-2xl text-xs font-bold transition flex items-center justify-center gap-2 ${State.downloading ? 'bg-slate-400' : 'bg-green-500 hover:bg-green-600 text-slate-900'}`,
+            onclick: downloadCard,
+            disabled: State.downloading
+          }, [
+            State.downloading ? "Generando..." : "Descargar Tarjeta PNG"
+          ])
+        ])
+    };
+
+    const ProfileCard = {
+      view: () =>
+        m("div", { class: "max-w-5xl mx-auto p-6" }, [
+          m("div", { class: "bg-white rounded-[40px] shadow-sm border border-slate-100 overflow-hidden" }, [
+            m("div", { class: "h-40 profile-gradient" }),
+            m("div", { class: "px-8 pb-8" }, [
+              m("div", { class: "flex flex-col md:flex-row items-end gap-6 -mt-16 mb-8" }, [
+                m("img", { src: State.user.foto, class: "w-32 h-32 rounded-[32px] border-8 border-white shadow-xl object-cover" }),
+                m("div", { class: "flex-1 mb-2", style: "margin-top: 5rem;" }, [
+                  m("h1", { class: "text-3xl font-black text-slate-800" }, State.user.nombre + " " + State.user.apellidos),
+                  m("p", { class: "text-sm font-bold text-slate-400 uppercase tracking-widest" }, "Nivel " + State.user.nivel),
+                ]),
+                m("button", { class: "bg-slate-900 text-white px-6 py-3 rounded-2xl text-xs font-bold hover:bg-slate-800 transition mb-2" }, "Editar Perfil"),
+              ]),
+
+              m("div", { class: "grid grid-cols-1 md:grid-cols-3 gap-12" }, [
+                m("div", { class: "md:col-span-2" }, [
+                  m("h3", { class: "text-sm font-black text-slate-800 uppercase tracking-wider mb-6" }, "Detalles de la cuenta"),
+                  m("div", { class: "grid grid-cols-1 md:grid-cols-2 gap-4" }, [
+                    m("div", { class: "p-4 bg-slate-50 rounded-2xl" }, [
+                      m("p", { class: "text-[10px] font-black text-slate-400 uppercase mb-1" }, "Nombre"),
+                      m("p", { class: "text-sm font-bold text-slate-700" }, State.user.nombre),
+                    ]),
+                    m("div", { class: "p-4 bg-slate-50 rounded-2xl" }, [
+                      m("p", { class: "text-[10px] font-black text-slate-400 uppercase mb-1" }, "Apellidos"),
+                      m("p", { class: "text-sm font-bold text-slate-700" }, State.user.apellidos),
+                    ]),
+                  ]),
+                  // Insertamos la previsualización de la tarjeta aquí
+                  m(CitizenCardPreview)
+                ]),
+
+                m("div", { class: "space-y-6" }, [
+                  m("h3", { class: "text-sm font-black text-slate-800 uppercase tracking-wider" }, "Estadísticas"),
+                  m("div", { class: "bg-green-500 p-6 rounded-[32px] text-slate-900" }, [
+                    m("div", { class: "flex justify-between items-center mb-4" }, [
+                      m("span", { class: "text-[10px] font-black uppercase" }, "Victorias"),
+                      m("span", { class: "text-2xl font-black" }, State.user.victorias),
+                    ]),
+                    m("div", { class: "w-full bg-white/30 h-2 rounded-full mb-2" }, [
+                      m("div", { class: "bg-white h-full rounded-full", style: "width: " + (State.user.victorias / State.user.partidas) * 100 + "%" }),
+                    ]),
+                    m("p", { class: "text-[10px] font-bold" }, State.user.partidas + " partidas jugadas"),
+                  ]),
+                ]),
+              ]),
+            ]),
+          ]),
+        ]),
+    };
+
+    m.mount(document.getElementById("app"), {
+      view: () => m("div", [m(Navbar), m(ProfileCard)]),
+    });
+  </script>
+</body>
+
 </html>

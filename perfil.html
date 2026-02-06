@@ -28,6 +28,13 @@
             position: relative;
             overflow: hidden;
         }
+
+        /* Estilo para que el logo del ayuntamiento se vea bien sobre fondo oscuro */
+        .logo-ayto {
+            filter: brightness(0) invert(1);
+            max-height: 45px;
+            width: auto;
+        }
     </style>
 </head>
 
@@ -117,18 +124,28 @@
         const CitizenCardPreview = {
             view: () => m("div", { class: "mt-10" }, [
                 m("h3", { class: "text-sm font-black text-slate-800 uppercase tracking-wider mb-4" }, "Tu Tarjeta Digital"),
-                m("div", { id: "citizen-card", class: "profile-gradient rounded-3xl p-6 text-white shadow-2xl mb-4" }, [
-                    m("img", {
-                        src: State.user.foto,
-                        class: "w-16 h-16 rounded-2xl border-2 border-green-500 mb-4 bg-white shadow-lg object-cover",
-                        onerror: (e) => e.target.src = "https://api.dicebear.com/7.x/initials/svg?seed=CP&backgroundColor=2ecc71&textColor=0f172a"
-                    }),
+                m("div", { id: "citizen-card", class: "profile-gradient rounded-3xl p-6 text-white shadow-2xl mb-4 flex flex-col justify-between" }, [
+                    // Fila superior: Foto y Logo Ayuntamiento
+                    m("div", { class: "flex justify-between items-start w-full" }, [
+                        m("img", {
+                            src: State.user.foto,
+                            class: "w-16 h-16 rounded-2xl border-2 border-green-500 bg-white shadow-lg object-cover",
+                            onerror: (e) => e.target.src = "https://api.dicebear.com/7.x/initials/svg?seed=CP&backgroundColor=2ecc71&textColor=0f172a"
+                        }),
+                        m("div", { class: "p-2.5 rounded-xl shadow-inner" }, [
+                            m("img", {
+                                src: "src/logo_escudo_pinto.png",
+                                style: "max-height: 45px; width: auto; display: block;"
+                            })
+                        ])
+                    ]),
+
+                    // Fila inferior: Datos usuario
                     m("div", [
                         m("p", { class: "text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold" }, "Miembro Oficial"),
                         m("h2", { class: "text-xl font-extrabold" }, State.user.nombre),
                         m("h2", { class: "text-xl font-extrabold -mt-1" }, State.user.apellidos),
                     ]),
-                    m("div", { class: "absolute top-6 right-6 opacity-40 text-xs font-black bg-gradient-to-r from-red-500 to-yellow-500 bg-clip-text text-transparent uppercase" }, "Ayuntamiento Pinto"),
                 ]),
                 m("button", {
                     class: `w-full md:w-auto px-8 py-3 rounded-2xl text-xs font-bold transition flex items-center justify-center gap-2 ${State.downloading ? "bg-slate-400" : "bg-green-500 hover:bg-green-600 text-slate-900"}`,
@@ -215,7 +232,6 @@
                                             : m("p", { class: "text-sm font-bold text-slate-700" }, State.user.email),
                                     ]),
 
-                                    // Campo Nivel (Desplegable al editar)
                                     m("div", {
                                         class: "p-4 bg-slate-50 rounded-2xl md:col-span-2 border-2 transition " +
                                             (State.isEditing ? "border-green-200 bg-white" : "border-transparent")

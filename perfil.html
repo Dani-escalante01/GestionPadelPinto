@@ -112,11 +112,11 @@
         const Navbar = {
             view: () => m("nav", { class: "bg-white border-b sticky top-0 z-50 px-6 py-4" }, [
                 m("div", { class: "max-w-5xl mx-auto flex justify-between items-center" }, [
-                    m("div", { class: "flex items-center gap-2 cursor-pointer", onclick: () => (window.location.href = "index.html") }, [
+                    m("div", { class: "flex items-center gap-2 cursor-pointer", onclick: () => (window.location.href = "loggedView.html") }, [
                         m("div", { class: "w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-white font-black" }, "P"),
                         m("span", { class: "font-black text-slate-800" }, "PADELPINTO"),
                     ]),
-                    m("button", { class: "text-xs font-bold text-slate-500 hover:text-green-600 transition", onclick: () => (window.location.href = "index.html") }, "← Volver a Reservas"),
+                    m("button", { class: "text-xs font-bold text-slate-500 hover:text-green-600 transition", onclick: () => (window.location.href = "loggedView.html") }, "← Volver a Reservas"),
                 ]),
             ]),
         };

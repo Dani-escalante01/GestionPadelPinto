@@ -7,6 +7,7 @@
     <title>Padel Pinto - Reserva tu pista</title>
     <script src="https://unpkg.com/mithril/mithril.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="toggleTheme.js"></script> <!--modo oscuro/claro-->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
         rel="stylesheet" />
     <!-- favicon -->
@@ -149,18 +150,8 @@
             "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=2070&auto=format&fit=crop",
             "https://images.unsplash.com/photo-1599423300746-b62533397364?q=80&w=2070&auto=format&fit=crop",
         ];
-        const HOURS = [
-            "09:00",
-            "10:30",
-            "12:00",
-            "13:30",
-            "16:30",
-            "18:00",
-            "19:30",
-            "21:00",
-        ];
-        const MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
-        ];
+        const HOURS = ["09:00", "10:30", "12:00", "13:30", "16:30", "18:00", "19:30", "21:00",];
+        const MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",];
 
         const formatDate = (date) => {
             const d = new Date(date);
@@ -198,12 +189,30 @@
                     },
                     {
                         courtId: 1,
-                        time: "18:00",
+                        time: "10:30",
                         type: "private",
-                        players: ["Carlos P."],
-                        positions: [1],
-                        inviteCode: "XP99",
-                        creator: "Carlos P.",
+                        players: ["Daniel M.", "Dario D.", "Mario O."],
+                        positions: [0, 1, 3],
+                        inviteCode: "AXX123", //aqui tendria que poner generateInviteCode() pero para las pruebas he puesto este codigo reconocible
+                        creator: "Daniel M.",
+                    },
+                    {
+                        courtId: 3,
+                        time: "10:30",
+                        type: "private",
+                        players: ["Javier J.", "Javier A.", "Hugo G.", "Mateo C."],
+                        positions: [0, 1, 2, 3],
+                        inviteCode: generateInviteCode(),
+                        creator: "Javier J.",
+                    },
+                    {
+                        courtId: 5,
+                        time: "10:30",
+                        type: "public",
+                        players: ["Carlos "],
+                        positions: [3],
+                        inviteCode: null,
+                        creator: "Carlos ",
                     },
                 ],
             },
@@ -422,81 +431,31 @@
 
         const Navbar = {
             view: () =>
-                m("nav", { class: "bg-white/80 backdrop-blur-md border-b sticky top-0 z-50 px-4" }, [
+                m("nav", {
+                    class: `border-b sticky top-0 z-50 px-4 transition-colors duration-500 ${ThemeState.darkMode ? "bg-slate-900/80 border-slate-800" : "bg-white/80 border-slate-100"
+                        } backdrop-blur-md`
+                }, [
                     m("div", { class: "max-w-6xl mx-auto flex justify-between items-center h-16" }, [
+                        // Logo y nombre
                         m("div", {
                             class: "flex items-center gap-2 cursor-pointer",
-                            onclick: () => (State.currentView = State.isLogged ? "booking" : "public")
+                            onclick: () => (State.currentView = "public")
                         }, [
-                            m("div", { class: "w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-white font-black italic shadow-lg shadow-green-200" }, "P"),
-                            m("span", { class: "font-black text-lg tracking-tighter text-slate-800" }, "PADELPINTO")
+                            m("div", { class: "w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-white font-black italic shadow-lg shadow-green-500/20" }, "P"),
+                            m("span", { class: `font-black text-lg tracking-tighter ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, "PADELPINTO")
                         ]),
-                        m("div", { class: "flex items-center gap-6" }, [
-                            State.isLogged ? [
-                                m("button", {
-                                    class: `text-[10px] font-black tracking-widest ${State.currentView === "booking" ? "text-green-500 border-b-2 border-green-500" : "text-slate-400"} pb-1 transition-all`,
-                                    onclick: () => (State.currentView = "booking")
-                                }, "RESERVAR"),
-                                m("button", {
-                                    class: `text-[10px] font-black tracking-widest ${State.currentView === "matchmaking" ? "text-green-500 border-b-2 border-green-500" : "text-slate-400"} pb-1 transition-all`,
-                                    onclick: () => (State.currentView = "matchmaking")
-                                }, "PARTIDAS ABIERTAS"),
-                                m("button", {
-                                    class: `text-[10px] font-black tracking-widest ${State.currentView === "agenda" ? "text-green-500 border-b-2 border-green-500" : "text-slate-400"} pb-1 transition-all`,
-                                    onclick: () => (State.currentView = "agenda")
-                                }, "MI AGENDA"),
-                                m("div", { class: "relative" }, [
-                                    //circulo del perfil
-                                    m("div", {
-                                        class: "w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold border-2 border-green-500 cursor-pointer hover:scale-105 transition-transform",
-                                        onclick: Actions.toggleUserMenu
-                                    }, "CP"),
-                                    //menu desplegable
-                                    State.showUserMenu && m("div", {
-                                        class: "absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-[100] animate-fade-up",
-                                        style: "transform-origin: top right;"
-                                    }, [
-                                        m("div", { class: "px-4 py-2 border-b border-slate-50 mb-1" }, [
-                                            m("p", { class: "text-[10px] font-black text-slate-400 uppercase" }, "Usuario"),
-                                            m("p", { class: "text-xs font-bold text-slate-800" }, "Carlos P.")
-                                        ]),
-                                        m("button", {
-                                            class: "w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-green-500 transition",
-                                            onclick: () => {
-                                                window.location.href = "perfil.html";
-                                                State.showUserMenu = false;
-                                            }
-                                        }, "Mi Perfil"),
-                                        m("button", {
-                                            class: "w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-green-500 transition",
-                                            onclick: () => { State.showUserMenu = false; }
-                                        }, "Configuración"),
-                                        m("hr", { class: "my-1 border-slate-50" }),
-                                        m("button", {
-                                            class: "w-full text-left px-4 py-2 text-xs font-bold text-red-500 hover:bg-red-50 transition",
-                                            onclick: Actions.logout
-                                        }, "Cerrar sesión")
-                                    ])
-                                ])
-                            ] : m("div", [
-                                State.isLogged ?
-                                    m("div", { class: "relative" }, [
-                                        m("div", {
-                                            class: "w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold border-2 border-green-500 cursor-pointer hover:scale-105 transition-transform",
-                                            onclick: Actions.toggleUserMenu
-                                        }, "CP")
-                                    ]) :
-                                    m("div", { class: "flex items-center gap-3" }, [
-                                        m("button", {
-                                            class: "text-slate-600 hover:text-slate-900 px-4 py-2 text-xs font-bold transition",
-                                            onclick: () => (window.location.href = "login.html")
-                                        }, "Entrar"),
-                                        m("button", {
-                                            class: "bg-green-500 hover:bg-green-400 text-slate-900 px-5 py-2 rounded-full text-xs font-black shadow-lg shadow-green-100 transition transform active:scale-95",
-                                            onclick: () => (window.location.href = "registro.html")
-                                        }, "Crear cuenta")
-                                    ])
-                            ])
+
+                        // Botones de acceso (Vista para no logueados)
+                        m("div", { class: "flex items-center gap-3" }, [
+                            m("button", {
+                                class: `px-4 py-2 text-xs font-bold transition ${ThemeState.darkMode ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900"
+                                    }`,
+                                onclick: () => (window.location.href = "login.html")
+                            }, "Entrar"),
+                            m("button", {
+                                class: "bg-green-500 hover:bg-green-400 text-slate-900 px-5 py-2 rounded-full text-xs font-black shadow-lg shadow-green-500/10 transition transform active:scale-95",
+                                onclick: () => (window.location.href = "registro.html")
+                            }, "Crear cuenta")
                         ])
                     ])
                 ])
@@ -540,25 +499,44 @@
                         const userIn = match?.players.includes("Carlos P.");
                         const label = isFull ? "CERRADO" : match?.type === "private" ? "PRIVADO" : "ABIERTO";
 
-                        return m("div", { class: "bg-white rounded-3xl border border-slate-100 overflow-hidden flex shadow-sm hover:shadow-md transition-all group" }, [
+                        return m("div", {
+                            class: `rounded-3xl border overflow-hidden flex shadow-sm hover:shadow-md transition-all group ${ThemeState.darkMode ? "bg-slate-800 border-slate-700" : "bg-white border-slate-100"
+                                }`
+                        }, [
                             m("div", { class: "w-32 bg-cover bg-center", style: `background-image: url(${c.img})` }),
-                            m("div", { class: "p-4 flex-1" }, [
-                                m("h4", { class: "font-black text-slate-800 text-xs mb-1 truncate" }, c.name),
-                                m("div", { class: "flex justify-between items-center mb-3" }, [
-                                    m("span", { class: "text-[9px] text-slate-400 font-bold uppercase" }, c.type),
-                                    m("span", { class: "text-[10px] font-black text-green-600" }, c.price),
-                                ]),
-                                match && m("div", { class: "mb-3" }, [
-                                    m("div", { class: "flex justify-between text-[8px] font-black mb-1" }, [
-                                        m("span", { class: isFull ? "text-slate-400" : match.type === "private" ? "text-red-400" : "text-amber-500" }, label),
-                                        m("span", { class: "text-slate-400" }, `${match.players.length}/4`),
+                            // Añadimos flex-col y justify-between para forzar el tamaño uniforme
+                            m("div", { class: "p-4 flex-1 flex flex-col justify-between" }, [
+                                m("div", [
+                                    m("h4", { class: `font-black text-xs mb-1 truncate ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, c.name),
+                                    m("div", { class: "flex justify-between items-center mb-3" }, [
+                                        m("span", { class: "text-[9px] text-slate-400 font-bold uppercase" }, c.type),
+                                        m("span", { class: "text-[10px] font-black text-green-600" }, c.price),
                                     ]),
-                                    m("div", { class: "w-full bg-slate-50 h-1 rounded-full overflow-hidden" },
-                                        m("div", { class: isFull ? "bg-slate-300" : "bg-green-500", style: `width: ${(match.players.length / 4) * 100}%` }),
-                                    ),
+
+                                    // Bloque de progreso: ahora siempre ocupa espacio. 
+                                    // Si no hay match, se mantiene 'invisible' para que la tarjeta no encoja.
+                                    m("div", { class: `mb-3 ${match ? "block" : "invisible"}` }, [
+                                        m("div", { class: "flex justify-between text-[8px] font-black mb-1" }, [
+                                            m("span", { class: isFull ? "text-slate-400" : match?.type === "private" ? "text-red-400" : "text-amber-500" }, label),
+                                            m("span", { class: "text-slate-400" }, `${match?.players.length || 0}/4`),
+                                        ]),
+                                        m("div", { class: `w-full h-1 rounded-full overflow-hidden ${ThemeState.darkMode ? "bg-slate-700" : "bg-slate-50"}` },
+                                            m("div", {
+                                                class: `h-full transition-all duration-500 ${isFull ? "bg-slate-300" : "bg-green-500"}`,
+                                                style: `width: ${((match?.players.length || 0) / 4) * 100}%`
+                                            }),
+                                        ),
+                                    ]),
                                 ]),
                                 m("button", {
-                                    class: `w-full py-2.5 rounded-xl text-[10px] font-black transition ${userIn ? "bg-slate-100 text-slate-400" : isFull ? "bg-slate-50 text-slate-300" : match ? "bg-slate-900 text-white shadow-lg" : "bg-green-500 text-slate-900"}`,
+                                    class: `w-full py-2.5 rounded-xl text-[10px] font-black transition ${userIn
+                                            ? (ThemeState.darkMode ? "bg-slate-700 text-slate-500" : "bg-slate-100 text-slate-400")
+                                            : isFull
+                                                ? (ThemeState.darkMode ? "bg-slate-900 text-slate-600" : "bg-slate-50 text-slate-300")
+                                                : match
+                                                    ? (ThemeState.darkMode ? "bg-white text-slate-900" : "bg-slate-900 text-white shadow-lg")
+                                                    : "bg-green-500 text-slate-900"
+                                        }`,
                                     onclick: () => !userIn && !isFull && Actions.openBooking(c.id, State.selectedTime),
                                 }, userIn ? "INSCRITO" : isFull ? "LLENO" : match ? "UNIRSE" : "RESERVAR"),
                             ]),

@@ -150,18 +150,8 @@
       "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=2070&auto=format&fit=crop",
       "https://images.unsplash.com/photo-1599423300746-b62533397364?q=80&w=2070&auto=format&fit=crop",
     ];
-    const HOURS = [
-      "09:00",
-      "10:30",
-      "12:00",
-      "13:30",
-      "16:30",
-      "18:00",
-      "19:30",
-      "21:00",
-    ];
-    const MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
-    ];
+    const HOURS = ["09:00", "10:30", "12:00", "13:30", "16:30", "18:00", "19:30", "21:00",];
+    const MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",];
 
     const formatDate = (date) => {
       const d = new Date(date);
@@ -201,19 +191,28 @@
             courtId: 1,
             time: "10:30",
             type: "private",
-            players: ["Carlos S.", "Pablo P.", "Mario O."],
+            players: ["Daniel M.", "Dario D.", "Mario O."],
             positions: [0, 1, 3],
+            inviteCode: "AXX123", //aqui tendria que poner generateInviteCode() pero para las pruebas he puesto este codigo reconocible
+            creator: "Daniel M.",
+          },
+          {
+            courtId: 3,
+            time: "10:30",
+            type: "private",
+            players: ["Javier J.", "Javier A.", "Hugo G.", "Mateo C."],
+            positions: [0, 1, 2, 3],
             inviteCode: generateInviteCode(),
-            creator: "Carlos S.",
+            creator: "Javier J.",
           },
           {
             courtId: 5,
             time: "10:30",
             type: "public",
-            players: ["Dario D."],
+            players: ["Carlos P."],
             positions: [3],
             inviteCode: null,
-            creator: "Dario D.",
+            creator: "Carlos P.",
           },
         ],
       },
@@ -290,7 +289,7 @@
         State.showUserMenu = false;
         m.redraw();
         setTimeout(() => {
-          window.location.href = "unloggedView.html";
+          window.location.href = "index.html";
         }, 1200);
       },
       checkSession: () => {
@@ -732,81 +731,97 @@
         State.modal.show &&
         m("div", { class: "fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4" }, [
           m("div", {
-            class: `w-full max-w-sm rounded-[40px] overflow-hidden shadow-2xl animate-fade-up transition-colors duration-500 ${ThemeState.darkMode ? "bg-slate-800" : "bg-white"
-              }`
+            class: `w-full max-w-sm rounded-[40px] overflow-hidden shadow-2xl animate-fade-up transition-colors duration-500 ${ThemeState.darkMode ? "bg-slate-800" : "bg-white"}`
           }, [
-            //cabecera (siempre oscura)
+            // Cabecera
             m("div", { class: "bg-slate-900 p-8 text-white" }, [
               m("div", { class: "flex justify-between items-start" }, [
                 m("div", [
                   m("h3", { class: "text-xl font-black tracking-tight" }, State.modal.isJoining ? "Únete a la Partida" : "Configura tu Reserva"),
-                  m("p", { class: "text-[10px] text-slate-400 font-bold uppercase mt-1" }, `${State.modal.date} @ ${State.modal.time}H`),
+                  m("p", { class: "text-[10px] text-slate-400 font-bold uppercase mt-1" }, `${State.modal.date} - ${State.modal.time}H`),
                 ]),
-                m("button", { class: "text-slate-400 hover:text-white transition", onclick: () => (State.modal.show = false) }, "✕"),
+                m("button", {
+                  class: "text-slate-400 hover:text-white transition",
+                  onclick: () => { State.modal.show = false; State.modal.tempCode = ""; }
+                }, "✕"),
               ]),
             ]),
 
             m("div", { class: "p-8 text-center" }, [
-              !State.modal.isJoining &&
-              m("div", {
-                class: `flex items-center justify-between mb-6 p-4 rounded-2xl border transition-colors ${ThemeState.darkMode ? "bg-slate-900 border-slate-700" : "bg-slate-50 border-slate-100"
-                  }`
-              }, [
-                m("div", { class: "text-left" }, [
-                  m("p", { class: `text-xs font-black ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, "Partida Privada"),
-                  m("p", { class: "text-[9px] text-slate-400 font-bold" }, "Solo con código de invitación"),
-                ]),
-                m("label", { class: "toggle-switch" }, [
-                  m("input", { type: "checkbox", checked: State.modal.isPrivate, onchange: (e) => (State.modal.isPrivate = e.target.checked) }),
-                  m("span", { class: "slider" }),
-                ]),
-              ]),
-
-              State.modal.isPrivate &&
-              m("div", {
-                class: `mb-6 p-3 rounded-2xl border border-dashed transition-colors ${ThemeState.darkMode ? "bg-green-900/20 border-green-800" : "bg-green-50 border-green-200"
-                  }`
-              }, [
-                m("p", { class: "text-[9px] font-black text-green-600 uppercase mb-1" }, "Código de Invitación"),
-                m("p", { class: `text-lg font-black tracking-widest ${ThemeState.darkMode ? "text-green-400" : "text-slate-800"}` }, State.modal.generatedCode),
-              ]),
-
-              m("p", { class: "text-[10px] font-black text-slate-400 uppercase mb-4" }, "Elige tu posición"),
-
-              //pista de padel visual
-              m("div", { class: "relative w-full aspect-[2/3] max-w-[160px] mx-auto bg-green-600 rounded-xl border-2 border-white/40 shadow-xl mb-8" }, [
-                m("div", { class: "absolute inset-x-0 top-1/2 h-0.5 bg-white/20" }),
-                m("div", { class: "absolute inset-y-0 left-1/2 w-0.5 bg-white/20" }),
-                [
-                  { id: 0, l: "Izq", t: "15%", lf: "12%" },
-                  { id: 1, l: "Izq", t: "70%", lf: "12%" },
-                  { id: 2, l: "Der", t: "15%", lf: "53%" },
-                  { id: 3, l: "Der", t: "70%", lf: "53%" },
-                ].map((p) => {
-                  const occ = State.modal.occupiedPositions.includes(p.id);
-                  const sel = State.modal.selectedPos === p.id;
-                  return m("button", {
-                    class: `absolute w-[35%] h-[15%] rounded-xl text-[9px] font-black transition-all ${occ
-                      ? "bg-slate-800/50 text-white/20"
-                      : sel
-                        ? "bg-white text-green-600 scale-110 shadow-lg"
-                        : "bg-white/90 text-slate-800 hover:bg-white"
+              // 1. Lógica de bloqueo: Si es unión a privada y el código es incorrecto
+              State.modal.isJoining && State.modal.isPrivate && State.modal.tempCode !== State.modal.generatedCode ? [
+                m("div", { class: "mb-6" }, [
+                  m("div", { class: "w-12 h-12 bg-amber-500/10 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-4" }, "🔒"),
+                  m("h4", { class: `text-sm font-black mb-1 ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, "Partida Privada"),
+                  m("p", { class: "text-[10px] text-slate-400 font-bold uppercase mb-4" }, "Introduce el código para desbloquear"),
+                  m("input", {
+                    type: "text",
+                    class: `w-full p-4 rounded-2xl border-2 text-center text-lg font-black tracking-widest focus:outline-none transition ${ThemeState.darkMode ? "bg-slate-900 border-slate-700 text-white focus:border-green-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-green-500"
                       }`,
-                    style: `top: ${p.t}; left: ${p.lf}`,
-                    disabled: occ,
-                    onclick: () => (State.modal.selectedPos = p.id),
-                  }, occ ? "X" : p.l);
-                }),
-              ]),
+                    placeholder: "CÓDIGO",
+                    value: State.modal.tempCode || "",
+                    oninput: (e) => (State.modal.tempCode = e.target.value.toUpperCase()),
+                  }),
+                  State.modal.tempCode?.length > 0 && State.modal.tempCode !== State.modal.generatedCode &&
+                  m("p", { class: "text-[9px] text-red-500 font-bold mt-2 animate-pulse" }, "CÓDIGO INCORRECTO")
+                ])
+              ] : [
+                // 2. Interfaz desbloqueada (Reserva nueva OR Código correcto OR Partida pública)
+                !State.modal.isJoining && m("div", {
+                  class: `flex items-center justify-between mb-6 p-4 rounded-2xl border transition-colors ${ThemeState.darkMode ? "bg-slate-900 border-slate-700" : "bg-slate-50 border-slate-100"}`
+                }, [
+                  m("div", { class: "text-left" }, [
+                    m("p", { class: `text-xs font-black ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, "Partida Privada"),
+                    m("p", { class: "text-[9px] text-slate-400 font-bold" }, "Solo con código de invitación"),
+                  ]),
+                  m("label", { class: "toggle-switch" }, [
+                    m("input", { type: "checkbox", checked: State.modal.isPrivate, onchange: (e) => (State.modal.isPrivate = e.target.checked) }),
+                    m("span", { class: "slider" }),
+                  ]),
+                ]),
 
-              m("button", {
-                class: `w-full py-4 rounded-2xl text-xs font-black transition-all ${State.modal.selectedPos === null
-                  ? (ThemeState.darkMode ? "bg-slate-700 text-slate-500" : "bg-slate-100 text-slate-300")
-                  : "bg-green-500 text-slate-900 shadow-xl shadow-green-100"
-                  }`,
-                disabled: State.modal.selectedPos === null,
-                onclick: Actions.confirmMatch,
-              }, "CONFIRMAR RESERVA"),
+                State.modal.isPrivate && m("div", {
+                  class: `mb-6 p-3 rounded-2xl border border-dashed transition-colors ${ThemeState.darkMode ? "bg-green-900/20 border-green-800" : "bg-green-50 border-green-200"}`
+                }, [
+                  m("p", { class: "text-[9px] font-black text-green-600 uppercase mb-1" }, State.modal.isJoining ? "✓ Acceso Concedido" : "Código de Invitación"),
+                  m("p", { class: `text-lg font-black tracking-widest ${ThemeState.darkMode ? "text-green-400" : "text-slate-800"}` }, State.modal.generatedCode),
+                ]),
+
+                m("p", { class: "text-[10px] font-black text-slate-400 uppercase mb-4" }, "Elige tu posición"),
+
+                // Pista visual
+                m("div", { class: "relative w-full aspect-[2/3] max-w-[160px] mx-auto bg-green-600 rounded-xl border-2 border-white/40 shadow-xl mb-8" }, [
+                  m("div", { class: "absolute inset-x-0 top-1/2 h-0.5 bg-white/20" }),
+                  m("div", { class: "absolute inset-y-0 left-1/2 w-0.5 bg-white/20" }),
+                  [
+                    { id: 0, l: "Izq", t: "15%", lf: "12%" },
+                    { id: 1, l: "Izq", t: "70%", lf: "12%" },
+                    { id: 2, l: "Der", t: "15%", lf: "53%" },
+                    { id: 3, l: "Der", t: "70%", lf: "53%" },
+                  ].map((p) => {
+                    const occ = State.modal.occupiedPositions.includes(p.id);
+                    const sel = State.modal.selectedPos === p.id;
+                    return m("button", {
+                      class: `absolute w-[35%] h-[15%] rounded-xl text-[9px] font-black transition-all ${occ ? "bg-slate-800/50 text-white/20" : sel ? "bg-white text-green-600 scale-110 shadow-lg" : "bg-white/90 text-slate-800 hover:bg-white"}`,
+                      style: `top: ${p.t}; left: ${p.lf}`,
+                      disabled: occ,
+                      onclick: () => (State.modal.selectedPos = p.id),
+                    }, occ ? "X" : p.l);
+                  }),
+                ]),
+
+                m("button", {
+                  class: `w-full py-4 rounded-2xl text-xs font-black transition-all ${State.modal.selectedPos === null
+                    ? (ThemeState.darkMode ? "bg-slate-700 text-slate-500" : "bg-slate-100 text-slate-300")
+                    : "bg-green-500 text-slate-900 shadow-xl shadow-green-100 active:scale-95"
+                    }`,
+                  disabled: State.modal.selectedPos === null,
+                  onclick: () => {
+                    console.log("Confirmando reserva...");
+                    Actions.confirmMatch();
+                  },
+                }, "CONFIRMAR RESERVA"),
+              ]
             ]),
           ]),
         ]),
@@ -929,7 +944,7 @@
     //parte principal que contiene el calendario, horas, el codigo privado, y las pistas para reservar/unirse
     const MainLayout = {
       view: () =>
-        //aplicamos la función que controla el fondo y el color de texto global
+        // Aplicamos la función que controla el fondo y el color de texto global
         m("div", { class: ThemeActions.getMainClasses() }, [
           m(Navbar),
           m(Hero),
@@ -939,19 +954,20 @@
               m(Calendar),
               State.isLogged &&
               m("div", {
-                class: `p-6 rounded-[32px] mb-6 shadow-xl transition-colors duration-500 ${ThemeState.darkMode ? "bg-slate-800 border border-slate-700" : "bg-slate-900"
-                  }`
+                class: "p-6 rounded-[32px] mb-6 shadow-xl bg-slate-900 border border-slate-800 transition-all"
               }, [
                 m("p", { class: "text-[9px] font-black text-green-500 uppercase tracking-widest mb-3" }, "Unirse con Código"),
                 m("div", { class: "flex gap-2" }, [
                   m("input", {
-                    class: `flex-1 border rounded-xl px-4 py-2 text-xs font-bold focus:outline-none focus:border-green-500 uppercase transition-colors ${ThemeState.darkMode ? "bg-slate-900 border-slate-700 text-white" : "bg-white/10 border-white/10 text-white"
-                      }`,
+                    class: "flex-1 bg-white/10 border border-white/10 rounded-xl px-4 py-2 text-white text-xs font-bold focus:outline-none focus:border-green-500 uppercase transition-all",
                     placeholder: "CÓDIGO",
                     value: State.inviteInput,
                     oninput: (e) => (State.inviteInput = e.target.value),
                   }),
-                  m("button", { class: "bg-green-500 p-2 rounded-xl text-slate-900 hover:bg-green-400 transition", onclick: Actions.joinByCode }, "→"),
+                  m("button", {
+                    class: "bg-green-500 p-2 rounded-xl text-slate-900 hover:bg-green-400 transition",
+                    onclick: Actions.joinByCode
+                  }, "→"),
                 ]),
               ]),
               m("p", { class: "text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 pl-1" }, "Seleccionar Hora"),
@@ -959,10 +975,10 @@
                 HOURS.map((h) =>
                   m("button", {
                     class: `py-3 rounded-2xl text-[10px] font-bold border transition-all ${State.selectedTime === h
-                      ? "bg-green-500 text-slate-900 border-green-500 shadow-xl shadow-green-500/20"
-                      : ThemeState.darkMode
-                        ? "bg-slate-800 text-slate-400 border-slate-700 hover:border-green-500"
-                        : "bg-white text-slate-500 border-slate-100 hover:border-green-200"
+                        ? "bg-green-500 text-slate-900 border-green-500 shadow-xl shadow-green-500/20 scale-105 z-10"
+                        : ThemeState.darkMode
+                          ? "bg-slate-800 text-slate-400 border-slate-700 hover:border-green-500"
+                          : "bg-white text-slate-500 border-slate-100 hover:border-green-200"
                       }`,
                     onclick: () => (State.selectedTime = h),
                   }, h)

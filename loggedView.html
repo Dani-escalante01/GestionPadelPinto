@@ -7,7 +7,7 @@
   <title>Padel Pinto - Reserva tu pista</title>
   <script src="https://unpkg.com/mithril/mithril.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="toggleTheme.js"></script>
+   <script src="toggleTheme.js"></script> <!--modo oscuro/claro-->
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
     rel="stylesheet" />
   <!-- favicon -->
@@ -389,6 +389,7 @@
 
     // --- COMPONENTES ---
 
+    //barra de navegacion
     const Navbar = {
       view: () =>
         m("nav", {
@@ -456,6 +457,7 @@
         ]),
     };
 
+    //hero (foto principal)
     const Hero = {
       view: () =>
         m("header", { class: "hero-container" }, [
@@ -472,6 +474,7 @@
         ]),
     };
 
+    //calendario de fechas 
     const Calendar = {
       view: () => {
         const firstDay = new Date(State.viewYear, State.viewMonth, 1).getDay();
@@ -479,24 +482,27 @@
         const blanks = Array(firstDay === 0 ? 6 : firstDay - 1).fill(null);
         const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
-        return m("div", { class: "bg-white p-5 rounded-[32px] border border-slate-100 shadow-sm mb-6" }, [
+        return m("div", {
+          class: `p-5 rounded-[32px] border shadow-sm mb-6 transition-colors duration-500 ${ThemeState.darkMode ? "bg-slate-800 border-slate-700" : "bg-white border-slate-100"
+            }`
+        }, [
           m("div", { class: "flex justify-between items-center mb-5" }, [
             m("div", [
               m("p", { class: "text-[9px] font-black text-green-500 uppercase tracking-widest mb-0.5" }, "Calendario"),
-              m("h3", { class: "text-base font-black text-slate-800" }, `${MONTHS[State.viewMonth]} ${State.viewYear}`)
+              m("h3", { class: `text-base font-black ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, `${MONTHS[State.viewMonth]} ${State.viewYear}`)
             ]),
             m("div", { class: "flex gap-1" }, [
               m("button", {
-                class: "w-8 h-8 flex items-center justify-center hover:bg-slate-50 rounded-xl transition",
+                class: `w-8 h-8 flex items-center justify-center rounded-xl transition ${ThemeState.darkMode ? "hover:bg-slate-700 text-white" : "hover:bg-slate-50 text-slate-800"}`,
                 onclick: () => Actions.changeMonth(-1)
               }, "‹"),
               m("button", {
-                class: "w-8 h-8 flex items-center justify-center hover:bg-slate-50 rounded-xl transition",
+                class: `w-8 h-8 flex items-center justify-center rounded-xl transition ${ThemeState.darkMode ? "hover:bg-slate-700 text-white" : "hover:bg-slate-50 text-slate-800"}`,
                 onclick: () => Actions.changeMonth(1)
               }, "›")
             ])
           ]),
-          m("div", { class: "calendar-grid text-[10px] font-bold text-slate-300 mb-2 text-center" },
+          m("div", { class: `calendar-grid text-[10px] font-bold mb-2 text-center ${ThemeState.darkMode ? "text-slate-500" : "text-slate-300"}` },
             ["L", "M", "X", "J", "V", "S", "D"].map((d) => m("div", d))
           ),
           m("div", { class: "calendar-grid" }, [
@@ -506,7 +512,10 @@
               const isSelected = State.selectedDate === dateStr;
               const hasData = State.data[dateStr] && State.data[dateStr].length > 0;
               return m("button", {
-                class: `day-cell w-full rounded-2xl flex items-center justify-center text-xs font-bold transition-all relative ${isSelected ? "bg-green-500 text-slate-900 shadow-lg shadow-green-100 scale-105 z-10" : "hover:bg-slate-50 text-slate-600"}`,
+                class: `day-cell w-full rounded-2xl flex items-center justify-center text-xs font-bold transition-all relative ${isSelected
+                  ? "bg-green-500 text-slate-900 shadow-lg scale-105 z-10"
+                  : ThemeState.darkMode ? "hover:bg-slate-700 text-slate-300" : "hover:bg-slate-50 text-slate-600"
+                  }`,
                 onclick: () => (State.selectedDate = dateStr),
               }, [
                 m("span", d),
@@ -518,6 +527,7 @@
       }
     };
 
+    //zona donde se visualizan las pistas para reservar y/o unirse
     const CourtGrid = {
       view: () =>
         m("div", { class: "grid grid-cols-1 sm:grid-cols-2 gap-4" },
@@ -529,31 +539,46 @@
             const userIn = match?.players.includes("Carlos P.");
             const label = isFull ? "CERRADO" : match?.type === "private" ? "PRIVADO" : "ABIERTO";
 
-            return m("div", { class: "bg-white rounded-3xl border border-slate-100 overflow-hidden flex shadow-sm hover:shadow-md transition-all group" }, [
+            return m("div", {
+              class: `rounded-3xl border overflow-hidden flex shadow-sm hover:shadow-md transition-all group ${ThemeState.darkMode ? "bg-slate-800 border-slate-700" : "bg-white border-slate-100"
+                }`
+            }, [
               m("div", {
                 class: "w-32 bg-cover bg-center",
                 style: `background-image: url(${c.img})`
               }),
-              m("div", { class: "p-4 flex-1" }, [
-                m("h4", { class: "font-black text-slate-800 text-xs mb-1 truncate" }, c.name),
-                m("div", { class: "flex justify-between items-center mb-3" }, [
-                  m("span", { class: "text-[9px] text-slate-400 font-bold uppercase" }, c.type),
-                  m("span", { class: "text-[10px] font-black text-green-600" }, c.price)
-                ]),
-                match && m("div", { class: "mb-3" }, [
-                  m("div", { class: "flex justify-between text-[8px] font-black mb-1" }, [
-                    m("span", { class: isFull ? "text-slate-400" : match.type === "private" ? "text-red-400" : "text-amber-500" }, label),
-                    m("span", { class: "text-slate-400" }, `${match.players.length}/4`)
+              m("div", { class: "p-4 flex-1 flex flex-col justify-between" }, [ // Flex-col y justify-between para alinear
+                m("div", [
+                  m("h4", { class: `font-black text-xs mb-1 truncate ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, c.name),
+                  m("div", { class: "flex justify-between items-center mb-3" }, [
+                    m("span", { class: "text-[9px] text-slate-400 font-bold uppercase" }, c.type),
+                    m("span", { class: "text-[10px] font-black text-green-600" }, c.price)
                   ]),
-                  m("div", { class: "w-full bg-slate-50 h-1 rounded-full overflow-hidden" },
-                    m("div", {
-                      class: isFull ? "bg-slate-300" : "bg-green-500",
-                      style: `width: ${(match.players.length / 4) * 100}%`
-                    })
-                  )
+
+                  // Bloque de partida: Si no hay match, se pone invisible pero ocupa el mismo espacio
+                  m("div", { class: `mb-3 ${match ? "block" : "invisible"}` }, [
+                    m("div", { class: "flex justify-between text-[8px] font-black mb-1" }, [
+                      m("span", { class: isFull ? "text-slate-400" : match?.type === "private" ? "text-red-400" : "text-amber-500" }, label),
+                      m("span", { class: "text-slate-400" }, `${match?.players.length || 0}/4`)
+                    ]),
+                    m("div", { class: `w-full h-1 rounded-full overflow-hidden ${ThemeState.darkMode ? "bg-slate-700" : "bg-slate-50"}` },
+                      m("div", {
+                        class: isFull ? "bg-slate-300" : "bg-green-500",
+                        style: `width: ${((match?.players.length || 0) / 4) * 100}%`
+                      })
+                    )
+                  ]),
                 ]),
+
                 m("button", {
-                  class: `w-full py-2.5 rounded-xl text-[10px] font-black transition ${userIn ? "bg-slate-100 text-slate-400" : isFull ? "bg-slate-50 text-slate-300" : match ? "bg-slate-900 text-white shadow-lg" : "bg-green-500 text-slate-900"}`,
+                  class: `w-full py-2.5 rounded-xl text-[10px] font-black transition ${userIn
+                    ? (ThemeState.darkMode ? "bg-slate-700 text-slate-500" : "bg-slate-100 text-slate-400")
+                    : isFull
+                      ? (ThemeState.darkMode ? "bg-slate-900 text-slate-600" : "bg-slate-50 text-slate-300")
+                      : match
+                        ? (ThemeState.darkMode ? "bg-white text-slate-900" : "bg-slate-900 text-white shadow-lg")
+                        : "bg-green-500 text-slate-900"
+                    }`,
                   onclick: () => !userIn && !isFull && Actions.openBooking(c.id, State.selectedTime)
                 }, userIn ? "INSCRITO" : isFull ? "LLENO" : match ? "UNIRSE" : "RESERVAR")
               ])
@@ -562,6 +587,7 @@
         )
     };
 
+    //vista del matchmaking para unirse a partidas
     const MatchmakingView = {
       view: () => {
         const openMatches = [];
@@ -572,25 +598,51 @@
         });
 
         return m("div", { class: "flex-1 animate-fade-up" }, [
-          m("h2", { class: "text-2xl font-black text-slate-800 mb-6" }, "Partidas Abiertas"),
+          m("h2", {
+            class: `text-2xl font-black mb-6 ${ThemeState.darkMode ? "text-white" : "text-slate-800"}`
+          }, "Partidas Abiertas"),
+
           openMatches.length === 0
-            ? m("div", { class: "py-20 text-center bg-white rounded-3xl" }, "No hay partidas buscando jugadores.")
+            ? m("div", {
+              class: `py-20 text-center rounded-3xl ${ThemeState.darkMode ? "bg-slate-800 text-slate-400" : "bg-white text-slate-500"}`
+            }, "No hay partidas buscando jugadores.")
             : m("div", { class: "grid gap-4" }, openMatches.map((match) => {
               const court = State.courts.find((c) => c.id === match.courtId);
               const isFull = match.players.length >= 4;
-              return m("div", { class: "bg-white p-5 rounded-3xl shadow-sm flex items-center justify-between border border-slate-50" }, [
+
+              return m("div", {
+                class: `p-5 rounded-3xl shadow-sm flex items-center justify-between border transition-colors duration-300 ${ThemeState.darkMode
+                  ? "bg-slate-800 border-slate-700"
+                  : "bg-white border-slate-50"
+                  }`
+              }, [
                 m("div", { class: "flex gap-4 items-center" }, [
-                  m("div", { class: "w-12 h-12 rounded-2xl bg-slate-50 flex flex-col items-center justify-center font-black" }, [
+                  // Cuadro de fecha
+                  m("div", {
+                    class: `w-12 h-12 rounded-2xl flex flex-col items-center justify-center font-black ${ThemeState.darkMode ? "bg-slate-900 text-white" : "bg-slate-50 text-slate-800"
+                      }`
+                  }, [
                     m("span", { class: "text-[10px] text-slate-400" }, match.date.split("/")[1]),
                     m("span", { class: "text-sm" }, match.date.split("/")[0]),
                   ]),
+                  // Información de la partida
                   m("div", [
-                    m("p", { class: "text-xs font-black" }, `${match.time}H - ${court.name}`),
-                    m("p", { class: "text-[10px] font-bold text-slate-400" }, isFull ? "PARTIDA CERRADA" : `${match.players.length}/4 jugadores inscritos`),
+                    m("p", {
+                      class: `text-xs font-black ${ThemeState.darkMode ? "text-white" : "text-slate-800"}`
+                    }, `${match.time}H - ${court.name}`),
+                    m("p", { class: "text-[10px] font-bold text-slate-400" },
+                      isFull ? "PARTIDA CERRADA" : `${match.players.length}/4 jugadores inscritos`
+                    ),
                   ]),
                 ]),
+                // Botón de acción
                 m("button", {
-                  class: `px-6 py-2 rounded-xl text-[10px] font-black shadow-lg ${isFull ? "bg-slate-100 text-slate-400" : "bg-green-500 text-slate-900 shadow-green-100"}`,
+                  class: `px-6 py-2 rounded-xl text-[10px] font-black transition-all ${isFull
+                    ? (ThemeState.darkMode ? "bg-slate-700 text-slate-500" : "bg-slate-100 text-slate-400")
+                    : (ThemeState.darkMode
+                      ? "bg-green-500 text-slate-900 hover:bg-green-400"
+                      : "bg-green-500 text-slate-900 shadow-lg shadow-green-100")
+                    }`,
                   disabled: isFull,
                   onclick: () => Actions.openBooking(match.courtId, match.time, match.date),
                 }, isFull ? "CERRADO" : "UNIRSE"),
@@ -600,6 +652,7 @@
       },
     };
 
+    //agenda personal para visualizar las partidas que tiene el jugador
     const AgendaView = {
       view: () => {
         const myMatches = [];
@@ -611,22 +664,43 @@
         });
 
         return m("div", { class: "flex-1 animate-fade-up" }, [
-          m("h2", { class: "text-2xl font-black text-slate-800 mb-6" }, "Mi Agenda"),
+          // Título con color dinámico
+          m("h2", {
+            class: `text-2xl font-black mb-6 ${ThemeState.darkMode ? "text-white" : "text-slate-800"}`
+          }, "Mi Agenda"),
+
           myMatches.length === 0
-            ? m("div", { class: "py-20 text-center bg-white rounded-3xl" }, "No tienes reservas próximamente.")
+            ? m("div", {
+              class: `py-20 text-center rounded-3xl ${ThemeState.darkMode ? "bg-slate-800 text-slate-400" : "bg-white text-slate-500"}`
+            }, "No tienes reservas próximamente.")
             : m("div", { class: "grid gap-4" },
               myMatches.map((match) => {
                 const court = State.courts.find((c) => c.id === match.courtId);
-                return m("div", { class: "bg-white p-5 rounded-3xl shadow-sm border-l-4 border-green-500 flex justify-between items-center hover:shadow-md transition" }, [
+                return m("div", {
+                  class: `p-5 rounded-3xl shadow-sm border-l-4 border-green-500 flex justify-between items-center hover:shadow-md transition-all ${ThemeState.darkMode ? "bg-slate-800 border-y border-r border-slate-700" : "bg-white border-l-4"
+                    }`
+                }, [
                   m("div", [
                     m("div", { class: "flex items-center gap-2 mb-1" }, [
-                      m("p", { class: "text-xs font-black text-slate-900" }, `${match.date} - ${match.time}H`),
-                      match.inviteCode && m("span", { class: "text-[8px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500 font-black tracking-widest" }, `ID: ${match.inviteCode}`),
+                      m("p", {
+                        class: `text-xs font-black ${ThemeState.darkMode ? "text-white" : "text-slate-900"}`
+                      }, `${match.date} - ${match.time}H`),
+
+                      // Badge del ID con estilo para modo oscuro
+                      match.inviteCode && m("span", {
+                        class: `text-[8px] px-1.5 py-0.5 rounded font-black tracking-widest ${ThemeState.darkMode ? "bg-slate-700 text-slate-400" : "bg-slate-100 text-slate-500"
+                          }`
+                      }, `ID: ${match.inviteCode}`),
                     ]),
                     m("p", { class: "text-[10px] font-bold text-slate-400 uppercase" }, court.name),
                   ]),
+
+                  // Botón de cancelar con estilo adaptado
                   m("button", {
-                    class: "bg-red-50 text-red-500 hover:bg-red-500 hover:text-white px-4 py-2 rounded-xl text-[10px] font-black transition-all",
+                    class: `px-4 py-2 rounded-xl text-[10px] font-black transition-all ${ThemeState.darkMode
+                      ? "bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white"
+                      : "bg-red-50 text-red-500 hover:bg-red-500 hover:text-white"
+                      }`,
                     onclick: () => {
                       State.confirmModal = { show: true, date: match.date, matchIndex: match.originalIndex };
                     },
@@ -638,11 +712,16 @@
       },
     };
 
+    //zona para configurar los aspectos de la reserva (partida pública/privada, zona del campo, etc.)
     const BookingModal = {
       view: () =>
         State.modal.show &&
         m("div", { class: "fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4" }, [
-          m("div", { class: "bg-white w-full max-w-sm rounded-[40px] overflow-hidden shadow-2xl animate-fade-up" }, [
+          m("div", {
+            class: `w-full max-w-sm rounded-[40px] overflow-hidden shadow-2xl animate-fade-up transition-colors duration-500 ${ThemeState.darkMode ? "bg-slate-800" : "bg-white"
+              }`
+          }, [
+            // Cabecera (Siempre oscura para mantener el estilo "Premium")
             m("div", { class: "bg-slate-900 p-8 text-white" }, [
               m("div", { class: "flex justify-between items-start" }, [
                 m("div", [
@@ -652,11 +731,16 @@
                 m("button", { class: "text-slate-400 hover:text-white transition", onclick: () => (State.modal.show = false) }, "✕"),
               ]),
             ]),
+
+            // Cuerpo del Modal
             m("div", { class: "p-8 text-center" }, [
               !State.modal.isJoining &&
-              m("div", { class: "flex items-center justify-between mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-100" }, [
+              m("div", {
+                class: `flex items-center justify-between mb-6 p-4 rounded-2xl border transition-colors ${ThemeState.darkMode ? "bg-slate-900 border-slate-700" : "bg-slate-50 border-slate-100"
+                  }`
+              }, [
                 m("div", { class: "text-left" }, [
-                  m("p", { class: "text-xs font-black text-slate-800" }, "Partida Privada"),
+                  m("p", { class: `text-xs font-black ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, "Partida Privada"),
                   m("p", { class: "text-[9px] text-slate-400 font-bold" }, "Solo con código de invitación"),
                 ]),
                 m("label", { class: "toggle-switch" }, [
@@ -664,12 +748,19 @@
                   m("span", { class: "slider" }),
                 ]),
               ]),
+
               State.modal.isPrivate &&
-              m("div", { class: "mb-6 p-3 bg-green-50 rounded-2xl border border-dashed border-green-200" }, [
+              m("div", {
+                class: `mb-6 p-3 rounded-2xl border border-dashed transition-colors ${ThemeState.darkMode ? "bg-green-900/20 border-green-800" : "bg-green-50 border-green-200"
+                  }`
+              }, [
                 m("p", { class: "text-[9px] font-black text-green-600 uppercase mb-1" }, "Código de Invitación"),
-                m("p", { class: "text-lg font-black tracking-widest text-slate-800" }, State.modal.generatedCode),
+                m("p", { class: `text-lg font-black tracking-widest ${ThemeState.darkMode ? "text-green-400" : "text-slate-800"}` }, State.modal.generatedCode),
               ]),
+
               m("p", { class: "text-[10px] font-black text-slate-400 uppercase mb-4" }, "Elige tu posición"),
+
+              // Pista de Padel Visual
               m("div", { class: "relative w-full aspect-[2/3] max-w-[160px] mx-auto bg-green-600 rounded-xl border-2 border-white/40 shadow-xl mb-8" }, [
                 m("div", { class: "absolute inset-x-0 top-1/2 h-0.5 bg-white/20" }),
                 m("div", { class: "absolute inset-y-0 left-1/2 w-0.5 bg-white/20" }),
@@ -682,15 +773,24 @@
                   const occ = State.modal.occupiedPositions.includes(p.id);
                   const sel = State.modal.selectedPos === p.id;
                   return m("button", {
-                    class: `absolute w-[35%] h-[15%] rounded-xl text-[9px] font-black transition-all ${occ ? "bg-slate-800 text-white/10" : sel ? "bg-white text-green-600 scale-110 shadow-lg" : "bg-white/90 text-slate-800 hover:bg-white"}`,
+                    class: `absolute w-[35%] h-[15%] rounded-xl text-[9px] font-black transition-all ${occ
+                      ? "bg-slate-800/50 text-white/20"
+                      : sel
+                        ? "bg-white text-green-600 scale-110 shadow-lg"
+                        : "bg-white/90 text-slate-800 hover:bg-white"
+                      }`,
                     style: `top: ${p.t}; left: ${p.lf}`,
                     disabled: occ,
                     onclick: () => (State.modal.selectedPos = p.id),
                   }, occ ? "X" : p.l);
                 }),
               ]),
+
               m("button", {
-                class: `w-full py-4 rounded-2xl text-xs font-black transition-all ${State.modal.selectedPos === null ? "bg-slate-100 text-slate-300" : "bg-green-500 text-slate-900 shadow-xl shadow-green-100"}`,
+                class: `w-full py-4 rounded-2xl text-xs font-black transition-all ${State.modal.selectedPos === null
+                  ? (ThemeState.darkMode ? "bg-slate-700 text-slate-500" : "bg-slate-100 text-slate-300")
+                  : "bg-green-500 text-slate-900 shadow-xl shadow-green-100"
+                  }`,
                 disabled: State.modal.selectedPos === null,
                 onclick: Actions.confirmMatch,
               }, "CONFIRMAR RESERVA"),
@@ -703,17 +803,24 @@
       view: () =>
         State.confirmModal.show &&
         m("div", { class: "fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[150] flex items-center justify-center p-4" }, [
-          m("div", { class: "bg-white w-full max-w-xs rounded-[32px] p-6 text-center animate-fade-up shadow-2xl" }, [
-            m("div", { class: "w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4" }, "!"),
-            m("h3", { class: "text-lg font-black text-slate-800 mb-2" }, "¿Cancelar reserva?"),
+          m("div", {
+            class: `w-full max-w-xs rounded-[32px] p-6 text-center animate-fade-up shadow-2xl transition-colors duration-500 ${ThemeState.darkMode ? "bg-slate-800" : "bg-white"
+              }`
+          }, [
+            m("div", {
+              class: `w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 ${ThemeState.darkMode ? "bg-red-900/30 text-red-400" : "bg-red-50 text-red-500"
+                }`
+            }, "!"),
+            m("h3", { class: `text-lg font-black mb-2 ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, "¿Cancelar reserva?"),
             m("p", { class: "text-xs text-slate-400 font-medium mb-6" }, "Esta acción eliminará tu plaza en la pista. ¿Estás seguro?"),
             m("div", { class: "flex gap-3" }, [
               m("button", {
-                class: "flex-1 py-3 rounded-xl bg-slate-100 text-slate-600 text-xs font-black hover:bg-slate-200 transition",
+                class: `flex-1 py-3 rounded-xl text-xs font-black transition ${ThemeState.darkMode ? "bg-slate-700 text-slate-300 hover:bg-slate-600" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  }`,
                 onclick: () => (State.confirmModal.show = false),
               }, "VOLVER"),
               m("button", {
-                class: "flex-1 py-3 rounded-xl bg-red-500 text-white text-xs font-black hover:bg-red-600 transition shadow-lg shadow-red-100",
+                class: "flex-1 py-3 rounded-xl bg-red-500 text-white text-xs font-black hover:bg-red-600 transition shadow-lg shadow-red-500/20",
                 onclick: () => Actions.cancelBooking(State.confirmModal.date, State.confirmModal.matchIndex),
               }, "SÍ, CANCELAR"),
             ]),
@@ -721,19 +828,26 @@
         ]),
     };
 
+    //footer con informacion
     const Footer = {
       view: () =>
-        m("footer", { class: "bg-slate-900 text-white mt-20 pt-16 pb-8 px-4" }, [
+        m("footer", {
+          class: `transition-colors duration-500 mt-20 pt-16 pb-8 px-4 border-t ${ThemeState.darkMode
+            ? "bg-slate-950 text-white border-slate-800"
+            : "bg-slate-900 text-white border-transparent"
+            }`
+        }, [
           m("div", { class: "max-w-6xl mx-auto" }, [
             m("div", { class: "grid grid-cols-1 md:grid-cols-3 gap-12 mb-12" }, [
               // Columna 1: Branding
               m("div", [
                 m("div", { class: "flex items-center gap-2 mb-6" }, [
-                  m("div", { class: "w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-white font-black italic text-sm" }, "P"),
+                  m("div", { class: "w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-white font-black italic text-sm shadow-lg shadow-green-500/20" }, "P"),
                   m("span", { class: "font-extrabold text-xl tracking-tighter" }, "PADELPINTO "),
                 ]),
                 m("p", { class: "text-slate-400 text-sm leading-relaxed" }, "La plataforma líder para la gestión de pistas y comunidades de pádel. Reserva, juega y conecta con otros jugadores en un solo lugar."),
               ]),
+
               // Columna 2: Enlaces rápidos
               m("div", [
                 m("h4", { class: "font-bold mb-6 text-green-500 uppercase text-xs tracking-widest" }, "Navegación"),
@@ -744,17 +858,20 @@
                   m("li", { class: "hover:text-white cursor-pointer transition" }, "Torneos"),
                 ]),
               ]),
+
               // Columna 3: Newsletter/Social
               m("div", [
                 m("h4", { class: "font-bold mb-6 text-green-500 uppercase text-xs tracking-widest" }, "Mantente al día"),
                 m("div", { class: "flex gap-2 mb-6" }, [
                   m("input[type=text]", {
-                    class: "bg-slate-800 border-none rounded-lg px-4 py-2 text-sm w-full focus:ring-2 focus:ring-green-500",
+                    class: `border-none rounded-lg px-4 py-2 text-sm w-full focus:ring-2 focus:ring-green-500 transition-colors ${ThemeState.darkMode ? "bg-slate-900 text-white" : "bg-slate-800 text-white"
+                      }`,
                     placeholder: "Tu email",
                   }),
                   m("button", { class: "bg-green-500 text-slate-900 px-4 py-2 rounded-lg font-bold text-sm hover:bg-green-400 transition" }, "OK"),
                 ]),
-                // --- REDES SOCIALES CON TAMAÑO UNIFICADO ---
+
+                // Redes Sociales
                 m("div", { class: "flex gap-4 text-slate-400" }, [
                   // Instagram
                   m("a", { href: "https://www.instagram.com/ayuntamientopinto", target: "_blank", rel: "noopener noreferrer", class: "w-8 h-8 flex items-center justify-center hover:text-white transition" }, [
@@ -779,21 +896,28 @@
                 ]),
               ]),
             ]),
-            m("div", { class: "border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest" }, [
+
+            // Copyright bar
+            m("div", {
+              class: `border-t pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-bold uppercase tracking-widest transition-colors ${ThemeState.darkMode ? "border-slate-800 text-slate-600" : "border-slate-800 text-slate-500"
+                }`
+            }, [
               m("span", "© 2026 Padel Pro International. Todos los derechos reservados."),
               m("div", { class: "flex gap-6" }, [
-                m("span", { class: "hover:text-slate-300 cursor-pointer" }, "Privacidad"),
-                m("span", { class: "hover:text-slate-300 cursor-pointer" }, "Términos"),
-                m("span", { class: "hover:text-slate-300 cursor-pointer" }, "Cookies"),
+                m("span", { class: "hover:text-slate-300 cursor-pointer transition" }, "Privacidad"),
+                m("span", { class: "hover:text-slate-300 cursor-pointer transition" }, "Términos"),
+                m("span", { class: "hover:text-slate-300 cursor-pointer transition" }, "Cookies"),
               ]),
             ]),
           ]),
         ]),
     };
 
+    //parte principal que contiene el calendario, horas, el codigo privado, y las pistas para reservar/unirse
     const MainLayout = {
       view: () =>
-        m("div", [
+        // Aplicamos la función que controla el fondo y el color de texto global
+        m("div", { class: ThemeActions.getMainClasses() }, [
           m(Navbar),
           m(Hero),
           m("main", { id: "booking-section", class: "max-w-6xl mx-auto p-4 py-12 flex flex-col md:flex-row gap-8" }, [
@@ -801,23 +925,32 @@
             m("aside", { class: "w-full md:w-80 flex-shrink-0" }, [
               m(Calendar),
               State.isLogged &&
-              m("div", { class: "bg-slate-900 p-6 rounded-[32px] mb-6 shadow-xl" }, [
+              m("div", {
+                class: `p-6 rounded-[32px] mb-6 shadow-xl transition-colors duration-500 ${ThemeState.darkMode ? "bg-slate-800 border border-slate-700" : "bg-slate-900"
+                  }`
+              }, [
                 m("p", { class: "text-[9px] font-black text-green-500 uppercase tracking-widest mb-3" }, "Unirse con Código"),
                 m("div", { class: "flex gap-2" }, [
                   m("input", {
-                    class: "flex-1 bg-white/10 border border-white/10 rounded-xl px-4 py-2 text-white text-xs font-bold focus:outline-none focus:border-green-500 uppercase",
+                    class: `flex-1 border rounded-xl px-4 py-2 text-xs font-bold focus:outline-none focus:border-green-500 uppercase transition-colors ${ThemeState.darkMode ? "bg-slate-900 border-slate-700 text-white" : "bg-white/10 border-white/10 text-white"
+                      }`,
                     placeholder: "CÓDIGO",
                     value: State.inviteInput,
                     oninput: (e) => (State.inviteInput = e.target.value),
                   }),
-                  m("button", { class: "bg-green-500 p-2 rounded-xl text-slate-900", onclick: Actions.joinByCode }, "→"),
+                  m("button", { class: "bg-green-500 p-2 rounded-xl text-slate-900 hover:bg-green-400 transition", onclick: Actions.joinByCode }, "→"),
                 ]),
               ]),
               m("p", { class: "text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 pl-1" }, "Seleccionar Hora"),
               m("div", { class: "grid grid-cols-4 gap-2" },
                 HOURS.map((h) =>
                   m("button", {
-                    class: `py-3 rounded-2xl text-[10px] font-bold border transition-all ${State.selectedTime === h ? "bg-slate-900 text-white border-slate-900 shadow-xl" : "bg-white text-slate-500 border-slate-100 hover:border-green-200"}`,
+                    class: `py-3 rounded-2xl text-[10px] font-bold border transition-all ${State.selectedTime === h
+                        ? "bg-green-500 text-slate-900 border-green-500 shadow-xl shadow-green-500/20"
+                        : ThemeState.darkMode
+                          ? "bg-slate-800 text-slate-400 border-slate-700 hover:border-green-500"
+                          : "bg-white text-slate-500 border-slate-100 hover:border-green-200"
+                      }`,
                     onclick: () => (State.selectedTime = h),
                   }, h)
                 )
@@ -829,11 +962,14 @@
                   m("div", { class: "flex items-center gap-4" }, [
                     m("div", { class: "w-1 h-8 bg-green-500 rounded-full" }),
                     m("div", [
-                      m("h2", { class: "text-2xl font-black text-slate-800 tracking-tight" }, `Pistas Disponibles`),
+                      m("h2", { class: `text-2xl font-black tracking-tight ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, `Pistas Disponibles`),
                       m("p", { class: "text-[10px] text-slate-400 font-bold uppercase" }, `Viendo resultados para el ${State.selectedDate}`),
                     ]),
                   ]),
-                  m("span", { class: "text-[10px] font-black text-green-500 bg-green-50 px-3 py-1.5 rounded-full" }, `${State.selectedTime}H`),
+                  m("span", {
+                    class: `text-[10px] font-black px-3 py-1.5 rounded-full transition-colors ${ThemeState.darkMode ? "text-green-400 bg-green-500/10" : "text-green-500 bg-green-50"
+                      }`
+                  }, `${State.selectedTime}H`),
                 ]),
                 m(CourtGrid),
               ])
@@ -848,9 +984,12 @@
             class: `fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-4 rounded-2xl text-xs font-bold shadow-2xl transition-all z-[200] ${State.toast.show ? "translate-y-0 opacity-100" : "translate-y-24 opacity-0"}`,
           }, State.toast.message),
           State.isTerminatingSession &&
-          m("div", { class: "fixed inset-0 bg-white/80 backdrop-blur-md z-[250] flex flex-col items-center justify-center animate-fade-up" }, [
-            m("div", { class: "w-12 h-12 border-4 border-slate-200 border-t-green-500 rounded-full animate-spin mb-4" }),
-            m("p", { class: "text-slate-800 font-black text-sm tracking-widest uppercase" }, "Cerrando sesión..."),
+          m("div", {
+            class: `fixed inset-0 z-[250] flex flex-col items-center justify-center animate-fade-up backdrop-blur-md ${ThemeState.darkMode ? "bg-slate-950/80" : "bg-white/80"
+              }`
+          }, [
+            m("div", { class: `w-12 h-12 border-4 rounded-full animate-spin mb-4 ${ThemeState.darkMode ? "border-slate-800 border-t-green-500" : "border-slate-200 border-t-green-500"}` }),
+            m("p", { class: `font-black text-sm tracking-widest uppercase ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, "Cerrando sesión..."),
           ]),
         ]),
     };

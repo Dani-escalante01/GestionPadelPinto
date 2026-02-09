@@ -1,334 +1,232 @@
 <!doctype html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Padel Pinto - Iniciar Sesión</title>
-    <script src="https://unpkg.com/mithril/mithril.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <!-- favicon -->
-    <link
-      rel="icon"
-      type="image/svg+xml"
-      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2322c55e'/><text x='50%' y='50%' font-family='sans-serif' font-weight='900' font-style='italic' font-size='60' fill='white' text-anchor='middle' dominant-baseline='central'>P</text></svg>"
-    />
-    <style>
-      :root {
-        --padel-green: #2ecc71;
-        --padel-blue: #0f172a;
-      }
-      body {
-        font-family: "Plus Jakarta Sans", sans-serif;
-        background-color: #f8fafc;
-      }
 
-      /* Animación de entrada suave igual que en la home */
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      .animate-fade-up {
-        animation: fadeIn 0.6s ease-out forwards;
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Padel Pinto - Iniciar Sesión</title>
+  <script src="https://unpkg.com/mithril/mithril.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
+    rel="stylesheet" />
+  <!-- favicon -->
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2322c55e'/><text x='50%' y='50%' font-family='sans-serif' font-weight='900' font-style='italic' font-size='60' fill='white' text-anchor='middle' dominant-baseline='central'>P</text></svg>" />
+  <style>
+    :root {
+      --padel-green: #2ecc71;
+      --padel-blue: #0f172a;
+    }
+
+    body {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      background-color: #f8fafc;
+    }
+
+    /* Animación de entrada suave igual que en la home */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
       }
 
-      /* Estilo específico para el input al enfocar */
-      .input-field:focus {
-        border-color: var(--padel-green);
-        box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.1);
-        outline: none;
+      to {
+        opacity: 1;
+        transform: translateY(0);
       }
-    </style>
-  </head>
-  <body>
-    <div id="app"></div>
+    }
 
-    <script>
-      // --- ESTADO ---
-      const State = {
-        email: "",
-        password: "",
-        isLoading: false,
-        error: "",
-        heroImage:
-          "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?q=80&w=2070&auto=format&fit=crop",
-      };
+    .animate-fade-up {
+      animation: fadeIn 0.6s ease-out forwards;
+    }
 
-      // --- ACCIONES ---
-      const Actions = {
-        login: (e) => {
-          e.preventDefault();
-          State.isLoading = true;
+    /* Estilo específico para el input al enfocar */
+    .input-field:focus {
+      border-color: var(--padel-green);
+      box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.1);
+      outline: none;
+    }
+  </style>
+</head>
 
-          setTimeout(() => {
-            if (State.email && State.password) {
-              // Redirigimos a la home pasando el parámetro "auth=success"
-              window.location.href = "loggedView.html?auth=success";
-            } else {
-              State.error = "Datos incorrectos o incompletos";
-              State.isLoading = false;
-              m.redraw();
-            }
-          }, 1000);
-        },
-        googleLogin: () => {
-          alert("Funcionalidad de Google en desarrollo");
-        },
-      };
+<body>
+  <div id="app"></div>
 
-      // --- COMPONENTES ---
+  <script>
+    // --- ESTADO ---
+    const State = {
+      email: "",
+      password: "",
+      isLoading: false,
+      error: "",
+      heroImage:
+        "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?q=80&w=2070&auto=format&fit=crop",
+    };
 
-      // 1. Panel Izquierdo (Imagen Decorativa)
-      const LeftPanel = {
-        view: () =>
-          m(
-            "div",
-            {
+    // --- ACCIONES ---
+    const Actions = {
+      login: (e) => {
+        e.preventDefault();
+        State.isLoading = true;
+
+        setTimeout(() => {
+          if (State.email && State.password) {
+            // Redirigimos a la home pasando el parámetro "auth=success"
+            window.location.href = "loggedView.html?auth=success";
+          } else {
+            State.error = "Datos incorrectos o incompletos";
+            State.isLoading = false;
+            m.redraw();
+          }
+        }, 1000);
+      },
+      googleLogin: () => {
+        alert("Funcionalidad de Google en desarrollo");
+      },
+    };
+
+    // --- COMPONENTES ---
+
+    // 1. Panel Izquierdo (Imagen Decorativa)
+    const LeftPanel = {
+      view: () =>
+        m(
+          "div",
+          {
+            class:
+              "hidden lg:flex w-1/2 relative bg-slate-900 overflow-hidden",
+          },
+          [
+            m("img", {
+              src: State.heroImage,
               class:
-                "hidden lg:flex w-1/2 relative bg-slate-900 overflow-hidden",
-            },
-            [
-              m("img", {
-                src: State.heroImage,
-                class:
-                  "absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay",
-              }),
-              m("div", { class: "relative z-10 m-auto text-center px-12" }, [
-                m(
-                  "div",
-                  {
-                    class:
-                      "w-20 h-20 bg-green-500 rounded-2xl flex items-center justify-center text-white font-black italic text-4xl mb-8 mx-auto shadow-2xl shadow-green-500/50",
-                  },
-                  "P",
-                ),
-                m(
-                  "h2",
-                  {
-                    class: "text-4xl font-black text-white mb-6 leading-tight",
-                  },
-                  "Tu comunidad de pádel te espera.",
-                ),
-                m(
-                  "p",
-                  { class: "text-slate-300 text-lg font-medium" },
-                  "Reserva pistas, encuentra rivales y gestiona tu agenda desde un solo lugar.",
-                ),
+                "absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay",
+            }),
+            m("div", { class: "relative z-10 m-auto text-center px-12" }, [
+              m(
+                "div",
+                {
+                  class:
+                    "w-20 h-20 bg-green-500 rounded-2xl flex items-center justify-center text-white font-black italic text-4xl mb-8 mx-auto shadow-2xl shadow-green-500/50",
+                },
+                "P",
+              ),
+              m(
+                "h2",
+                {
+                  class: "text-4xl font-black text-white mb-6 leading-tight",
+                },
+                "Tu comunidad de pádel te espera.",
+              ),
+              m(
+                "p",
+                { class: "text-slate-300 text-lg font-medium" },
+                "Reserva pistas, encuentra rivales y gestiona tu agenda desde un solo lugar.",
+              ),
+            ]),
+          ],
+        ),
+    };
+
+    // 2. Formulario de Login
+    const LoginForm = {
+      view: () =>
+        m("div", { class: "w-full lg:w-1/2 flex items-center justify-center p-8 bg-white" }, [
+          m("div", { class: "w-full max-w-md animate-fade-up" }, [
+            // Cabecera Móvil (Solo visible en pantallas pequeñas)
+            m("div", { class: "lg:hidden flex items-center gap-3 mb-10 justify-center" }, [
+              m("div", { class: "w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center text-white font-black italic shadow-lg" }, "P"),
+              m("span", { class: "font-black text-xl tracking-tight text-slate-800" }, "PADELPINTO")
+            ]),
+
+            // Títulos
+            m("h1", { class: "text-3xl font-black text-slate-800 mb-2" }, "¡Hola de nuevo!"),
+            m("p", { class: "text-slate-400 font-medium mb-8" }, "Introduzca sus datos para acceder a su cuenta."),
+
+            // Formulario
+            m("form", { onsubmit: Actions.login, class: "space-y-5" }, [
+              // Input Email
+              m("div", [
+                m("label", { class: "block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2" }, "Email"),
+                m("input", {
+                  type: "email",
+                  placeholder: "nombre@ejemplo.com",
+                  class: "input-field w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 transition-all placeholder:text-slate-300",
+                  value: State.email,
+                  oninput: (e) => (State.email = e.target.value)
+                })
               ]),
-            ],
-          ),
-      };
 
-      // 2. Formulario de Login
-      const LoginForm = {
-        view: () =>
-          m(
-            "div",
-            {
-              class:
-                "w-full lg:w-1/2 flex items-center justify-center p-8 bg-white",
-            },
-            [
-              m("div", { class: "w-full max-w-md animate-fade-up" }, [
-                // Cabecera Móvil (Solo visible en pantallas pequeñas)
-                m(
-                  "div",
-                  {
-                    class:
-                      "lg:hidden flex items-center gap-3 mb-10 justify-center",
-                  },
-                  [
-                    m(
-                      "div",
-                      {
-                        class:
-                          "w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center text-white font-black italic shadow-lg",
-                      },
-                      "P",
-                    ),
-                    m(
-                      "span",
-                      {
-                        class:
-                          "font-black text-xl tracking-tight text-slate-800",
-                      },
-                      "PADELPINTO",
-                    ),
-                  ],
-                ),
-
-                // Títulos
-                m(
-                  "h1",
-                  { class: "text-3xl font-black text-slate-800 mb-2" },
-                  "¡Hola de nuevo!",
-                ),
-                m(
-                  "p",
-                  { class: "text-slate-400 font-medium mb-8" },
-                  "Introduzca sus datos para acceder a su cuenta.",
-                ),
-
-                // Formulario
-                m("form", { onsubmit: Actions.login, class: "space-y-5" }, [
-                  // Input Email
-                  m("div", [
-                    m(
-                      "label",
-                      {
-                        class:
-                          "block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2",
-                      },
-                      "Email",
-                    ),
-                    m("input", {
-                      type: "email",
-                      placeholder: "nombre@ejemplo.com",
-                      class:
-                        "input-field w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 transition-all placeholder:text-slate-300",
-                      value: State.email,
-                      oninput: (e) => (State.email = e.target.value),
-                    }),
-                  ]),
-
-                  // Input Password
-                  m("div", [
-                    m(
-                      "div",
-                      { class: "flex justify-between items-center mb-2" },
-                      [
-                        m(
-                          "label",
-                          {
-                            class:
-                              "text-xs font-bold text-slate-700 uppercase tracking-wider",
-                          },
-                          "Contraseña",
-                        ),
-                        m(
-                          "a",
-                          {
-                            href: "#",
-                            class:
-                              "text-xs font-bold text-green-600 hover:text-green-500",
-                          },
-                          "¿Olvidaste la contraseña?",
-                        ),
-                      ],
-                    ),
-                    m("input", {
-                      type: "password",
-                      placeholder: "••••••••",
-                      class:
-                        "input-field w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 transition-all placeholder:text-slate-300",
-                      value: State.password,
-                      oninput: (e) => (State.password = e.target.value),
-                    }),
-                  ]),
-
-                  // Mensaje de Error
-                  State.error &&
-                    m(
-                      "div",
-                      {
-                        class:
-                          "p-4 bg-red-50 text-red-500 text-xs font-bold rounded-xl flex items-center gap-2",
-                      },
-                      [m("span", "⚠️"), State.error],
-                    ),
-
-                  // Botón Submit
-                  m(
-                    "button",
-                    {
-                      type: "submit",
-                      disabled: State.isLoading,
-                      class: `w-full py-4 rounded-2xl font-black text-sm tracking-wide transition-all transform active:scale-95 shadow-xl ${
-                        State.isLoading
-                          ? "bg-slate-100 text-slate-400 cursor-not-allowed shadow-none"
-                          : "bg-green-500 hover:bg-green-400 text-slate-900 shadow-green-200"
-                      }`,
-                    },
-                    State.isLoading ? "ACCEDIENDO..." : "INICIAR SESIÓN",
-                  ),
-
-                  // Separador
-                  m("div", { class: "relative py-4" }, [
-                    m(
-                      "div",
-                      { class: "absolute inset-0 flex items-center" },
-                      m("div", { class: "w-full border-t border-slate-100" }),
-                    ),
-                    m(
-                      "div",
-                      { class: "relative flex justify-center text-xs" },
-                      m(
-                        "span",
-                        { class: "px-4 bg-white text-slate-400 font-bold" },
-                        "O continúa con",
-                      ),
-                    ),
-                  ]),
-
-                  // Botón Google (Visual)
-                  m(
-                    "button",
-                    {
-                      type: "button",
-                      onclick: Actions.googleLogin,
-                      class:
-                        "w-full py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition flex items-center justify-center gap-3",
-                    },
-                    [
-                      m("span", { class: "text-lg" }, "G"), // Aquí iría el SVG de Google
-                      "Google",
-                    ],
-                  ),
+              // Input Password
+              m("div", [
+                m("div", { class: "flex justify-between items-center mb-2" }, [
+                  m("label", { class: "text-xs font-bold text-slate-700 uppercase tracking-wider" }, "Contraseña"),
+                  m("a", { href: "#", class: "text-xs font-bold text-green-600 hover:text-green-500" }, "¿Olvidaste la contraseña?")
                 ]),
-
-                // Footer
-                m(
-                  "p",
-                  {
-                    class:
-                      "mt-10 text-center text-sm font-medium text-slate-500",
-                  },
-                  [
-                    "¿No tienes cuenta? ",
-                    m(
-                      "a",
-                      {
-                        href: "registro.html",
-                        class: "text-green-600 font-bold hover:underline",
-                      },
-                      "Regístrate gratis",
-                    ),
-                  ],
-                ),
+                m("input", {
+                  type: "password",
+                  placeholder: "••••••••",
+                  class: "input-field w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 transition-all placeholder:text-slate-300",
+                  value: State.password,
+                  oninput: (e) => (State.password = e.target.value)
+                })
               ]),
-            ],
-          ),
-      };
 
-      // --- APP WRAPPER ---
-      const App = {
-        view: () =>
-          m("div", { class: "min-h-screen flex" }, [
-            m(LeftPanel),
-            m(LoginForm),
-          ]),
-      };
+              // Mensaje de Error
+              State.error && m("div", { class: "p-4 bg-red-50 text-red-500 text-xs font-bold rounded-xl flex items-center gap-2" }, [
+                m("span", "⚠️"),
+                State.error
+              ]),
 
-      m.mount(document.getElementById("app"), App);
-    </script>
-  </body>
+              // Botón Submit
+              m("button", {
+                type: "submit",
+                disabled: State.isLoading,
+                class: `w-full py-4 rounded-2xl font-black text-sm tracking-wide transition-all transform active:scale-95 shadow-xl ${State.isLoading
+                    ? "bg-slate-100 text-slate-400 cursor-not-allowed shadow-none"
+                    : "bg-green-500 hover:bg-green-400 text-slate-900 shadow-green-200"
+                  }`
+              }, State.isLoading ? "ACCEDIENDO..." : "INICIAR SESIÓN"),
+
+              // Separador
+              m("div", { class: "relative py-4" }, [
+                m("div", { class: "absolute inset-0 flex items-center" }, m("div", { class: "w-full border-t border-slate-100" })),
+                m("div", { class: "relative flex justify-center text-xs" },
+                  m("span", { class: "px-4 bg-white text-slate-400 font-bold" }, "O continúa con")
+                )
+              ]),
+
+              // Botón Google (Visual)
+              m("button", {
+                type: "button",
+                onclick: Actions.googleLogin,
+                class: "w-full py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition flex items-center justify-center gap-3"
+              }, [
+                m("span", { class: "text-lg" }, "G"),
+                "Google"
+              ])
+            ]),
+
+            // Footer
+            m("p", { class: "mt-10 text-center text-sm font-medium text-slate-500" }, [
+              "¿No tienes cuenta? ",
+              m("a", { href: "registro.html", class: "text-green-600 font-bold hover:underline" }, "Regístrate gratis")
+            ])
+          ])
+        ])
+    };
+
+    // --- APP WRAPPER ---
+    const App = {
+      view: () =>
+        m("div", { class: "min-h-screen flex" }, [
+          m(LeftPanel),
+          m(LoginForm),
+        ]),
+    };
+
+    m.mount(document.getElementById("app"), App);
+  </script>
+</body>
+
 </html>

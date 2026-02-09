@@ -8,6 +8,7 @@
     <script src="https://unpkg.com/mithril/mithril.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="toggleTheme.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
         rel="stylesheet" />
     <link rel="icon" type="image/svg+xml"
@@ -15,7 +16,7 @@
     <style>
         body {
             font-family: "Plus Jakarta Sans", sans-serif;
-            background-color: #f8fafc;
+            transition: background-color 0.5s ease;
         }
 
         .profile-gradient {
@@ -29,7 +30,6 @@
             overflow: hidden;
         }
 
-        /* Estilo para que el logo del ayuntamiento se vea bien sobre fondo oscuro */
         .logo-ayto {
             filter: brightness(0) invert(1);
             max-height: 45px;
@@ -70,15 +70,8 @@
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 const emailInvalido = !emailRegex.test(State.tempUser.email);
 
-                if (camposVacios) {
-                    alert("Por favor, rellene todos los campos obligatorios");
-                    return;
-                }
-
-                if (emailInvalido) {
-                    alert("Por favor, introduzca un correo electrónico válido");
-                    return;
-                }
+                if (camposVacios) { alert("Por favor, rellene todos los campos obligatorios"); return; }
+                if (emailInvalido) { alert("Por favor, introduzca un correo electrónico válido"); return; }
 
                 State.user = { ...State.tempUser };
                 State.isEditing = false;
@@ -110,22 +103,30 @@
         };
 
         const Navbar = {
-            view: () => m("nav", { class: "bg-white border-b sticky top-0 z-50 px-6 py-4" }, [
+            view: () => m("nav", { 
+                class: `border-b sticky top-0 z-50 px-6 py-4 transition-colors duration-500 ${ThemeState.darkMode ? "bg-slate-900 border-slate-800" : "bg-white border-slate-200"}` 
+            }, [
                 m("div", { class: "max-w-5xl mx-auto flex justify-between items-center" }, [
                     m("div", { class: "flex items-center gap-2 cursor-pointer", onclick: () => (window.location.href = "loggedView.html") }, [
                         m("div", { class: "w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-white font-black" }, "P"),
-                        m("span", { class: "font-black text-slate-800" }, "PADELPINTO"),
+                        m("span", { class: `font-black ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, "PADELPINTO"),
                     ]),
-                    m("button", { class: "text-xs font-bold text-slate-500 hover:text-green-600 transition", onclick: () => (window.location.href = "loggedView.html") }, "← Volver a Reservas"),
+                    m("div", { class: "flex items-center gap-4" }, [
+                        // Insertamos el botón de cambio de tema
+                        m(ThemeToggle),
+                        m("button", { 
+                            class: `text-xs font-bold transition ${ThemeState.darkMode ? "text-slate-400 hover:text-green-400" : "text-slate-500 hover:text-green-600"}`, 
+                            onclick: () => (window.location.href = "loggedView.html") 
+                        }, "← Volver a Reservas"),
+                    ])
                 ]),
             ]),
         };
 
         const CitizenCardPreview = {
             view: () => m("div", { class: "mt-10" }, [
-                m("h3", { class: "text-sm font-black text-slate-800 uppercase tracking-wider mb-4" }, "Tu Tarjeta Digital"),
+                m("h3", { class: `text-sm font-black uppercase tracking-wider mb-4 ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, "Tu Tarjeta Digital"),
                 m("div", { id: "citizen-card", class: "profile-gradient rounded-3xl p-6 text-white shadow-2xl mb-4 flex flex-col justify-between" }, [
-                    // Fila superior: Foto y Logo Ayuntamiento
                     m("div", { class: "flex justify-between items-start w-full" }, [
                         m("img", {
                             src: State.user.foto,
@@ -139,8 +140,6 @@
                             })
                         ])
                     ]),
-
-                    // Fila inferior: Datos usuario
                     m("div", [
                         m("p", { class: "text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold" }, "Miembro Oficial"),
                         m("h2", { class: "text-xl font-extrabold" }, State.user.nombre),
@@ -157,7 +156,9 @@
 
         const ProfileCard = {
             view: () => m("div", { class: "max-w-5xl mx-auto p-6" }, [
-                m("div", { class: "bg-white rounded-[40px] shadow-sm border border-slate-100 overflow-hidden" }, [
+                m("div", { 
+                    class: `rounded-[40px] shadow-sm border transition-colors duration-500 overflow-hidden ${ThemeState.darkMode ? "bg-slate-800 border-slate-700" : "bg-white border-slate-100"}` 
+                }, [
                     m("div", { class: "h-40 profile-gradient" }),
 
                     m("div", { class: "px-8 pb-8" }, [
@@ -165,7 +166,7 @@
                             m("div", { class: "relative group" }, [
                                 m("img", {
                                     src: State.isEditing ? State.tempUser.foto : State.user.foto,
-                                    class: "w-32 h-32 rounded-[32px] border-8 border-white shadow-xl object-cover bg-white",
+                                    class: `w-32 h-32 rounded-[32px] border-8 shadow-xl object-cover bg-white ${ThemeState.darkMode ? "border-slate-800" : "border-white"}`,
                                     onerror: (e) => e.target.src = "https://api.dicebear.com/7.x/initials/svg?seed=CP&backgroundColor=2ecc71&textColor=0f172a"
                                 }),
                                 State.isEditing && m("label", {
@@ -177,79 +178,68 @@
                             ]),
 
                             m("div", { class: "flex-1 mb-2", style: "margin-top: 5rem;" }, [
-                                m("h1", { class: "text-3xl font-black text-slate-800" }, State.user.nombre + " " + State.user.apellidos),
+                                m("h1", { class: `text-3xl font-black ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, State.user.nombre + " " + State.user.apellidos),
                                 m("p", { class: "text-sm font-bold text-slate-400 uppercase tracking-widest" }, "Nivel " + State.user.nivel),
                             ]),
 
                             !State.isEditing && m("button", {
-                                class: "bg-slate-900 text-white px-6 py-3 rounded-2xl text-xs font-bold transition mb-2 hover:bg-slate-800",
+                                class: `px-6 py-3 rounded-2xl text-xs font-bold transition mb-2 ${ThemeState.darkMode ? "bg-white text-slate-900 hover:bg-slate-200" : "bg-slate-900 text-white hover:bg-slate-800"}`,
                                 onclick: Actions.toggleEdit
                             }, "✎ Editar Perfil"),
                         ]),
 
                         m("div", { class: "grid grid-cols-1 md:grid-cols-3 gap-12" }, [
                             m("div", { class: "md:col-span-2" }, [
-                                m("h3", { class: "text-sm font-black text-slate-800 uppercase tracking-wider mb-6" }, "Detalles de la cuenta"),
+                                m("h3", { class: `text-sm font-black uppercase tracking-wider mb-6 ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, "Detalles de la cuenta"),
 
                                 m("div", { class: "grid grid-cols-1 md:grid-cols-2 gap-4" }, [
-                                    State.isEditing && m("div", { class: "p-4 bg-white rounded-2xl border-2 border-green-500 md:col-span-2 shadow-sm" }, [
+                                    State.isEditing && m("div", { 
+                                        class: `p-4 rounded-2xl border-2 md:col-span-2 shadow-sm ${ThemeState.darkMode ? "bg-slate-900 border-green-900" : "bg-white border-green-500"}` 
+                                    }, [
                                         m("p", { class: "text-[10px] font-black text-green-600 uppercase mb-1" }, "Link de foto externa (URL)"),
                                         m("input", {
-                                            class: "bg-transparent text-sm font-bold text-slate-700 w-full outline-none",
+                                            class: "bg-transparent text-sm font-bold w-full outline-none " + (ThemeState.darkMode ? "text-white" : "text-slate-700"),
                                             placeholder: "Pegue aquí el enlace de su foto...",
                                             value: State.tempUser.foto.startsWith('data:') ? '' : State.tempUser.foto,
                                             oninput: (e) => State.tempUser.foto = e.target.value
                                         }),
                                     ]),
 
-                                    m("div", {
-                                        class: "p-4 bg-slate-50 rounded-2xl border-2 transition " +
-                                            (State.isEditing ? (State.tempUser.nombre.trim() === "" ? "border-red-500 bg-red-50" : "border-green-200 bg-white") : "border-transparent")
+                                    // Contenedor dinámico para los campos
+                                    [
+                                        { label: "Nombre", key: "nombre" },
+                                        { label: "Apellidos", key: "apellidos" },
+                                        { label: "Email", key: "email", colSpan: true }
+                                    ].map(field => m("div", {
+                                        class: `p-4 rounded-2xl border-2 transition ${field.colSpan ? "md:col-span-2" : ""} ${
+                                            State.isEditing 
+                                                ? (State.tempUser[field.key].trim() === "" ? "border-red-500 bg-red-50" : "border-green-200 " + (ThemeState.darkMode ? "bg-slate-900" : "bg-white")) 
+                                                : `border-transparent ${ThemeState.darkMode ? "bg-slate-900" : "bg-slate-50"}`
+                                        }`
                                     }, [
-                                        m("p", { class: "text-[10px] font-black text-slate-400 uppercase mb-1" }, "Nombre"),
+                                        m("p", { class: "text-[10px] font-black text-slate-400 uppercase mb-1" }, field.label),
                                         State.isEditing
-                                            ? m("input", { class: "bg-transparent text-sm font-bold text-slate-700 w-full outline-none", value: State.tempUser.nombre, oninput: (e) => State.tempUser.nombre = e.target.value })
-                                            : m("p", { class: "text-sm font-bold text-slate-700" }, State.user.nombre),
-                                    ]),
+                                            ? m("input", { class: `bg-transparent text-sm font-bold w-full outline-none ${ThemeState.darkMode ? "text-white" : "text-slate-700"}`, value: State.tempUser[field.key], oninput: (e) => State.tempUser[field.key] = e.target.value })
+                                            : m("p", { class: `text-sm font-bold ${ThemeState.darkMode ? "text-white" : "text-slate-700"}` }, State.user[field.key]),
+                                    ])),
 
                                     m("div", {
-                                        class: "p-4 bg-slate-50 rounded-2xl border-2 transition " +
-                                            (State.isEditing ? (State.tempUser.apellidos.trim() === "" ? "border-red-500 bg-red-50" : "border-green-200 bg-white") : "border-transparent")
-                                    }, [
-                                        m("p", { class: "text-[10px] font-black text-slate-400 uppercase mb-1" }, "Apellidos"),
-                                        State.isEditing
-                                            ? m("input", { class: "bg-transparent text-sm font-bold text-slate-700 w-full outline-none", value: State.tempUser.apellidos, oninput: (e) => State.tempUser.apellidos = e.target.value })
-                                            : m("p", { class: "text-sm font-bold text-slate-700" }, State.user.apellidos),
-                                    ]),
-
-                                    m("div", {
-                                        class: "p-4 bg-slate-50 rounded-2xl md:col-span-2 border-2 transition " +
-                                            (State.isEditing ? (State.tempUser.email.trim() === "" ? "border-red-500 bg-red-50" : "border-green-200 bg-white") : "border-transparent")
-                                    }, [
-                                        m("p", { class: "text-[10px] font-black text-slate-400 uppercase mb-1" }, "Email"),
-                                        State.isEditing
-                                            ? m("input", { class: "bg-transparent text-sm font-bold text-slate-700 w-full outline-none", value: State.tempUser.email, oninput: (e) => State.tempUser.email = e.target.value })
-                                            : m("p", { class: "text-sm font-bold text-slate-700" }, State.user.email),
-                                    ]),
-
-                                    m("div", {
-                                        class: "p-4 bg-slate-50 rounded-2xl md:col-span-2 border-2 transition " +
-                                            (State.isEditing ? "border-green-200 bg-white" : "border-transparent")
+                                        class: `p-4 rounded-2xl md:col-span-2 border-2 transition ${
+                                            State.isEditing 
+                                                ? "border-green-200 " + (ThemeState.darkMode ? "bg-slate-900" : "bg-white") 
+                                                : `border-transparent ${ThemeState.darkMode ? "bg-slate-900" : "bg-slate-50"}`
+                                        }`
                                     }, [
                                         m("p", { class: "text-[10px] font-black text-slate-400 uppercase mb-1" }, "Nivel de Habilidad"),
                                         State.isEditing
                                             ? m("select", {
-                                                class: "bg-transparent text-sm font-bold text-slate-700 w-full outline-none cursor-pointer",
+                                                class: `bg-transparent text-sm font-bold w-full outline-none cursor-pointer ${ThemeState.darkMode ? "text-white" : "text-slate-700"}`,
                                                 onchange: (e) => State.tempUser.nivel = e.target.value,
                                                 value: State.tempUser.nivel
                                             }, [
-                                                m("option", { value: "Principiante" }, "Principiante"),
-                                                m("option", { value: "Iniciación" }, "Iniciación"),
-                                                m("option", { value: "Intermedio" }, "Intermedio"),
-                                                m("option", { value: "Avanzado" }, "Avanzado"),
-                                                m("option", { value: "Pro" }, "Pro"),
+                                                ["Principiante", "Iniciación", "Intermedio", "Avanzado", "Pro"].map(opt => m("option", { value: opt, class: "text-slate-900" }, opt))
                                             ])
-                                            : m("p", { class: "text-sm font-bold text-slate-700" }, State.user.nivel),
+                                            : m("p", { class: `text-sm font-bold ${ThemeState.darkMode ? "text-white" : "text-slate-700"}` }, State.user.nivel),
                                     ]),
                                 ]),
 
@@ -259,7 +249,7 @@
                                         onclick: Actions.saveProfile
                                     }, "✓ Guardar cambios"),
                                     m("button", {
-                                        class: "bg-slate-200 text-slate-600 px-6 py-4 rounded-2xl text-sm font-bold hover:bg-slate-300 transition",
+                                        class: `px-6 py-4 rounded-2xl text-sm font-bold transition ${ThemeState.darkMode ? "bg-slate-700 text-slate-300" : "bg-slate-200 text-slate-600 hover:bg-slate-300"}`,
                                         onclick: () => State.isEditing = false
                                     }, "Cancelar")
                                 ]),
@@ -268,7 +258,7 @@
                             ]),
 
                             m("div", { class: "space-y-6" }, [
-                                m("h3", { class: "text-sm font-black text-slate-800 uppercase tracking-wider" }, "Estadísticas"),
+                                m("h3", { class: `text-sm font-black uppercase tracking-wider ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, "Estadísticas"),
                                 m("div", { class: "bg-green-500 p-6 rounded-[32px] text-slate-900 shadow-xl shadow-green-100" }, [
                                     m("div", { class: "flex justify-between items-center mb-4" }, [
                                         m("span", { class: "text-[10px] font-black uppercase" }, "Victorias"),
@@ -287,7 +277,10 @@
         };
 
         m.mount(document.getElementById("app"), {
-            view: () => m("div", [m(Navbar), m(ProfileCard)]),
+            view: () => m("div", { class: ThemeActions.getMainClasses() }, [
+                m(Navbar), 
+                m(ProfileCard)
+            ]),
         });
     </script>
 </body>

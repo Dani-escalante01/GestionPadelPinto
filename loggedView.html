@@ -7,6 +7,7 @@
   <title>Padel Pinto - Reserva tu pista</title>
   <script src="https://unpkg.com/mithril/mithril.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="toggleTheme.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
     rel="stylesheet" />
   <!-- favicon -->
@@ -390,15 +391,20 @@
 
     const Navbar = {
       view: () =>
-        m("nav", { class: "bg-white/80 backdrop-blur-md border-b sticky top-0 z-50 px-4" }, [
+        m("nav", {
+          class: `border-b sticky top-0 z-50 px-4 transition-colors duration-500 ${ThemeState.darkMode ? "bg-slate-900/80 border-slate-800" : "bg-white/80"} backdrop-blur-md`
+        }, [
           m("div", { class: "max-w-6xl mx-auto flex justify-between items-center h-16" }, [
+            // Logo
             m("div", {
               class: "flex items-center gap-2 cursor-pointer",
               onclick: () => (State.currentView = "booking")
             }, [
               m("div", { class: "w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-white font-black italic shadow-lg shadow-green-200" }, "P"),
-              m("span", { class: "font-black text-lg tracking-tighter text-slate-800" }, "PADELPINTO"),
+              m("span", { class: `font-black text-lg tracking-tighter ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, "PADELPINTO"),
             ]),
+
+            // Menú de Navegación y Acciones
             m("div", { class: "flex items-center gap-6" }, [
               m("button", {
                 class: `text-[10px] font-black tracking-widest ${State.currentView === "booking" ? "text-green-500 border-b-2 border-green-500" : "text-slate-400"} pb-1`,
@@ -412,27 +418,33 @@
                 class: `text-[10px] font-black tracking-widest ${State.currentView === "agenda" ? "text-green-500 border-b-2 border-green-500" : "text-slate-400"} pb-1`,
                 onclick: () => (State.currentView = "agenda"),
               }, "MI AGENDA"),
+
+              // --- BOTÓN DE TEMA (Añadido aquí) ---
+              m(ThemeToggle),
+
+              // Menú de Usuario
               m("div", { class: "relative" }, [
                 m("div", {
-                  class: "w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold border-2 border-green-500 cursor-pointer hover:scale-105 transition-transform",
+                  class: `w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold border-2 border-green-500 cursor-pointer hover:scale-105 transition-transform ${ThemeState.darkMode ? "bg-slate-800 text-white" : "bg-slate-100 text-slate-800"}`,
                   onclick: Actions.toggleUserMenu,
                 }, "CP"),
+
                 State.showUserMenu && m("div", {
-                  class: "absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-[100] animate-fade-up",
+                  class: `absolute right-0 mt-2 w-48 rounded-2xl shadow-xl border py-2 z-[100] animate-fade-up ${ThemeState.darkMode ? "bg-slate-800 border-slate-700" : "bg-white border-slate-100"}`,
                 }, [
-                  m("div", { class: "px-4 py-2 border-b border-slate-50 mb-1" }, [
+                  m("div", { class: `px-4 py-2 border-b mb-1 ${ThemeState.darkMode ? "border-slate-700" : "border-slate-50"}` }, [
                     m("p", { class: "text-[10px] font-black text-slate-400 uppercase" }, "Usuario"),
-                    m("p", { class: "text-xs font-bold text-slate-800" }, State.user.name),
+                    m("p", { class: `text-xs font-bold ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, State.user.name),
                   ]),
                   m("button", {
-                    class: "w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-green-500 transition",
+                    class: `w-full text-left px-4 py-2 text-xs font-bold transition ${ThemeState.darkMode ? "text-slate-300 hover:bg-slate-700 hover:text-green-400" : "text-slate-600 hover:bg-slate-50 hover:text-green-500"}`,
                     onclick: () => window.location.href = "perfil.html",
                   }, "Mi Perfil"),
                   m("button", {
-                    class: "w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-green-500 transition",
-                    onclick: () => { /* Otra opción */ State.showUserMenu = false; },
+                    class: `w-full text-left px-4 py-2 text-xs font-bold transition ${ThemeState.darkMode ? "text-slate-300 hover:bg-slate-700 hover:text-green-400" : "text-slate-600 hover:bg-slate-50 hover:text-green-500"}`,
+                    onclick: () => { State.showUserMenu = false; },
                   }, "Configuración"),
-                  m("hr", { class: "my-1 border-slate-50" }),
+                  m("hr", { class: `my-1 ${ThemeState.darkMode ? "border-slate-700" : "border-slate-50"}` }),
                   m("button", {
                     class: "w-full text-left px-4 py-2 text-xs font-bold text-red-500 hover:bg-red-50 transition",
                     onclick: Actions.logout,
@@ -845,7 +857,10 @@
 
     m.mount(document.getElementById("app"), {
       oninit: Actions.checkSession,
-      view: () => m("div", [m(MainLayout)]),
+      view: () => m("div", { class: ThemeActions.getMainClasses() }, [
+        m(MainLayout)
+      ]
+      ),
     });
 
     // Cerrar el menú si se hace click fuera

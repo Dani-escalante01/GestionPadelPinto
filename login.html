@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -6,43 +6,187 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Padel Pinto - Iniciar Sesión</title>
   <script src="https://unpkg.com/mithril/mithril.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="icon" type="image/svg+xml" href="src/favicon.svg" /> <!-- favicon -->
-
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  
   <style>
     :root {
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-400: #94a3b8;
+      --slate-500: #64748b;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+      --green-400: #4ade80;
+      --green-500: #22c55e;
+      --red-50: #fef2f2;
+      --red-500: #ef4444;
+      --white: #ffffff;
       --padel-green: #2ecc71;
-      --padel-blue: #0f172a;
     }
+
+    * { box-sizing: border-box; }
 
     body {
       font-family: "Plus Jakarta Sans", sans-serif;
-      background-color: #f8fafc;
+      background-color: var(--slate-50);
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
     }
 
-    /* Animación de entrada suave igual que en la home */
     @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    .animate-fade-up {
-      animation: fadeIn 0.6s ease-out forwards;
+    .animate-fade-up { animation: fadeIn 0.6s ease-out forwards; }
+
+    .layout-split { display: flex; min-height: 100vh; }
+
+    /* Panel Izquierdo */
+    .hero-side {
+      display: none;
+      width: 50%;
+      position: relative;
+      background-color: var(--slate-900);
+      overflow: hidden;
     }
 
-    /* Estilo específico para el input al enfocar */
-    .input-field:focus {
+    @media (min-width: 1024px) { .hero-side { display: flex; } }
+
+    .hero-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.6;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      margin: auto;
+      text-align: center;
+      padding: 3rem;
+    }
+
+    .logo-badge {
+      width: 5rem;
+      height: 5rem;
+      background-color: var(--green-500);
+      border-radius: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 900;
+      font-style: italic;
+      font-size: 2.25rem;
+      margin: 0 auto 2rem;
+      box-shadow: 0 20px 25px -5px rgba(34, 197, 94, 0.4);
+    }
+
+    /* Formulario */
+    .form-side {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      background-color: var(--white);
+    }
+
+    @media (min-width: 1024px) { .form-side { width: 50%; } }
+
+    .form-box { width: 100%; max-width: 26rem; }
+
+    .input-label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--slate-700);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.05em;
+    }
+
+    .input-control {
+      width: 100%;
+      padding: 1rem 1.25rem;
+      background-color: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: 1rem;
+      font-size: 0.875rem;
+      font-weight: 700;
+      transition: all 0.2s;
+    }
+
+    .input-control:focus {
       border-color: var(--padel-green);
-      box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.1);
       outline: none;
+      box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.1);
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 1rem;
+      border-radius: 1rem;
+      font-weight: 900;
+      font-size: 0.875rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 1rem;
+    }
+
+    .btn-active {
+      background-color: var(--green-500);
+      color: var(--slate-900);
+      box-shadow: 0 10px 15px -3px rgba(34, 197, 94, 0.2);
+    }
+
+    .btn-active:hover { background-color: var(--green-400); transform: translateY(-1px); }
+
+    .btn-loading { background-color: var(--slate-100); color: var(--slate-400); cursor: not-allowed; }
+
+    .error-msg {
+      background-color: var(--red-50);
+      color: var(--red-500);
+      padding: 1rem;
+      border-radius: 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .divider {
+      position: relative;
+      margin: 1.5rem 0;
+      text-align: center;
+    }
+
+    .divider::before {
+      content: "";
+      position: absolute;
+      top: 50%; left: 0; right: 0;
+      border-top: 1px solid var(--slate-100);
+      z-index: 1;
+    }
+
+    .divider span {
+      position: relative;
+      z-index: 2;
+      background: white;
+      padding: 0 1rem;
+      color: var(--slate-400);
+      font-size: 0.75rem;
+      font-weight: 700;
     }
   </style>
 </head>
@@ -51,176 +195,107 @@
   <div id="app"></div>
 
   <script>
-    // --- ESTADO ---
     const State = {
       email: "",
       password: "",
       isLoading: false,
       error: "",
-      heroImage:
-        "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?q=80&w=2070&auto=format&fit=crop",
+      heroImage: "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?q=80&w=2070&auto=format&fit=crop",
     };
 
-    // --- ACCIONES ---
     const Actions = {
       login: (e) => {
         e.preventDefault();
+        if (!State.email || !State.password) {
+          State.error = "Por favor, rellena todos los campos.";
+          return;
+        }
+        
         State.isLoading = true;
+        State.error = "";
 
         setTimeout(() => {
-          if (State.email && State.password) {
-            // Redirigimos a la home pasando el parámetro "auth=success"
-            window.location.href = "loggedView.html?auth=success";
-          } else {
-            State.error = "Datos incorrectos o incompletos";
-            State.isLoading = false;
-            m.redraw();
-          }
-        }, 1000);
-      },
-      googleLogin: () => {
-        alert("Funcionalidad de Google en desarrollo");
-      },
+          // Simulación de éxito
+          window.location.href = "loggedView.html?auth=success";
+        }, 1200);
+      }
     };
 
-    // --- COMPONENTES ---
+    // Componentes como funciones
+    function LeftPanel() {
+      return {
+        view: () => m(".hero-side", [
+          m("img.hero-img", { src: State.heroImage }),
+          m(".hero-content", [
+            m(".logo-badge", "P"),
+            m("h2", { style: "color: white; font-size: 2.5rem; font-weight: 900; margin-bottom: 1.5rem;" }, "Tu comunidad de pádel te espera."),
+            m("p", { style: "color: #cbd5e1; font-size: 1.125rem;" }, "Reserva pistas, encuentra rivales y gestiona tu agenda.")
+          ])
+        ])
+      }
+    }
 
-    // 1. Panel Izquierdo (Imagen Decorativa)
-    const LeftPanel = {
-      view: () =>
-        m(
-          "div",
-          {
-            class:
-              "hidden lg:flex w-1/2 relative bg-slate-900 overflow-hidden",
-          },
-          [
-            m("img", {
-              src: State.heroImage,
-              class:
-                "absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay",
-            }),
-            m("div", { class: "relative z-10 m-auto text-center px-12" }, [
-              m(
-                "div",
-                {
-                  class:
-                    "w-20 h-20 bg-green-500 rounded-2xl flex items-center justify-center text-white font-black italic text-4xl mb-8 mx-auto shadow-2xl shadow-green-500/50",
-                },
-                "P",
-              ),
-              m(
-                "h2",
-                {
-                  class: "text-4xl font-black text-white mb-6 leading-tight",
-                },
-                "Tu comunidad de pádel te espera.",
-              ),
-              m(
-                "p",
-                { class: "text-slate-300 text-lg font-medium" },
-                "Reserva pistas, encuentra rivales y gestiona tu agenda desde un solo lugar.",
-              ),
-            ]),
-          ],
-        ),
-    };
-
-    // 2. Formulario de Login
-    const LoginForm = {
-      view: () =>
-        m("div", { class: "w-full lg:w-1/2 flex items-center justify-center p-8 bg-white" }, [
-          m("div", { class: "w-full max-w-md animate-fade-up" }, [
-            // Cabecera Móvil (Solo visible en pantallas pequeñas)
-            m("div", { class: "lg:hidden flex items-center gap-3 mb-10 justify-center" }, [
-              m("div", { class: "w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center text-white font-black italic shadow-lg" }, "P"),
-              m("span", { class: "font-black text-xl tracking-tight text-slate-800" }, "PADELPINTO")
-            ]),
-
-            // Títulos
-            m("h1", { class: "text-3xl font-black text-slate-800 mb-2" }, "¡Hola de nuevo!"),
-            m("p", { class: "text-slate-400 font-medium mb-8" }, "Introduzca sus datos para acceder a su cuenta."),
-
-            // Formulario
-            m("form", { onsubmit: Actions.login, class: "space-y-5" }, [
-              // Input Email
-              m("div", [
-                m("label", { class: "block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2" }, "Email"),
-                m("input", {
+    function LoginForm() {
+      return {
+        view: () => m(".form-side", [
+          m(".form-box.animate-fade-up", [
+            m("h1", { style: "font-size: 2rem; font-weight: 900; color: #1e293b; margin-bottom: 0.5rem;" }, "¡Hola de nuevo!"),
+            m("p", { style: "color: #94a3b8; font-weight: 500; margin-bottom: 2rem;" }, "Introduce tus datos para acceder."),
+            
+            m("form", { onsubmit: Actions.login }, [
+              State.error ? m(".error-msg", "⚠️ " + State.error) : null,
+              
+              m(".form-group", { style: "margin-bottom: 1.25rem;" }, [
+                m("label.input-label", "Email"),
+                m("input.input-control", {
                   type: "email",
-                  placeholder: "nombre@ejemplo.com",
-                  class: "input-field w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 transition-all placeholder:text-slate-300",
-                  value: State.email,
-                  oninput: (e) => (State.email = e.target.value)
+                  placeholder: "tu@email.com",
+                  oninput: (e) => State.email = e.target.value,
+                  value: State.email
                 })
               ]),
-
-              // Input Password
-              m("div", [
-                m("div", { class: "flex justify-between items-center mb-2" }, [
-                  m("label", { class: "text-xs font-bold text-slate-700 uppercase tracking-wider" }, "Contraseña"),
-                  m("a", { href: "#", class: "text-xs font-bold text-green-600 hover:text-green-500" }, "¿Olvidaste la contraseña?")
+              
+              m(".form-group", { style: "margin-bottom: 1.25rem;" }, [
+                m(".flex-row", { style: "display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;" }, [
+                  m("label.input-label", { style: "margin: 0;" }, "Contraseña"),
+                  m("a", { href: "#", style: "font-size: 0.75rem; color: #16a34a; font-weight: 700; text-decoration: none;" }, "¿Olvidaste la clave?")
                 ]),
-                m("input", {
+                m("input.input-control", {
                   type: "password",
                   placeholder: "••••••••",
-                  class: "input-field w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 transition-all placeholder:text-slate-300",
-                  value: State.password,
-                  oninput: (e) => (State.password = e.target.value)
+                  oninput: (e) => State.password = e.target.value,
+                  value: State.password
                 })
               ]),
-
-              // Mensaje de Error
-              State.error && m("div", { class: "p-4 bg-red-50 text-red-500 text-xs font-bold rounded-xl flex items-center gap-2" }, [
-                m("span", "⚠️"),
-                State.error
-              ]),
-
-              // Botón Submit
-              m("button", {
+              
+              m("button.btn-login", {
                 type: "submit",
-                disabled: State.isLoading,
-                class: `w-full py-4 rounded-2xl font-black text-sm tracking-wide transition-all transform active:scale-95 shadow-xl ${State.isLoading
-                    ? "bg-slate-100 text-slate-400 cursor-not-allowed shadow-none"
-                    : "bg-green-500 hover:bg-green-400 text-slate-900 shadow-green-200"
-                  }`
-              }, State.isLoading ? "ACCEDIENDO..." : "INICIAR SESIÓN"),
-
-              // Separador
-              m("div", { class: "relative py-4" }, [
-                m("div", { class: "absolute inset-0 flex items-center" }, m("div", { class: "w-full border-t border-slate-100" })),
-                m("div", { class: "relative flex justify-center text-xs" },
-                  m("span", { class: "px-4 bg-white text-slate-400 font-bold" }, "O continúa con")
-                )
-              ]),
-
-              // Botón Google (Visual)
-              m("button", {
-                type: "button",
-                onclick: Actions.googleLogin,
-                class: "w-full py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition flex items-center justify-center gap-3"
-              }, [
-                m("span", { class: "text-lg" }, "G"),
-                "Google"
-              ])
+                class: State.isLoading ? "btn-loading" : "btn-active",
+                disabled: State.isLoading
+              }, State.isLoading ? "ACCEDIENDO..." : "INICIAR SESIÓN")
             ]),
-
-            // Footer
-            m("p", { class: "mt-10 text-center text-sm font-medium text-slate-500" }, [
+            
+            m(".divider", m("span", "O continúa con")),
+            
+            m("button.btn-login", {
+              style: "background: white; border: 1px solid #e2e8f0; color: #475569; margin-top: 0;",
+              onclick: () => alert("Google Login en desarrollo")
+            }, "G Google"),
+            
+            m("p", { style: "margin-top: 2.5rem; text-align: center; font-size: 0.875rem; color: #64748b;" }, [
               "¿No tienes cuenta? ",
-              m("a", { href: "registro.html", class: "text-green-600 font-bold hover:underline" }, "Regístrate gratis")
+              m("a", { href: "registro.html", style: "color: #16a34a; font-weight: 700; text-decoration: none;" }, "Regístrate gratis")
             ])
           ])
         ])
-    };
+      }
+    }
 
-    // --- APP WRAPPER ---
     const App = {
-      view: () =>
-        m("div", { class: "min-h-screen flex" }, [
-          m(LeftPanel),
-          m(LoginForm),
-        ]),
+      view: () => m(".layout-split", [
+        m(LeftPanel),
+        m(LoginForm)
+      ])
     };
 
     m.mount(document.getElementById("app"), App);

@@ -1,203 +1,547 @@
 <!DOCTYPE html>
+
 <html lang="es">
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Padel Pinto - Mi Perfil</title>
-    <script src="https://unpkg.com/mithril/mithril.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="toggleTheme.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="icon" type="image/svg+xml" href="src/favicon.svg" /> <!-- favicon -->
+<head> <meta charset="UTF-8" /> <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <title>Padel Pinto - Mi Perfil</title> <script src="https://unpkg.com/mithril/mithril.js"></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script> <script src="toggleTheme.js"></script> <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet" /> <link rel="icon" type="image/svg+xml" href="src/favicon.svg" />
 
-    <style>
-        body {
-            font-family: "Plus Jakarta Sans", sans-serif;
-            transition: background-color 0.5s ease;
-        }
+<style>
+    :root {
+        /* Palette mapped from Tailwind values */
+        --slate-50: #f8fafc;
+        --slate-100: #f1f5f9;
+        --slate-200: #e2e8f0;
+        --slate-300: #cbd5e1;
+        --slate-400: #94a3b8;
+        --slate-500: #64748b;
+        --slate-600: #475569;
+        --slate-700: #334155;
+        --slate-800: #1e293b;
+        --slate-900: #0f172a;
+        
+        --green-200: #bbf7d0;
+        --green-400: #4ade80;
+        --green-500: #22c55e;
+        --green-600: #16a34a;
+        --green-900: #14532d;
+        
+        --red-50: #fef2f2;
+        --red-500: #ef4444;
+        --red-900: #7f1d1d;
+        
+        --white: #ffffff;
+        --black: #000000;
+    }
 
-        .profile-gradient {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        }
+    *, *::before, *::after {
+        box-sizing: border-box;
+    }
 
-        #citizen-card {
-            width: 400px;
-            height: 220px;
-            position: relative;
-            overflow: hidden;
-        }
+    body {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        margin: 0;
+        padding: 0;
+        transition: background-color 0.5s ease;
+    }
 
-        .logo-ayto {
-            filter: brightness(0) invert(1);
-            max-height: 45px;
-            width: auto;
-        }
-    </style>
+    /* App Wrapper */
+    .app-root {
+        min-height: 100vh;
+        transition: background-color 0.5s;
+    }
+    .app-root.light { background-color: var(--white); }
+    .app-root.dark { background-color: var(--slate-900); }
+
+    /* Utilities */
+    .hidden { display: none; }
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .justify-center { justify-content: center; }
+    .w-full { width: 100%; }
+    .cursor-pointer { cursor: pointer; }
+    .uppercase { text-transform: uppercase; }
+    .transition { transition: all 0.2s ease; }
+    
+    /* Navbar */
+    .navbar {
+        border-bottom: 1px solid;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        padding: 1rem 1.5rem;
+        transition: background-color 0.5s, border-color 0.5s;
+    }
+    .navbar.light { background-color: var(--white); border-color: var(--slate-200); }
+    .navbar.dark { background-color: var(--slate-900); border-color: var(--slate-800); }
+
+    .navbar-content {
+        max-width: 64rem;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .logo-box {
+        width: 2rem;
+        height: 2rem;
+        background-color: var(--green-500);
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-weight: 900;
+    }
+    
+    .logo-text { font-weight: 900; }
+    .logo-text.light { color: var(--slate-800); }
+    .logo-text.dark { color: var(--white); }
+
+    .nav-link {
+        font-size: 0.75rem;
+        font-weight: 700;
+        background: none;
+        border: none;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    .nav-link.light { color: var(--slate-500); }
+    .nav-link.light:hover { color: var(--green-600); }
+    .nav-link.dark { color: var(--slate-400); }
+    .nav-link.dark:hover { color: var(--green-400); }
+
+    /* Profile Card Structure */
+    .profile-container {
+        max-width: 64rem;
+        margin: 0 auto;
+        padding: 1.5rem;
+    }
+
+    .profile-card {
+        border-radius: 40px;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        border: 1px solid;
+        transition: background-color 0.5s, border-color 0.5s;
+        overflow: hidden;
+    }
+    .profile-card.light { background-color: var(--white); border-color: var(--slate-100); }
+    .profile-card.dark { background-color: var(--slate-800); border-color: var(--slate-700); }
+
+    .profile-gradient {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    }
+    .header-bg { height: 10rem; }
+
+    .profile-body { padding: 0 2rem 2rem 2rem; }
+    
+    .profile-header-row {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 1.5rem;
+        margin-top: -4rem;
+        margin-bottom: 2rem;
+    }
+
+    .avatar-wrapper { position: relative; }
+    .avatar-img {
+        width: 8rem;
+        height: 8rem;
+        border-radius: 32px;
+        border-width: 8px;
+        border-style: solid;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        object-fit: cover;
+        background-color: var(--white);
+    }
+    .avatar-img.light { border-color: var(--white); }
+    .avatar-img.dark { border-color: var(--slate-800); }
+
+    .avatar-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0, 0, 0, 0.4);
+        border-radius: 32px;
+        cursor: pointer;
+        color: var(--white);
+        font-size: 10px;
+        font-weight: 700;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+    .avatar-wrapper:hover .avatar-overlay { opacity: 1; }
+
+    .user-info { flex: 1; margin-bottom: 0.5rem; margin-top: 5rem; }
+    .user-name { font-size: 1.875rem; font-weight: 900; margin: 0; }
+    .user-name.light { color: var(--slate-800); }
+    .user-name.dark { color: var(--white); }
+    .user-level { font-size: 0.875rem; font-weight: 700; color: var(--slate-400); text-transform: uppercase; letter-spacing: 0.1em; margin: 0; }
+
+    .btn-edit {
+        padding: 0.75rem 1.5rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        margin-bottom: 0.5rem;
+    }
+    .btn-edit.light { background-color: var(--slate-900); color: var(--white); }
+    .btn-edit.light:hover { background-color: var(--slate-800); }
+    .btn-edit.dark { background-color: var(--white); color: var(--slate-900); }
+    .btn-edit.dark:hover { background-color: var(--slate-200); }
+
+    /* Grid Layouts */
+    .main-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 3rem;
+    }
+
+    .details-col { }
+    .stats-col { }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    /* Inputs and Cards */
+    .section-title {
+        font-size: 0.875rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 1.5rem;
+        margin-top: 0;
+    }
+    .section-title.light { color: var(--slate-800); }
+    .section-title.dark { color: var(--white); }
+
+    .input-card {
+        padding: 1rem;
+        border-radius: 1rem;
+        border: 2px solid transparent;
+        transition: all 0.2s;
+    }
+    /* Editing State Colors */
+    .input-card.editing.empty.light { border-color: var(--red-500); background-color: var(--red-50); }
+    .input-card.editing.empty.dark { border-color: var(--red-500); background-color: rgba(127, 29, 29, 0.2); }
+    .input-card.editing.filled.light { border-color: var(--green-200); background-color: var(--white); }
+    .input-card.editing.filled.dark { border-color: var(--green-200); background-color: var(--slate-900); }
+    /* View State Colors */
+    .input-card.view.light { background-color: var(--slate-50); border-color: transparent; }
+    .input-card.view.dark { background-color: var(--slate-900); border-color: transparent; }
+    
+    .field-label {
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        margin-bottom: 0.25rem;
+        margin-top: 0;
+    }
+    .field-label.error { color: var(--red-500); }
+    .field-label.normal { color: var(--slate-400); }
+    .field-label.green { color: var(--green-600); }
+
+    .field-input {
+        background-color: transparent;
+        font-size: 0.875rem;
+        font-weight: 700;
+        width: 100%;
+        outline: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+    }
+    .field-input.light { color: var(--slate-700); }
+    .field-input.dark { color: var(--white); }
+    .field-text.light { color: var(--slate-700); }
+    .field-text.dark { color: var(--white); }
+    
+    .field-select option { color: var(--slate-900); }
+
+    /* Action Buttons */
+    .action-buttons { margin-top: 1.5rem; display: flex; gap: 0.75rem; }
+    
+    .btn-save {
+        background-color: var(--green-500);
+        color: var(--slate-900);
+        padding: 1rem 2rem;
+        border-radius: 1rem;
+        font-size: 0.875rem;
+        font-weight: 900;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        border: none;
+        cursor: pointer;
+        transition: transform 0.1s, background-color 0.2s;
+    }
+    .btn-save:hover { background-color: var(--green-400); }
+    .btn-save:active { transform: scale(0.95); }
+
+    .btn-cancel {
+        padding: 1rem 1.5rem;
+        border-radius: 1rem;
+        font-size: 0.875rem;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .btn-cancel.light { background-color: var(--slate-200); color: var(--slate-600); }
+    .btn-cancel.light:hover { background-color: var(--slate-300); }
+    .btn-cancel.dark { background-color: var(--slate-700); color: var(--slate-300); }
+
+    /* Stats Card */
+    .stats-card {
+        background-color: var(--green-500);
+        padding: 1.5rem;
+        border-radius: 32px;
+        color: var(--slate-900);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+    .stats-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .stats-label { font-size: 10px; font-weight: 900; text-transform: uppercase; }
+    .stats-value { font-size: 1.5rem; font-weight: 900; }
+    .progress-bg { width: 100%; background-color: rgba(255, 255, 255, 0.3); height: 0.5rem; border-radius: 9999px; margin-bottom: 0.5rem; }
+    .progress-bar { background-color: var(--white); height: 100%; border-radius: 9999px; }
+    .stats-footer { font-size: 10px; font-weight: 700; margin: 0; }
+
+    /* Citizen Card Preview */
+    .preview-container { margin-top: 2.5rem; }
+    
+    #citizen-card {
+        width: 400px;
+        height: 220px;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        color: var(--white);
+        border-radius: 1.5rem;
+        padding: 1.5rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        margin-bottom: 1rem;
+    }
+
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; }
+    .card-avatar {
+        width: 4rem;
+        height: 4rem;
+        border-radius: 1rem;
+        border: 2px solid var(--green-500);
+        background-color: var(--white);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        object-fit: cover;
+    }
+    .card-logo-box { padding: 0.625rem; border-radius: 0.75rem; box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06); }
+    
+    .card-member-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--slate-400); font-weight: 700; margin: 0; }
+    .card-name { font-size: 1.25rem; font-weight: 800; margin: 0; line-height: 1.2; }
+    
+    .btn-download {
+        width: 100%;
+        padding: 0.75rem 2rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .btn-download.active { background-color: var(--green-500); color: var(--slate-900); }
+    .btn-download.active:hover { background-color: var(--green-600); }
+    .btn-download.disabled { background-color: var(--slate-400); color: var(--slate-900); cursor: not-allowed; }
+
+    @media (min-width: 768px) {
+        .profile-header-row { flex-direction: row; align-items: flex-end; }
+        .main-grid { grid-template-columns: repeat(3, 1fr); }
+        .details-col { grid-column: span 2 / span 2; }
+        .details-grid { grid-template-columns: repeat(2, 1fr); }
+        .col-span-full { grid-column: 1 / -1; }
+        .btn-download { width: auto; }
+    }
+</style>
 </head>
 
-<body>
-    <div id="app"></div>
+<body> <div id="app"></div>
 
-    <script>
-        const State = {
-            isEditing: false,
-            user: {
-                nombre: "Carlos",
-                apellidos: "Pérez García",
-                email: "carlos.perez@gmail.com",
-                nivel: "Intermedio",
-                partidas: 124,
-                victorias: 82,
-                foto: "https://media.licdn.com/dms/image/v2/D4D03AQEOP6WWeuAT4Q/profile-displayphoto-crop_800_800/B4DZowOnToGwAI-/0/1761745729736?e=1772064000&v=beta&t=x671SPTKjj55Pfb5XihA9X-Vb7eW5BlhVhA5841ntJI",
-            },
-            tempUser: {},
-            downloading: false,
-        };
+<script>
+    const State = {
+        isEditing: false,
+        user: {
+            nombre: "Carlos",
+            apellidos: "Pérez García",
+            email: "carlos.perez@gmail.com",
+            nivel: "Intermedio",
+            partidas: 124,
+            victorias: 82,
+            foto: "[https://media.licdn.com/dms/image/v2/D4D03AQEOP6WWeuAT4Q/profile-displayphoto-crop_800_800/B4DZowOnToGwAI-/0/1761745729736?e=1772064000&v=beta&t=x671SPTKjj55Pfb5XihA9X-Vb7eW5BlhVhA5841ntJI](https://media.licdn.com/dms/image/v2/D4D03AQEOP6WWeuAT4Q/profile-displayphoto-crop_800_800/B4DZowOnToGwAI-/0/1761745729736?e=1772064000&v=beta&t=x671SPTKjj55Pfb5XihA9X-Vb7eW5BlhVhA5841ntJI)",
+        },
+        tempUser: {},
+        downloading: false,
+    };
 
-        const Actions = {
-            toggleEdit: () => {
-                if (!State.isEditing) State.tempUser = { ...State.user };
-                State.isEditing = !State.isEditing;
-            },
-            saveProfile: () => {
-                const camposVacios = !State.tempUser.nombre.trim() ||
-                    !State.tempUser.apellidos.trim() ||
-                    !State.tempUser.email.trim();
+    const Actions = {
+        toggleEdit: () => {
+            if (!State.isEditing) State.tempUser = { ...State.user };
+            State.isEditing = !State.isEditing;
+        },
+        saveProfile: () => {
+            const camposVacios = !State.tempUser.nombre.trim() ||
+                !State.tempUser.apellidos.trim() ||
+                !State.tempUser.email.trim();
 
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                const emailInvalido = !emailRegex.test(State.tempUser.email);
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const emailInvalido = !emailRegex.test(State.tempUser.email);
 
-                if (camposVacios) { alert("Por favor, rellene todos los campos obligatorios"); return; }
-                if (emailInvalido) { alert("Por favor, introduzca un correo electrónico válido"); return; }
+            if (camposVacios) { alert("Por favor, rellene todos los campos obligatorios"); return; }
+            if (emailInvalido) { alert("Por favor, introduzca un correo electrónico válido"); return; }
 
-                State.user = { ...State.tempUser };
-                State.isEditing = false;
-            },
-            handleFileUpload: (e) => {
-                const file = e.target.files[0];
-                if (file && file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        State.tempUser.foto = event.target.result;
-                        m.redraw();
-                    };
-                    reader.readAsDataURL(file);
-                }
+            State.user = { ...State.tempUser };
+            State.isEditing = false;
+        },
+        handleFileUpload: (e) => {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    State.tempUser.foto = event.target.result;
+                    m.redraw();
+                };
+                reader.readAsDataURL(file);
             }
-        };
+        }
+    };
 
-        const downloadCard = () => {
-            State.downloading = true;
-            const card = document.getElementById("citizen-card");
-            html2canvas(card, { useCORS: true, scale: 2, backgroundColor: null }).then((canvas) => {
-                const link = document.createElement("a");
-                link.download = `Tarjeta_${State.user.nombre}.png`;
-                link.href = canvas.toDataURL("image/png");
-                link.click();
-                State.downloading = false;
-                m.redraw();
-            });
-        };
+    const downloadCard = () => {
+        State.downloading = true;
+        const card = document.getElementById("citizen-card");
+        html2canvas(card, { useCORS: true, scale: 2, backgroundColor: null }).then((canvas) => {
+            const link = document.createElement("a");
+            link.download = `Tarjeta_${State.user.nombre}.png`;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+            State.downloading = false;
+            m.redraw();
+        });
+    };
 
-        const Navbar = {
+    function Navbar() {
+        return {
             view: () => m("nav", {
-                class: `border-b sticky top-0 z-50 px-6 py-4 transition-colors duration-500 ${ThemeState.darkMode ? "bg-slate-900 border-slate-800" : "bg-white border-slate-200"}`
+                class: `navbar ${ThemeState.darkMode ? "dark" : "light"}`
             }, [
-                m("div", { class: "max-w-5xl mx-auto flex justify-between items-center" }, [
+                m("div", { class: "navbar-content" }, [
                     m("div", { class: "flex items-center gap-2 cursor-pointer", onclick: () => (window.location.href = "loggedView.html") }, [
-                        m("div", { class: "w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-white font-black" }, "P"),
-                        m("span", { class: `font-black ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, "PADELPINTO"),
+                        m("div", { class: "logo-box" }, "P"),
+                        m("span", { class: `logo-text ${ThemeState.darkMode ? "dark" : "light"}` }, "PADELPINTO"),
                     ]),
                     m("div", { class: "flex items-center gap-4" }, [
-                        // Insertamos el botón de cambio de tema
                         m(ThemeToggle),
                         m("button", {
-                            class: `text-xs font-bold transition ${ThemeState.darkMode ? "text-slate-400 hover:text-green-400" : "text-slate-500 hover:text-green-600"}`,
+                            class: `nav-link ${ThemeState.darkMode ? "dark" : "light"}`,
                             onclick: () => (window.location.href = "loggedView.html")
                         }, "← Volver a Reservas"),
                     ])
                 ]),
             ]),
         };
+    }
 
-        const CitizenCardPreview = {
-            view: () => m("div", { class: "mt-10" }, [
-                m("h3", { class: `text-sm font-black uppercase tracking-wider mb-4 ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, "Tu Tarjeta Digital"),
-                m("div", { id: "citizen-card", class: "profile-gradient rounded-3xl p-6 text-white shadow-2xl mb-4 flex flex-col justify-between" }, [
-                    m("div", { class: "flex justify-between items-start w-full" }, [
+    function CitizenCardPreview() {
+        return {
+            view: () => m("div", { class: "preview-container" }, [
+                m("h3", { class: `section-title ${ThemeState.darkMode ? "dark" : "light"}` }, "Tu Tarjeta Digital"),
+                m("div", { id: "citizen-card", class: "profile-gradient" }, [
+                    m("div", { class: "card-header" }, [
                         m("img", {
                             src: State.user.foto,
-                            class: "w-16 h-16 rounded-2xl border-2 border-green-500 bg-white shadow-lg object-cover",
-                            onerror: (e) => e.target.src = "https://api.dicebear.com/7.x/initials/svg?seed=CP&backgroundColor=2ecc71&textColor=0f172a"
+                            class: "card-avatar",
+                            onerror: (e) => e.target.src = "[https://api.dicebear.com/7.x/initials/svg?seed=CP&backgroundColor=2ecc71&textColor=0f172a](https://api.dicebear.com/7.x/initials/svg?seed=CP&backgroundColor=2ecc71&textColor=0f172a)"
                         }),
-                        m("div", { class: "p-2.5 rounded-xl shadow-inner" }, [
+                        m("div", { class: "card-logo-box" }, [
                             m("img", {
                                 src: "src/logo_escudo_pinto.png",
+                                class: "logo-ayto",
                                 style: "max-height: 45px; width: auto; display: block;"
                             })
                         ])
                     ]),
                     m("div", [
-                        m("p", { class: "text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold" }, "Miembro Oficial"),
-                        m("h2", { class: "text-xl font-extrabold" }, State.user.nombre),
-                        m("h2", { class: "text-xl font-extrabold -mt-1" }, State.user.apellidos),
+                        m("p", { class: "card-member-label" }, "Miembro Oficial"),
+                        m("h2", { class: "card-name" }, State.user.nombre),
+                        m("h2", { class: "card-name", style: "margin-top: -0.25rem" }, State.user.apellidos),
                     ]),
                 ]),
                 m("button", {
-                    class: `w-full md:w-auto px-8 py-3 rounded-2xl text-xs font-bold transition flex items-center justify-center gap-2 ${State.downloading ? "bg-slate-400" : "bg-green-500 hover:bg-green-600 text-slate-900"}`,
+                    class: `btn-download ${State.downloading ? "disabled" : "active"}`,
                     onclick: downloadCard,
                     disabled: State.downloading,
                 }, [State.downloading ? "Generando..." : "Descargar Tarjeta PNG"]),
             ]),
         };
+    }
 
-        const ProfileCard = {
-            view: () => m("div", { class: "max-w-5xl mx-auto p-6" }, [
+    function ProfileCard() {
+        return {
+            view: () => m("div", { class: "profile-container" }, [
                 m("div", {
-                    class: `rounded-[40px] shadow-sm border transition-colors duration-500 overflow-hidden ${ThemeState.darkMode ? "bg-slate-800 border-slate-700" : "bg-white border-slate-100"}`
+                    class: `profile-card ${ThemeState.darkMode ? "dark" : "light"}`
                 }, [
-                    m("div", { class: "h-40 profile-gradient" }),
+                    m("div", { class: "profile-gradient header-bg" }),
 
-                    m("div", { class: "px-8 pb-8" }, [
-                        m("div", { class: "flex flex-col md:flex-row items-end gap-6 -mt-16 mb-8" }, [
-                            m("div", { class: "relative group" }, [
+                    m("div", { class: "profile-body" }, [
+                        m("div", { class: "profile-header-row" }, [
+                            m("div", { class: "avatar-wrapper group" }, [
                                 m("img", {
                                     src: State.isEditing ? State.tempUser.foto : State.user.foto,
-                                    class: `w-32 h-32 rounded-[32px] border-8 shadow-xl object-cover bg-white ${ThemeState.darkMode ? "border-slate-800" : "border-white"}`,
-                                    onerror: (e) => e.target.src = "https://api.dicebear.com/7.x/initials/svg?seed=CP&backgroundColor=2ecc71&textColor=0f172a"
+                                    class: `avatar-img ${ThemeState.darkMode ? "dark" : "light"}`,
+                                    onerror: (e) => e.target.src = "[https://api.dicebear.com/7.x/initials/svg?seed=CP&backgroundColor=2ecc71&textColor=0f172a](https://api.dicebear.com/7.x/initials/svg?seed=CP&backgroundColor=2ecc71&textColor=0f172a)"
                                 }),
                                 State.isEditing && m("label", {
-                                    class: "absolute inset-0 flex items-center justify-center bg-black/40 rounded-[32px] cursor-pointer text-white text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity"
+                                    class: "avatar-overlay"
                                 }, [
                                     "SUBIR FOTO",
                                     m("input", { type: "file", class: "hidden", accept: "image/*", onchange: Actions.handleFileUpload })
                                 ])
                             ]),
 
-                            m("div", { class: "flex-1 mb-2", style: "margin-top: 5rem;" }, [
-                                m("h1", { class: `text-3xl font-black ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, State.user.nombre + " " + State.user.apellidos),
-                                m("p", { class: "text-sm font-bold text-slate-400 uppercase tracking-widest" }, "Nivel " + State.user.nivel),
+                            m("div", { class: "user-info" }, [
+                                m("h1", { class: `user-name ${ThemeState.darkMode ? "dark" : "light"}` }, State.user.nombre + " " + State.user.apellidos),
+                                m("p", { class: "user-level" }, "Nivel " + State.user.nivel),
                             ]),
 
                             !State.isEditing && m("button", {
-                                class: `px-6 py-3 rounded-2xl text-xs font-bold transition mb-2 ${ThemeState.darkMode ? "bg-white text-slate-900 hover:bg-slate-200" : "bg-slate-900 text-white hover:bg-slate-800"}`,
+                                class: `btn-edit ${ThemeState.darkMode ? "dark" : "light"}`,
                                 onclick: Actions.toggleEdit
                             }, "✎ Editar Perfil"),
                         ]),
 
-                        m("div", { class: "grid grid-cols-1 md:grid-cols-3 gap-12" }, [
-                            m("div", { class: "md:col-span-2" }, [
-                                m("h3", { class: `text-sm font-black uppercase tracking-wider mb-6 ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, "Detalles de la cuenta"),
+                        m("div", { class: "main-grid" }, [
+                            m("div", { class: "details-col" }, [
+                                m("h3", { class: `section-title ${ThemeState.darkMode ? "dark" : "light"}` }, "Detalles de la cuenta"),
 
-                                m("div", { class: "grid grid-cols-1 md:grid-cols-2 gap-4" }, [
+                                m("div", { class: "details-grid" }, [
                                     State.isEditing && m("div", {
-                                        class: `p-4 rounded-2xl border-2 md:col-span-2 shadow-sm ${ThemeState.darkMode ? "bg-slate-900 border-green-900" : "bg-white border-green-500"}`
+                                        class: `input-card col-span-full ${ThemeState.darkMode ? "editing filled dark" : "editing filled light"}`,
+                                        style: ThemeState.darkMode ? "border-color: var(--green-900); background-color: var(--slate-900)" : "border-color: var(--green-500); background-color: var(--white)"
                                     }, [
-                                        m("p", { class: "text-[10px] font-black text-green-600 uppercase mb-1" }, "Link de foto externa (URL)"),
+                                        m("p", { class: "field-label green" }, "Link de foto externa (URL)"),
                                         m("input", {
-                                            class: "bg-transparent text-sm font-bold w-full outline-none " + (ThemeState.darkMode ? "text-white" : "text-slate-700"),
+                                            class: `field-input ${ThemeState.darkMode ? "dark" : "light"}`,
                                             placeholder: "Pegue aquí el enlace de su foto...",
                                             value: State.tempUser.foto.startsWith('data:') ? '' : State.tempUser.foto,
                                             oninput: (e) => State.tempUser.foto = e.target.value
@@ -209,51 +553,50 @@
                                         { label: "Nombre", key: "nombre" },
                                         { label: "Apellidos", key: "apellidos" },
                                         { label: "Email", key: "email", colSpan: true }
-                                    ].map(field => m("div", {
-                                        class: `p-4 rounded-2xl border-2 transition ${field.colSpan ? "md:col-span-2" : ""} ${State.isEditing
-                                                ? (State.tempUser[field.key].trim() === ""
-                                                    ? (ThemeState.darkMode ? "border-red-500 bg-red-900/20" : "border-red-500 bg-red-50")
-                                                    : "border-green-200 " + (ThemeState.darkMode ? "bg-slate-900" : "bg-white"))
-                                                : `border-transparent ${ThemeState.darkMode ? "bg-slate-900" : "bg-slate-50"}`
-                                            }`
-                                    }, [
-                                        m("p", { class: `text-[10px] font-black uppercase mb-1 ${State.isEditing && State.tempUser[field.key].trim() === "" ? "text-red-500" : "text-slate-400"}` }, field.label),
-                                        State.isEditing
-                                            ? m("input", {
-                                                class: `bg-transparent text-sm font-bold w-full outline-none ${ThemeState.darkMode ? "text-white" : "text-slate-700"}`,
-                                                value: State.tempUser[field.key],
-                                                oninput: (e) => State.tempUser[field.key] = e.target.value,
-                                                placeholder: `Escribe tu ${field.label.toLowerCase()}...`
-                                            })
-                                            : m("p", { class: `text-sm font-bold ${ThemeState.darkMode ? "text-white" : "text-slate-700"}` }, State.user[field.key]),
-                                    ])),
+                                    ].map(field => {
+                                        const isEmpty = State.isEditing && State.tempUser[field.key].trim() === "";
+                                        const mode = State.isEditing ? "editing" : "view";
+                                        const filledState = isEmpty ? "empty" : "filled";
+                                        const theme = ThemeState.darkMode ? "dark" : "light";
+                                        
+                                        return m("div", {
+                                            class: `input-card ${field.colSpan ? "col-span-full" : ""} ${mode} ${filledState} ${theme}`
+                                        }, [
+                                            m("p", { class: `field-label ${isEmpty ? "error" : "normal"}` }, field.label),
+                                            State.isEditing
+                                                ? m("input", {
+                                                    class: `field-input ${ThemeState.darkMode ? "dark" : "light"}`,
+                                                    value: State.tempUser[field.key],
+                                                    oninput: (e) => State.tempUser[field.key] = e.target.value,
+                                                    placeholder: `Escribe tu ${field.label.toLowerCase()}...`
+                                                })
+                                                : m("p", { class: `field-text ${ThemeState.darkMode ? "dark" : "light"}`, style: "font-weight: 700; margin: 0; font-size: 0.875rem;" }, State.user[field.key]),
+                                        ]);
+                                    }),
 
                                     m("div", {
-                                        class: `p-4 rounded-2xl md:col-span-2 border-2 transition ${State.isEditing
-                                                ? "border-green-200 " + (ThemeState.darkMode ? "bg-slate-900" : "bg-white")
-                                                : `border-transparent ${ThemeState.darkMode ? "bg-slate-900" : "bg-slate-50"}`
-                                            }`
+                                        class: `input-card col-span-full ${State.isEditing ? "editing filled" : "view"} ${ThemeState.darkMode ? "dark" : "light"}`
                                     }, [
-                                        m("p", { class: "text-[10px] font-black text-slate-400 uppercase mb-1" }, "Nivel de Habilidad"),
+                                        m("p", { class: "field-label normal" }, "Nivel de Habilidad"),
                                         State.isEditing
                                             ? m("select", {
-                                                class: `bg-transparent text-sm font-bold w-full outline-none cursor-pointer ${ThemeState.darkMode ? "text-white" : "text-slate-700"}`,
+                                                class: `field-input cursor-pointer field-select ${ThemeState.darkMode ? "dark" : "light"}`,
                                                 onchange: (e) => State.tempUser.nivel = e.target.value,
                                                 value: State.tempUser.nivel
                                             }, [
-                                                ["Principiante", "Intermedio", "Avanzado"].map(opt => m("option", { value: opt, class: "text-slate-900" }, opt))
+                                                ["Principiante", "Intermedio", "Avanzado"].map(opt => m("option", { value: opt }, opt))
                                             ])
-                                            : m("p", { class: `text-sm font-bold ${ThemeState.darkMode ? "text-white" : "text-slate-700"}` }, State.user.nivel),
+                                            : m("p", { class: `field-text ${ThemeState.darkMode ? "dark" : "light"}`, style: "font-weight: 700; margin: 0; font-size: 0.875rem;" }, State.user.nivel),
                                     ]),
                                 ]),
 
-                                State.isEditing && m("div", { class: "mt-6 flex gap-3" }, [
+                                State.isEditing && m("div", { class: "action-buttons" }, [
                                     m("button", {
-                                        class: "bg-green-500 text-slate-900 px-8 py-4 rounded-2xl text-sm font-black shadow-lg hover:bg-green-400 transition transform active:scale-95",
+                                        class: "btn-save",
                                         onclick: Actions.saveProfile
                                     }, "✓ Guardar cambios"),
                                     m("button", {
-                                        class: `px-6 py-4 rounded-2xl text-sm font-bold transition ${ThemeState.darkMode ? "bg-slate-700 text-slate-300" : "bg-slate-200 text-slate-600 hover:bg-slate-300"}`,
+                                        class: `btn-cancel ${ThemeState.darkMode ? "dark" : "light"}`,
                                         onclick: () => State.isEditing = false
                                     }, "Cancelar")
                                 ]),
@@ -261,17 +604,17 @@
                                 m(CitizenCardPreview),
                             ]),
 
-                            m("div", { class: "space-y-6" }, [
-                                m("h3", { class: `text-sm font-black uppercase tracking-wider ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, "Estadísticas"),
-                                m("div", { class: "bg-green-500 p-6 rounded-[32px] text-slate-900 shadow-xl" }, [
-                                    m("div", { class: "flex justify-between items-center mb-4" }, [
-                                        m("span", { class: "text-[10px] font-black uppercase" }, "Victorias"),
-                                        m("span", { class: "text-2xl font-black" }, State.user.victorias),
+                            m("div", { class: "stats-col space-y-6" }, [
+                                m("h3", { class: `section-title ${ThemeState.darkMode ? "dark" : "light"}` }, "Estadísticas"),
+                                m("div", { class: "stats-card" }, [
+                                    m("div", { class: "stats-header" }, [
+                                        m("span", { class: "stats-label" }, "Victorias"),
+                                        m("span", { class: "stats-value" }, State.user.victorias),
                                     ]),
-                                    m("div", { class: "w-full bg-white/30 h-2 rounded-full mb-2" }, [
-                                        m("div", { class: "bg-white h-full rounded-full", style: "width: " + (State.user.victorias / State.user.partidas) * 100 + "%" }),
+                                    m("div", { class: "progress-bg" }, [
+                                        m("div", { class: "progress-bar", style: "width: " + (State.user.victorias / State.user.partidas) * 100 + "%" }),
                                     ]),
-                                    m("p", { class: "text-[10px] font-bold" }, State.user.partidas + " partidas jugadas"),
+                                    m("p", { class: "stats-footer" }, State.user.partidas + " partidas jugadas"),
                                 ]),
                             ]),
                         ]),
@@ -279,14 +622,15 @@
                 ]),
             ]),
         };
+    }
 
-        m.mount(document.getElementById("app"), {
-            view: () => m("div", { class: ThemeActions.getMainClasses() }, [
-                m(Navbar),
-                m(ProfileCard)
-            ]),
-        });
-    </script>
+    m.mount(document.getElementById("app"), {
+        view: () => m("div", { class: `app-root ${ThemeState.darkMode ? "dark" : "light"}` }, [
+            m(Navbar),
+            m(ProfileCard)
+        ]),
+    });
+</script>
 </body>
 
-</html>
+</html>         

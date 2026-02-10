@@ -6,35 +6,143 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Padel Pinto - Crear Cuenta</title>
   <script src="https://unpkg.com/mithril/mithril.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="icon" type="image/svg+xml" href="src/favicon.svg" /> <!-- favicon -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="src/favicon.svg" />
   
   <style>
     :root {
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-400: #94a3b8;
+      --slate-500: #64748b;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+      --green-400: #4ade80;
+      --green-500: #22c55e;
+      --green-600: #16a34a;
+      --red-500: #ef4444;
+      --white: #ffffff;
       --padel-green: #2ecc71;
-      --padel-blue: #0f172a;
     }
+
+    * { box-sizing: border-box; }
 
     body {
       font-family: "Plus Jakarta Sans", sans-serif;
-      background-color: #f8fafc;
+      background-color: var(--slate-50);
+      margin: 0;
+      padding: 0;
     }
 
     @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .animate-fade-up {
       animation: fadeIn 0.6s ease-out forwards;
+    }
+
+    .flex-container { display: flex; min-height: 100vh; }
+
+    /* Left Panel */
+    .hero-panel {
+      display: none;
+      width: 50%;
+      position: relative;
+      background-color: var(--slate-900);
+      overflow: hidden;
+    }
+
+    @media (min-width: 1024px) {
+      .hero-panel { display: flex; }
+    }
+
+    .hero-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.5;
+    }
+
+    .hero-overlay {
+      position: relative;
+      z-index: 10;
+      margin: auto;
+      text-align: center;
+      padding: 0 3rem;
+    }
+
+    .hero-title {
+      font-size: 2.25rem;
+      font-weight: 900;
+      color: var(--white);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-text {
+      color: var(--slate-300);
+      font-size: 1.125rem;
+    }
+
+    /* Right Panel */
+    .form-panel {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      background-color: var(--white);
+    }
+
+    @media (min-width: 1024px) {
+      .form-panel { width: 50%; }
+    }
+
+    .form-container {
+      width: 100%;
+      max-width: 28rem;
+    }
+
+    .title {
+      font-size: 1.875rem;
+      font-weight: 900;
+      color: var(--slate-800);
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: var(--slate-400);
+      font-weight: 500;
+      margin-bottom: 2rem;
+    }
+
+    .form-group { margin-bottom: 1rem; }
+
+    .label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--slate-700);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 0.75rem 1.25rem;
+      background-color: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: 1rem;
+      font-size: 0.875rem;
+      font-weight: 700;
+      transition: all 0.2s;
     }
 
     .input-field:focus {
@@ -42,6 +150,101 @@
       box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.1);
       outline: none;
     }
+
+    .btn-primary {
+      width: 100%;
+      padding: 1rem;
+      border-radius: 1rem;
+      font-weight: 900;
+      font-size: 0.875rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 1rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-active {
+      background-color: var(--green-500);
+      color: var(--slate-900);
+    }
+
+    .btn-active:hover { background-color: var(--green-400); }
+    .btn-active:active { transform: scale(0.95); }
+
+    .btn-disabled {
+      background-color: var(--slate-100);
+      color: var(--slate-400);
+      cursor: not-allowed;
+    }
+
+    .divider-container {
+      position: relative;
+      padding: 2rem 0;
+    }
+
+    .divider-line {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .divider-hr {
+      width: 100%;
+      border-top: 1px solid var(--slate-100);
+    }
+
+    .divider-text-box {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      font-size: 0.75rem;
+    }
+
+    .divider-text {
+      padding: 0 1rem;
+      background-color: var(--white);
+      color: var(--slate-400);
+      font-weight: 700;
+    }
+
+    .btn-google {
+      width: 100%;
+      padding: 1rem;
+      background-color: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: 1rem;
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--slate-600);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn-google:hover { background-color: var(--slate-50); }
+
+    .footer-link {
+      margin-top: 5rem;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--slate-500);
+    }
+
+    .accent-link {
+      color: var(--green-600);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .accent-link:hover { text-decoration: underline; }
+    .text-red { color: var(--red-500); }
+    .text-tiny { font-size: 10px; color: var(--slate-400); font-weight: 700; margin-top: 0.5rem; }
   </style>
 </head>
 
@@ -61,28 +264,20 @@
     const Actions = {
       register: (e) => {
         e.preventDefault();
-
-        // Validación de campos obligatorios
         if (!State.nombre.trim() || !State.email.trim() || !State.password.trim()) {
           alert("Por favor, completa todos los campos marcados como obligatorios.");
           return;
         }
-
-        // Validación de formato de email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(State.email)) {
-          alert("Por favor, introduce un correo electrónico válido (ejemplo@dominio.com).");
+          alert("Por favor, introduce un correo electrónico válido.");
           return;
         }
-
-        // Validación de seguridad básica para contraseña
         if (State.password.length < 6) {
-          alert("La contraseña debe tener al menos 6 caracteres por seguridad.");
+          alert("La contraseña debe tener al menos 6 caracteres.");
           return;
         }
-
         State.isLoading = true;
-        // Simulamos registro y redirigimos
         setTimeout(() => {
           window.location.href = "loggedView.html?auth=success";
         }, 1500);
@@ -92,106 +287,112 @@
       }
     };
 
-    const LeftPanel = {
-      view: () =>
-        m(".hidden.lg:flex.w-1/2.relative.bg-slate-900.overflow-hidden", [
-          m("img", {
-            src: State.heroImage,
-            class: "absolute inset-0 w-full h-full object-cover opacity-50",
-          }),
-          m(".relative.z-10.m-auto.text-center.px-12", [
-            m("h2.text-4xl.font-black.text-white.mb-6", "Únete al club."),
-            m(
-              "p.text-slate-300.text-lg",
-              "Crea tu perfil en 30 segundos y empieza a organizar tus partidas.",
-            ),
-          ]),
-        ]),
-    };
+    function LeftPanel() {
+      return {
+        view: () =>
+          m("div", { class: "hero-panel" }, [
+            m("img", { src: State.heroImage, class: "hero-img" }),
+            m("div", { class: "hero-overlay" }, [
+              m("h2", { class: "hero-title" }, "Únete al club."),
+              m("p", { class: "hero-text" }, "Crea tu perfil en 30 segundos y empieza a organizar tus partidas.")
+            ])
+          ])
+      };
+    }
 
-    const RegisterForm = {
-      view: () =>
-        m(".w-full.lg:w-1/2.flex.items-center.justify-center.p-8.bg-white", [
-          m(".w-full.max-w-md.animate-fade-up", [
-            m("h1.text-3xl.font-black.text-slate-800.mb-2", "Crear cuenta"),
-            m("p.text-slate-400.font-medium.mb-8", "Completa tus datos para empezar a jugar."),
-            m("form", { onsubmit: Actions.register, class: "space-y-4" }, [
-              m("div", [
-                m("label.block.text-xs.font-bold.text-slate-700.uppercase.mb-2", [
-                  "Nombre Completo ",
-                  m("span.text-red-500", "*")
+    function RegisterForm() {
+      return {
+        view: () =>
+          m("div", { class: "form-panel" }, [
+            m("div", { class: "form-container animate-fade-up" }, [
+              m("h1", { class: "title" }, "Crear cuenta"),
+              m("p", { class: "subtitle" }, "Completa tus datos para empezar a jugar."),
+              m("form", { onsubmit: Actions.register }, [
+                m("div", { class: "form-group" }, [
+                  m("label", { class: "label" }, [
+                    "Nombre Completo ",
+                    m("span", { class: "text-red" }, "*")
+                  ]),
+                  m("input", {
+                    class: "input-field",
+                    required: true,
+                    placeholder: "Ej. Juan Pérez",
+                    oninput: (e) => (State.nombre = e.target.value)
+                  })
                 ]),
-                m("input.input-field.w-full.px-5.py-3.bg-slate-50.border.border-slate-200.rounded-2xl.text-sm.font-bold", {
-                  required: true,
-                  placeholder: "Ej. Juan Pérez",
-                  oninput: (e) => (State.nombre = e.target.value),
-                }),
+                m("div", { class: "form-group" }, [
+                  m("label", { class: "label" }, [
+                    "Email ",
+                    m("span", { class: "text-red" }, "*")
+                  ]),
+                  m("input", {
+                    type: "email",
+                    class: "input-field",
+                    required: true,
+                    placeholder: "tu@email.com",
+                    oninput: (e) => (State.email = e.target.value)
+                  })
+                ]),
+                m("div", { class: "form-group" }, [
+                  m("label", { class: "label" }, "Nivel de Pádel"),
+                  m("select", {
+                    class: "input-field",
+                    style: "appearance: none;",
+                    onchange: (e) => (State.nivel = e.target.value)
+                  }, [
+                    m("option", { value: "1.0" }, "Iniciación (1.0 - 2.0)"),
+                    m("option", { value: "3.0" }, "Intermedio (3.0 - 4.0)"),
+                    m("option", { value: "5.0" }, "Avanzado / Pro (5.0+)")
+                  ])
+                ]),
+                m("div", { class: "form-group" }, [
+                  m("label", { class: "label" }, [
+                    "Contraseña ",
+                    m("span", { class: "text-red" }, "*")
+                  ]),
+                  m("input", {
+                    type: "password",
+                    class: "input-field",
+                    required: true,
+                    placeholder: "••••••••",
+                    oninput: (e) => (State.password = e.target.value)
+                  })
+                ]),
+                m("button", {
+                  type: "submit",
+                  disabled: State.isLoading,
+                  class: "btn-primary " + (State.isLoading ? "btn-disabled" : "btn-active")
+                }, State.isLoading ? "CREANDO CUENTA..." : "REGISTRARSE"),
+                m("p", { class: "text-tiny" }, [
+                  "Los campos marcados con ", m("span", { class: "text-red" }, "(*)"), " son obligatorios."
+                ])
               ]),
-              m("div", [
-                m("label.block.text-xs.font-bold.text-slate-700.uppercase.mb-2", [
-                  "Email ",
-                  m("span.text-red-500", "*")
-                ]),
-                m("input.input-field.w-full.px-5.py-3.bg-slate-50.border.border-slate-200.rounded-2xl.text-sm.font-bold", {
-                  type: "email",
-                  required: true,
-                  placeholder: "tu@email.com",
-                  oninput: (e) => (State.email = e.target.value),
-                }),
-              ]),
-              m("div", [
-                m("label.block.text-xs.font-bold.text-slate-700.uppercase.mb-2", "Nivel de Pádel"),
-                m("select.input-field.w-full.px-5.py-3.bg-slate-50.border.border-slate-200.rounded-2xl.text-sm.font-bold.appearance-none", {
-                  onchange: (e) => (State.nivel = e.target.value),
-                }, [
-                  m("option", { value: "1.0" }, "Iniciación (1.0 - 2.0)"),
-                  m("option", { value: "3.0" }, "Intermedio (3.0 - 4.0)"),
-                  m("option", { value: "5.0" }, "Avanzado / Pro (5.0+)"),
-                ]),
-              ]),
-              m("div", [
-                m("label.block.text-xs.font-bold.text-slate-700.uppercase.mb-2", [
-                  "Contraseña ",
-                  m("span.text-red-500", "*")
-                ]),
-                m("input.input-field.w-full.px-5.py-3.bg-slate-50.border.border-slate-200.rounded-2xl.text-sm.font-bold", {
-                  type: "password",
-                  required: true,
-                  placeholder: "••••••••",
-                  oninput: (e) => (State.password = e.target.value),
-                }),
+              m("div", { class: "divider-container" }, [
+                m("div", { class: "divider-line" }, m("div", { class: "divider-hr" })),
+                m("div", { class: "divider-text-box" }, m("span", { class: "divider-text" }, "O continúe con"))
               ]),
               m("button", {
-                type: "submit",
-                disabled: State.isLoading,
-                class: `w-full py-4 rounded-2xl font-black text-sm transition-all transform active:scale-95 shadow-xl mt-4 ${State.isLoading ? "bg-slate-100 text-slate-400 cursor-not-allowed" : "bg-green-500 text-slate-900 shadow-green-100 hover:bg-green-400"
-                  }`,
-              }, State.isLoading ? "CREANDO CUENTA..." : "REGISTRARSE"),
-              // Texto aclaratorio debajo del botón
-              m("p", { class: "text-[10px] text-slate-400 font-bold mt-2" }, [
-                "Los campos marcados con ", m("span", { class: "text-red-500" }, "(*)"), " son obligatorios."
-              ]),
-            ]),
-            m("div", { class: "relative py-8" }, [
-              m("div", { class: "absolute inset-0 flex items-center" }, m("div", { class: "w-full border-t border-slate-100" })),
-              m("div", { class: "relative flex justify-center text-xs" }, m("span", { class: "px-4 bg-white text-slate-400 font-bold" }, "O continúe con")),
-            ]),
-            m("button", {
-              type: "button",
-              onclick: Actions.googleLogin,
-              class: "w-full py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition flex items-center justify-center gap-3",
-            }, [m("span", { class: "text-lg" }, "G"), "Google"]),
-            m("p.mt-20.text-center.text-sm.font-medium.text-slate-500", [
-              "¿Ya tienes cuenta? ",
-              m("a", { href: "login.html", class: "text-green-600 font-bold hover:underline" }, "Inicia sesión"),
-            ]),
-          ]),
-        ]),
+                type: "button",
+                onclick: Actions.googleLogin,
+                class: "btn-google"
+              }, [m("span", { style: "font-size: 1.125rem;" }, "G"), "Google"]),
+              m("p", { class: "footer-link" }, [
+                "¿Ya tienes cuenta? ",
+                m("a", { href: "login.html", class: "accent-link" }, "Inicia sesión")
+              ])
+            ])
+          ])
+      };
+    }
+
+    const App = {
+      view: () => m("div", { class: "flex-container" }, [
+        m(LeftPanel),
+        m(RegisterForm)
+      ])
     };
 
-    m.mount(document.getElementById("app"), {
-      view: () => m(".min-h-screen.flex", [m(LeftPanel), m(RegisterForm)]),
-    });
+    m.mount(document.getElementById("app"), App);
   </script>
 </body>
 

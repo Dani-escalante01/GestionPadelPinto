@@ -520,7 +520,7 @@
                 disabled: isPast //evitamos que se puedan seleccionar días pasados
               }, [
                 m("span", d),
-                hasData && m("div", { class: `w-1.5 h-1.5 rounded-full absolute bottom-2 ${isSelected ? "bg-slate-900" : "bg-green-500"} ${isPast ? "opacity-30" : ""}` })
+                hasData && m("div", { class: `w-1 h-1 rounded-full absolute bottom-1.5 ${isSelected ? "bg-slate-900" : "bg-green-500"} ${isPast ? "opacity-30" : ""}` })
               ]);
             })
           ])

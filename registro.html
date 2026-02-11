@@ -252,6 +252,8 @@
   <div id="app"></div>
 
   <script>
+    const API_URL = "backend.php";
+
     const State = {
       nombre: "",
       email: "",
@@ -264,6 +266,7 @@
     const Actions = {
       register: (e) => {
         e.preventDefault();
+        // Validaciones Frontend
         if (!State.nombre.trim() || !State.email.trim() || !State.password.trim()) {
           alert("Por favor, completa todos los campos marcados como obligatorios.");
           return;
@@ -277,13 +280,62 @@
           alert("La contraseña debe tener al menos 6 caracteres.");
           return;
         }
+
         State.isLoading = true;
-        setTimeout(() => {
-          window.location.href = "loggedView.html?auth=success";
-        }, 1500);
+
+        // Datos del nuevo usuario
+        // NOTA: Se envían las claves exactas que espera la base de datos (tabla usuarios)
+        const newUser = {
+            nombre: State.nombre,
+            email: State.email,
+            password: State.password,
+            nivel: State.nivel,
+            // Valores por defecto que quizás quieras forzar (aunque la BD ya tiene defaults)
+            foto: "https://api.dicebear.com/7.x/initials/svg?seed=" + State.nombre.substring(0,2) + "&backgroundColor=2ecc71"
+        };
+
+        // Petición al Backend
+        m.request({
+            method: "POST",
+            url: `${API_URL}?table=usuarios`,
+            body: newUser
+        })
+        .then(response => {
+            if (response.status === "ok" || response.id) {
+                // Registro Exitoso
+                // Construimos el objeto usuario para la sesión (LocalStorage)
+                // Así el usuario entra ya logueado
+                const sessionUser = {
+                    id: response.id,
+                    nombre: newUser.nombre,
+                    email: newUser.email,
+                    nivel: newUser.nivel,
+                    foto: newUser.foto
+                    // No guardamos la contraseña en localstorage por seguridad
+                };
+
+                localStorage.setItem("padel_user", JSON.stringify(sessionUser));
+                
+                // Redirigir
+                window.location.href = "index.html?auth=success";
+            } else {
+                alert("Error al registrar el usuario. Inténtalo de nuevo.");
+                State.isLoading = false;
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            // Comprobamos si el error es por email duplicado (Constraint UNIQUE)
+            if (err.message && err.message.includes("UNIQUE")) {
+                alert("Este correo electrónico ya está registrado.");
+            } else {
+                alert("Error de conexión con el servidor.");
+            }
+            State.isLoading = false;
+        });
       },
       googleLogin: () => {
-        alert("Conectando con Google...");
+        alert("Conectando con Google... (Próximamente)");
       }
     };
 

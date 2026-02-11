@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Instalador Padel V2</title>
+    <script src="https://unpkg.com/mithril/mithril.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-200 p-10 font-sans">
+    <div id="app" class="max-w-2xl mx-auto"></div>
+
+    <script>
+        const API_URL = "./backend.php"; 
+
+        const esquemas = {
+            usuarios: {
+                "id": "INTEGER PRIMARY KEY AUTOINCREMENT",
+                "nombre": "TEXT", "email": "TEXT UNIQUE", "password": "TEXT", 
+                "nivel": "TEXT", "foto": "TEXT", "victorias": "INTEGER DEFAULT 0", 
+                "partidas_jugadas": "INTEGER DEFAULT 0"
+            },
+            pistas: {
+                "id": "INTEGER PRIMARY KEY AUTOINCREMENT",
+                "nombre": "TEXT", "tipo": "TEXT", "precio": "TEXT", "foto_url": "TEXT"
+            },
+            partidas: {
+                "id": "INTEGER PRIMARY KEY AUTOINCREMENT",
+                "pista_id": "INTEGER", "creador_id": "INTEGER", "fecha": "TEXT", 
+                "hora": "TEXT", "tipo": "TEXT", "codigo_invitacion": "TEXT", 
+                "estado": "TEXT DEFAULT 'abierta'", "jugadores_actuales": "INTEGER DEFAULT 0" 
+            },
+            participantes: {
+                "id": "INTEGER PRIMARY KEY AUTOINCREMENT",
+                "partida_id": "INTEGER", "usuario_id": "INTEGER", 
+                "nombre_jugador": "TEXT", "posicion": "INTEGER"
+            }
+        };
+
+        const Installer = {
+            logs: [],
+            isLoading: false,
+            serverStatus: null,
+
+            addLog: (msg, type = 'info') => {
+                Installer.logs.push({ msg, type });
+                m.redraw();
+            },
+
+            // 1. PRIMER PASO: Comprobar si PHP está vivo y listo
+            checkServer: async () => {
+                Installer.logs = [];
+                Installer.addLog("🔍 Diagnosticando servidor...", "info");
+                try {
+                    const res = await m.request({ method: "GET", url: `${API_URL}?check=1` });
+                    Installer.serverStatus = res;
+                    
+                    if (!res.sqlite_extension) {
+                        Installer.addLog("❌ ERROR CRÍTICO: La extensión 'sqlite3' no está activada en tu PHP.", "error");
+                    } else if (!res.folder_writable) {
+                        Installer.addLog("❌ ERROR CRÍTICO: PHP no tiene permisos de escritura en la carpeta.", "error");
+                        Installer.addLog(`📂 Ruta: ${res.current_folder}`, "warning");
+                    } else {
+                        Installer.addLog("✅ Servidor listo. SQLite activado y permisos correctos.", "success");
+                    }
+                } catch (e) {
+                    console.error(e);
+                    Installer.addLog("❌ No se puede conectar con backend.php. ¿Está el archivo en la misma carpeta?", "error");
+                }
+            },
+
+            runInstall: async () => {
+                if (!Installer.serverStatus?.folder_writable) {
+                    alert("Ejecuta el Diagnóstico primero y asegúrate de que todo esté en verde.");
+                    return;
+                }
+
+                Installer.isLoading = true;
+                Installer.addLog("🚀 Iniciando creación de tablas...", "info");
+
+                for (let tabla in esquemas) {
+                    try {
+                        await m.request({
+                            method: "POST",
+                            url: `${API_URL}?action=create_table&table=${tabla}`,
+                            body: esquemas[tabla]
+                        });
+                        Installer.addLog(`✅ Tabla '${tabla}' creada.`, "success");
+                    } catch (error) {
+                        // Mostramos el error real en JSON string para verlo bien
+                        const errorMsg = error.response ? JSON.stringify(error.response) : error.message;
+                        Installer.addLog(`❌ Error '${tabla}': ${errorMsg}`, "error");
+                    }
+                }
+
+                await Installer.seedPistas();
+                Installer.isLoading = false;
+                m.redraw();
+            },
+
+            seedPistas: async () => {
+                Installer.addLog("🌱 Insertando datos...", "info");
+                const pistasData = [
+                    { nombre: "Pista Central WPT", tipo: "Panorámica", precio: "18€", foto_url: "img1.jpg" },
+                    { nombre: "Pista Cristal 1", tipo: "Cristal", precio: "14€", foto_url: "img2.jpg" }
+                ];
+                
+                let exito = true;
+                for (let pista of pistasData) {
+                    try {
+                        await m.request({
+                            method: "POST",
+                            url: `${API_URL}?table=pistas`,
+                            body: pista
+                        });
+                    } catch (e) { 
+                        exito = false;
+                        Installer.addLog(`❌ Fallo insertando pista: ${JSON.stringify(e)}`, "error");
+                    }
+                }
+                if (exito) Installer.addLog("✅ Datos insertados correctamente.", "success");
+            },
+
+            view: () => m("div", [
+                m("h1", {class: "text-3xl font-bold mb-6 text-green-400"}, "Instalador Padel V2"),
+                
+                m("div", {class: "flex gap-4 mb-6"}, [
+                    m("button", {
+                        class: "bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-500",
+                        onclick: Installer.checkServer
+                    }, "1. DIAGNOSTICAR SERVIDOR"),
+
+                    m("button", {
+                        class: `px-6 py-3 rounded-xl font-bold transition ${!Installer.serverStatus ? 'bg-slate-700 text-slate-500' : 'bg-green-500 text-slate-900 hover:bg-green-400'}`,
+                        disabled: !Installer.serverStatus || Installer.isLoading,
+                        onclick: Installer.runInstall
+                    }, Installer.isLoading ? "Instalando..." : "2. EJECUTAR INSTALACIÓN")
+                ]),
+
+                m("div", {class: "bg-slate-800 p-4 rounded-xl font-mono text-sm min-h-[300px] border border-slate-700"}, [
+                    Installer.logs.length === 0 ? m("p", {class:"text-slate-500"}, "Los logs aparecerán aquí...") :
+                    Installer.logs.map(log => m("div", {
+                        class: `mb-2 break-all ${
+                            log.type === 'success' ? 'text-green-400' : 
+                            log.type === 'error' ? 'text-red-400 font-bold' : 
+                            log.type === 'warning' ? 'text-yellow-400' : 'text-slate-300'
+                        }`
+                    }, log.msg))
+                ])
+            ])
+        };
+
+        m.mount(document.getElementById("app"), Installer);
+    </script>
+</body>
+</html>

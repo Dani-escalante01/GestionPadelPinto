@@ -2,707 +2,426 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Padel Pinto - Reserva tu pista</title>
-    <script src="https://unpkg.com/mithril/mithril.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="toggleTheme.js"></script> <!--modo oscuro/claro-->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="icon" type="image/svg+xml" href="src/favicon.svg" /> <!-- favicon -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Padel Pinto - Reserva tu pista</title>
+  <script src="https://unpkg.com/mithril/mithril.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="toggleTheme.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="src/favicon.svg" />
 
-    <style>
-        :root {
-            --padel-green: #2ecc71;
-            --padel-blue: #0f172a;
-            --padel-accent: #3b82f6;
-        }
-
-        body {
-            font-family: "Plus Jakarta Sans", sans-serif;
-            background-color: #f8fafc;
-        }
-
-        .hero-container {
-            position: relative;
-            height: 380px;
-            width: 100%;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #0f172a;
-        }
-
-        .hero-image {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0.6;
-            filter: brightness(0.7);
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 10;
-            text-align: center;
-            color: white;
-            padding: 0 20px;
-        }
-
-        ::-webkit-scrollbar {
-            height: 6px;
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
-        }
-
-        .day-cell {
-            aspect-ratio: 1 / 1;
-            max-width: 48px;
-            margin: 0 auto;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .animate-fade-up {
-            animation: fadeIn 0.6s ease-out forwards;
-        }
-
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 44px;
-            height: 24px;
-        }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #e2e8f0;
-            transition: 0.4s;
-            border-radius: 24px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: 0.4s;
-            border-radius: 50%;
-        }
-
-        input:checked+.slider {
-            background-color: #2ecc71;
-        }
-
-        input:checked+.slider:before {
-            transform: translateX(20px);
-        }
-    </style>
+  <style>
+    :root { --padel-green: #2ecc71; --padel-blue: #0f172a; }
+    body { font-family: "Plus Jakarta Sans", sans-serif; background-color: #f8fafc; }
+    .hero-container { position: relative; height: 380px; width: 100%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #0f172a; }
+    .hero-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.6; filter: brightness(0.7); }
+    .hero-content { position: relative; z-index: 10; text-align: center; color: white; padding: 0 20px; }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .day-cell { aspect-ratio: 1 / 1; max-width: 48px; margin: 0 auto; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fade-up { animation: fadeIn 0.6s ease-out forwards; }
+    .toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e2e8f0; transition: 0.4s; border-radius: 24px; }
+    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.4s; border-radius: 50%; }
+    input:checked+.slider { background-color: #2ecc71; }
+    input:checked+.slider:before { transform: translateX(20px); }
+  </style>
 </head>
 
 <body>
-    <div id="app"></div>
+  <div id="app"></div>
 
-    <script>
-        // --- CONSTANTES ---
-        const COURT_IMAGES = [
-            "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?q=80&w=2070&auto=format&fit=crop",
-            "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=2070&auto=format&fit=crop",
-            "https://images.unsplash.com/photo-1599423300746-b62533397364?q=80&w=2070&auto=format&fit=crop",
-        ];
-        const HOURS = ["09:00", "10:30", "12:00", "13:30", "16:30", "18:00", "19:30", "21:00",];
-        const MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",];
+  <script>
+    // --- CONSTANTES ---
+    const API_URL = "backend.php";
+    const COURT_IMAGES = [
+      "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?q=80&w=2070&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=2070&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1599423300746-b62533397364?q=80&w=2070&auto=format&fit=crop",
+    ];
+    const HOURS = ["09:00", "10:30", "12:00", "13:30", "16:30", "18:00", "19:30", "21:00"];
+    const MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
-        const formatDate = (date) => {
-            const d = new Date(date);
-            return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
-        };
+    const formatDate = (date) => {
+      const d = new Date(date);
+      return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+    };
+    const generateInviteCode = () => Math.random().toString(36).substring(2, 8).toUpperCase();
 
-        const generateInviteCode = () =>
-            Math.random().toString(36).substring(2, 8).toUpperCase();
+    // --- ESTADO ---
+    const State = {
+      isLogged: false,
+      user: null,
+      showUserMenu: false,
+      currentView: "booking",
+      selectedDate: formatDate(new Date()),
+      selectedTime: "10:30",
+      viewMonth: new Date().getMonth(),
+      viewYear: new Date().getFullYear(),
+      inviteInput: "",
+      data: {}, courts: [], 
+      modal: { show: false, courtId: null, time: "", isPrivate: false, selectedPos: null, occupiedPositions: [], date: "", inviteCode: null, currentMatchId: null },
+      confirmModal: { show: false, date: "", matchIndex: -1 },
+      toast: { show: false, message: "" },
+      heroImage: "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=2070&auto=format&fit=crop",
+    };
 
-        // --- ESTADO ---
-        const State = {
-            //isLogged: false,
-            showUserMenu: false, //controla si el menú es visible por defecto
-            currentView: "public",
-            selectedDate: formatDate(new Date()),
-            selectedTime: "10:30",
-            viewMonth: new Date().getMonth(),
-            viewYear: new Date().getFullYear(),
-            user: {
-                name: "Carlos P.",
-                id: "user_123",
-                foto: "https://api.dicebear.com/7.x/initials/svg?seed=CP&backgroundColor=2ecc71&textColor=0f172a", //foto con las iniciales (CP)
-            },
-            inviteInput: "",
-            data: {
-                [formatDate(new Date())]: [
-                    {
-                        courtId: 2,
-                        time: "10:30",
-                        type: "public",
-                        players: ["Dani L.", "Marta G."],
-                        positions: [0, 2],
-                        inviteCode: null,
-                        creator: "Dani L.",
-                    },
-                    {
-                        courtId: 1,
-                        time: "10:30",
-                        type: "private",
-                        players: ["Daniel M.", "Dario D.", "Mario O."],
-                        positions: [0, 1, 3],
-                        inviteCode: "AXX123", //aqui tendria que poner generateInviteCode() pero para las pruebas he puesto este codigo reconocible
-                        creator: "Daniel M.",
-                    },
-                    {
-                        courtId: 3,
-                        time: "10:30",
-                        type: "private",
-                        players: ["Javier J.", "Javier A.", "Hugo G.", "Mateo C."],
-                        positions: [0, 1, 2, 3],
-                        inviteCode: generateInviteCode(),
-                        creator: "Javier J.",
-                    },
-                    {
-                        courtId: 5,
-                        time: "10:30",
-                        type: "public",
-                        players: ["Carlos "],
-                        positions: [3],
-                        inviteCode: null,
-                        creator: "Carlos ",
-                    },
-                ],
-            },
-            courts: [
-                {
-                    id: 1,
-                    name: "Pista Central World Padel Tour",
-                    type: "Panorámica",
-                    price: "18€",
-                    img: COURT_IMAGES[0],
-                },
-                {
-                    id: 2,
-                    name: "Pista Premium Cristal 1",
-                    type: "Cristal",
-                    price: "14€",
-                    img: COURT_IMAGES[1],
-                },
-                {
-                    id: 3,
-                    name: "Pista 3 - Muro Clásica",
-                    type: "Muro",
-                    price: "10€",
-                    img: COURT_IMAGES[2],
-                },
-                {
-                    id: 4,
-                    name: "Pista 4 - Panorámica Azul",
-                    type: "Panorámica",
-                    price: "15€",
-                    img: COURT_IMAGES[0],
-                },
-                {
-                    id: 5,
-                    name: "Pista 5 - Cristal Outdoor",
-                    type: "Cristal",
-                    price: "12€",
-                    img: COURT_IMAGES[1],
-                },
-                {
-                    id: 6,
-                    name: "Pista 6 - Individual",
-                    type: "Individual",
-                    price: "9€",
-                    img: COURT_IMAGES[2],
-                },
-            ],
-            modal: {
-                show: false,
-                courtId: null,
-                time: "",
-                isPrivate: false,
-                selectedPos: null,
-                occupiedPositions: [],
-                date: "",
-                inviteCode: null,
-            },
-            confirmModal: { show: false, date: "", matchIndex: -1 },
-            toast: { show: false, message: "" },
-            heroImage:
-                "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=2070&auto=format&fit=crop",
-        };
+    // --- ACCIONES ---
+    const Actions = {
+      loadData: async () => {
+        try {
+            // Cargar Pistas
+            const pistasRes = await m.request({ url: `${API_URL}?table=pistas` });
+            State.courts = (pistasRes.items || []).map(p => ({
+                id: p.id, name: p.nombre, type: p.tipo, price: p.precio, img: p.foto_url || COURT_IMAGES[0]
+            }));
 
-        // --- ACCIONES ---
-        const Actions = {
-            changeMonth: (dir) => {
-                State.viewMonth += dir;
-                if (State.viewMonth < 0) {
-                    State.viewMonth = 11;
-                    State.viewYear--;
-                } else if (State.viewMonth > 11) {
-                    State.viewMonth = 0;
-                    State.viewYear++;
+            // Cargar Partidas y Participantes
+            const partidasRes = await m.request({ url: `${API_URL}?table=partidas` });
+            const participantesRes = await m.request({ url: `${API_URL}?table=participantes` });
+            
+            const partidas = partidasRes.items || [];
+            const participantes = participantesRes.items || [];
+
+            State.data = {};
+            partidas.forEach(partida => {
+                // Convertir fecha DB (YYYY-MM-DD) a Frontend (DD/MM/YYYY)
+                let fechaFront = partida.fecha;
+                if(partida.fecha && partida.fecha.includes("-")) {
+                    const parts = partida.fecha.split("-");
+                    if(parts.length === 3) fechaFront = `${parts[2]}/${parts[1]}/${parts[0]}`;
                 }
-                m.redraw();
-            },
-            logout: () => {
-                //iniciamos el efecto de carga
-                State.isTerminatingSession = true;
-                State.showUserMenu = false;
-                m.redraw();
-                setTimeout(() => {
-                    //esperamos un momento (1,2 seg)
-                    State.isLogged = false;
-                    State.isTerminatingSession = false; //quitamos el efecto
-                    State.currentView = "public";
-                    window.history.replaceState(
-                        //limpiamos la URL por si acaso
-                        {},
-                        document.title,
-                        window.location.pathname,
-                    );
-                    Actions.showToast("Has salido de tu sesión");
-                    m.redraw();
-                }, 1200);
-            },
-            checkSession: () => {
-                const params = new URLSearchParams(window.location.search);
-                if (params.get("auth") === "success") {
-                    State.isLogged = true;
-                    State.currentView = "booking";
-                    window.history.replaceState(
-                        //limpiamos la URL para que no diga "?auth=success" todo el tiempo
-                        {},
-                        document.title,
-                        window.location.pathname,
-                    );
-                    Actions.showToast("¡Sesión iniciada correctamente!");
-                }
-            },
-            toggleUserMenu: (e) => {
-                e.stopPropagation(); //evita que el click se propague
-                State.showUserMenu = !State.showUserMenu;
-            },
-            showToast: (msg) => {
-                State.toast.message = msg;
-                State.toast.show = true;
-                m.redraw();
-                setTimeout(() => {
-                    State.toast.show = false;
-                    m.redraw();
-                }, 3000);
-            },
-            openBooking: (courtId, time, date = State.selectedDate) => {
-                if (!State.isLogged)
-                    return Actions.showToast("Inicia sesión para reservar");
-                const match = (State.data[date] || []).find(
-                    (m) => m.courtId === courtId && m.time === time,
-                );
-                State.modal = {
-                    show: true,
-                    courtId,
-                    time,
-                    date,
-                    isPrivate: match ? match.type === "private" : false,
-                    selectedPos: null,
-                    occupiedPositions: match ? match.positions : [],
-                    isJoining: !!match,
-                    generatedCode: match ? match.inviteCode : generateInviteCode(),
+
+                const jugInscritos = participantes.filter(p => p.partida_id == partida.id);
+                const matchObj = {
+                    dbId: partida.id,
+                    courtId: parseInt(partida.pista_id),
+                    time: partida.hora,
+                    type: partida.tipo_partida || partida.tipo,
+                    inviteCode: partida.codigo_invitacion,
+                    creatorId: partida.creador_id,
+                    players: jugInscritos.map(p => p.nombre_jugador),
+                    positions: jugInscritos.map(p => parseInt(p.posicion)),
+                    playerIds: jugInscritos.map(p => p.usuario_id)
                 };
-            },
-            confirmMatch: () => {
-                if (State.modal.selectedPos === null) return;
-                if (!State.data[State.modal.date]) State.data[State.modal.date] = [];
-                const dayMatches = State.data[State.modal.date];
-                const existing = dayMatches.find(
-                    (m) =>
-                        m.courtId === State.modal.courtId && m.time === State.modal.time,
-                );
+                if (!State.data[fechaFront]) State.data[fechaFront] = [];
+                State.data[fechaFront].push(matchObj);
+            });
+            m.redraw();
+        } catch (e) { console.error("Error cargando datos:", e); }
+      },
 
-                if (existing) {
-                    existing.players.push("Carlos P.");
-                    existing.positions.push(State.modal.selectedPos);
-                } else {
-                    dayMatches.push({
-                        courtId: State.modal.courtId,
-                        time: State.modal.time,
-                        type: State.modal.isPrivate ? "private" : "public",
-                        inviteCode: State.modal.isPrivate
-                            ? State.modal.generatedCode
-                            : null,
-                        players: ["Carlos P."],
-                        positions: [State.modal.selectedPos],
-                        creator: "Carlos P.",
-                    });
-                }
-                State.modal.show = false;
-                Actions.showToast(
-                    `¡Reserva confirmada! ${State.modal.isPrivate ? "Código: " + State.modal.generatedCode : "Partida Abierta"}`,
-                );
-            },
-            joinByCode: () => {
-                if (!State.inviteInput) return;
-                let found = null;
-                Object.keys(State.data).forEach((date) => {
-                    const match = (State.data[date] || []).find(
-                        (m) => m.inviteCode === State.inviteInput.toUpperCase(),
-                    );
-                    if (match) found = { ...match, date };
+      checkSession: () => {
+        const savedUser = localStorage.getItem("padel_user");
+        if (savedUser) {
+            try { State.user = JSON.parse(savedUser); State.isLogged = true; } catch(e) {}
+        }
+        Actions.loadData();
+      },
+
+      logout: () => {
+        State.isTerminatingSession = true; State.showUserMenu = false; m.redraw();
+        setTimeout(() => { localStorage.removeItem("padel_user"); window.location.href = "login.html"; }, 1000);
+      },
+
+      changeMonth: (dir) => {
+        State.viewMonth += dir;
+        if (State.viewMonth < 0) { State.viewMonth = 11; State.viewYear--; }
+        else if (State.viewMonth > 11) { State.viewMonth = 0; State.viewYear++; }
+        m.redraw();
+      },
+
+      showToast: (msg) => {
+        State.toast.message = msg; State.toast.show = true; m.redraw();
+        setTimeout(() => { State.toast.show = false; m.redraw(); }, 3000);
+      },
+
+      openBooking: (courtId, time, date = State.selectedDate) => {
+        if (!State.isLogged || !State.user) {
+            Actions.showToast("Inicia sesión para reservar");
+            setTimeout(() => window.location.href = "login.html", 1500);
+            return;
+        }
+
+        const match = (State.data[date] || []).find(m => m.courtId === courtId && m.time === time);
+        State.modal = {
+          show: true,
+          courtId, time, date,
+          isPrivate: match ? match.type === "private" : false,
+          selectedPos: null,
+          occupiedPositions: match ? match.positions : [],
+          isJoining: !!match,
+          currentMatchId: match ? match.dbId : null,
+          generatedCode: match ? match.inviteCode : generateInviteCode(),
+        };
+        m.redraw();
+      },
+
+      // --- FUNCIÓN CLAVE CORREGIDA ---
+      confirmMatch: async () => {
+        console.log("Intentando confirmar reserva...");
+        if (State.modal.selectedPos === null) return;
+        
+        // Verificación de seguridad
+        if (!State.user || !State.user.id) {
+            alert("Error: Usuario no identificado. Por favor, relogueate.");
+            return;
+        }
+
+        const userName = State.user.nombre;
+        const userId = State.user.id;
+        
+        // CONVERSIÓN DE FECHA CRÍTICA: DD/MM/YYYY -> YYYY-MM-DD
+        const [dia, mes, anio] = State.modal.date.split("/");
+        const fechaParaDB = `${anio}-${mes}-${dia}`;
+
+        try {
+            if (State.modal.isJoining && State.modal.currentMatchId) {
+                // UNIRSE A PARTIDA
+                await m.request({
+                    method: "POST",
+                    url: `${API_URL}?table=participantes`,
+                    body: {
+                        partida_id: State.modal.currentMatchId,
+                        usuario_id: userId,
+                        nombre_jugador: userName,
+                        posicion: State.modal.selectedPos,
+                        equipo: (State.modal.selectedPos < 2) ? 'A' : 'B'
+                    }
+                });
+            } else {
+                // CREAR PARTIDA NUEVA
+                const nuevaPartida = {
+                    pista_id: State.modal.courtId,
+                    creador_id: userId,
+                    fecha: fechaParaDB, // <--- Aquí usamos la fecha convertida
+                    hora: State.modal.time,
+                    tipo_partida: State.modal.isPrivate ? "private" : "public",
+                    codigo_invitacion: State.modal.isPrivate ? State.modal.generatedCode : null,
+                    estado: "abierta"
+                };
+                
+                console.log("Enviando partida:", nuevaPartida);
+
+                const resPartida = await m.request({
+                    method: "POST",
+                    url: `${API_URL}?table=partidas`,
+                    body: nuevaPartida
                 });
 
-                if (found) {
-                    if (found.players.length >= 4)
-                        return Actions.showToast("La partida ya está completa");
-                    if (found.players.includes("Carlos P."))
-                        return Actions.showToast("Ya estás en esta partida");
-                    Actions.openBooking(found.courtId, found.time, found.date);
-                    State.inviteInput = "";
+                if (resPartida.id) {
+                    // Crear participante dueño
+                    await m.request({
+                        method: "POST",
+                        url: `${API_URL}?table=participantes`,
+                        body: {
+                            partida_id: resPartida.id,
+                            usuario_id: userId,
+                            nombre_jugador: userName,
+                            posicion: State.modal.selectedPos,
+                            equipo: (State.modal.selectedPos < 2) ? 'A' : 'B',
+                            es_propietario: 1
+                        }
+                    });
                 } else {
-                    Actions.showToast("Código no válido");
+                    throw new Error("El backend no devolvió ID de partida");
                 }
-            },
-            cancelBooking: (date, matchIndex) => {
-                const match = State.data[date][matchIndex];
-                const playerIndex = match.players.indexOf("Carlos P.");
-
-                if (playerIndex > -1) {
-                    match.players.splice(playerIndex, 1);
-                    match.positions.splice(playerIndex, 1);
-
-                    //si no quedan jugadores, eliminar la partida
-                    if (match.players.length === 0) {
-                        State.data[date].splice(matchIndex, 1);
-                    }
-
-                    Actions.showToast("Reserva cancelada correctamente");
-                }
-                State.confirmModal.show = false;
-            },
-            scrollToBooking: () => {
-                document
-                    .getElementById("booking-section")
-                    ?.scrollIntoView({ behavior: "smooth" });
-            },
-        };
-
-        const Navbar = {
-            view: () =>
-                m("nav", {
-                    class: `border-b sticky top-0 z-50 px-4 transition-colors duration-500 ${ThemeState.darkMode ? "bg-slate-900/80 border-slate-800" : "bg-white/80 border-slate-100"
-                        } backdrop-blur-md`
-                }, [
-                    m("div", { class: "max-w-6xl mx-auto flex justify-between items-center h-16" }, [
-                        // Logo y nombre
-                        m("div", {
-                            class: "flex items-center gap-2 cursor-pointer",
-                            onclick: () => (State.currentView = "public")
-                        }, [
-                            m("div", { class: "w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-white font-black italic shadow-lg shadow-green-500/20" }, "P"),
-                            m("span", { class: `font-black text-lg tracking-tighter ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, "PADELPINTO")
-                        ]),
-
-                        // Botones de acceso (Vista para no logueados)
-                        m("div", { class: "flex items-center gap-3" }, [
-                            m("button", {
-                                class: `px-4 py-2 text-xs font-bold transition ${ThemeState.darkMode ? "text-slate-400 hover:text-white" : "text-slate-600 hover:text-slate-900"
-                                    }`,
-                                onclick: () => (window.location.href = "login.html")
-                            }, "Entrar"),
-                            m("button", {
-                                class: "bg-green-500 hover:bg-green-400 text-slate-900 px-5 py-2 rounded-full text-xs font-black shadow-lg shadow-green-500/10 transition transform active:scale-95",
-                                onclick: () => (window.location.href = "registro.html")
-                            }, "Crear cuenta")
-                        ])
-                    ])
-                ])
-        };
-
-        const Hero = {
-            view: () => {
-                const showButtons = State.currentView === "public" || State.currentView === "booking";
-                return m("header", { class: "hero-container" }, [
-                    m("img", { src: State.heroImage, class: "hero-image animate-fade-up" }),
-                    m("div", { class: "hero-content animate-fade-up" }, [
-                        m("span", { class: "inline-block px-3 py-1 bg-green-500 text-slate-900 text-[10px] font-black rounded-full mb-4" }, "COMUNIDAD PADEL PRO"),
-                        m("h1", { class: "text-4xl md:text-6xl font-black mb-4 tracking-tight" }, "Juguemos Al Pádel"),
-                        m("p", { class: "text-slate-200 text-sm md:text-lg max-w-xl mx-auto font-medium mb-8" }, "Reserva las mejores pistas panorámicas en segundos o únete a partidas abiertas."),
-                        showButtons && m("div", { class: "flex flex-col sm:flex-row justify-center gap-4" }, [
-                            State.isLogged ?
-                                m("button", {
-                                    class: "bg-green-500 hover:bg-green-400 px-8 py-4 rounded-2xl font-black text-slate-900 transition shadow-xl transform hover:scale-105",
-                                    onclick: Actions.scrollToBooking
-                                }, "VER MIS RESERVAS") :
-                                m("button", {
-                                    class: "bg-green-500 hover:bg-green-400 px-8 py-4 rounded-2xl font-black text-slate-900 transition shadow-xl transform hover:scale-105",
-                                    onclick: () => (window.location.href = "login.html")
-                                }, "EMPEZAR AHORA"),
-                            m("button", {
-                                class: "bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 px-8 py-4 rounded-2xl font-black transition",
-                                onclick: Actions.scrollToBooking
-                            }, "VER PISTAS")
-                        ])
-                    ])
-                ]);
             }
-        };
+            Actions.showToast("¡Operación realizada con éxito!");
+            State.modal.show = false;
+            Actions.loadData();
 
-        const CourtGrid = {
-            view: () =>
-                m("div", { class: "grid grid-cols-1 sm:grid-cols-2 gap-4" },
-                    State.courts.map((c) => {
-                        const match = (State.data[State.selectedDate] || []).find((m) => m.courtId === c.id && m.time === State.selectedTime);
-                        const isFull = match?.players.length >= 4;
-                        const userIn = match?.players.includes("Carlos P.");
-                        const label = isFull ? "CERRADO" : match?.type === "private" ? "PRIVADO" : "ABIERTO";
+        } catch (e) {
+            console.error("Error en confirmMatch:", e);
+            alert("Error al guardar: " + e.message);
+        }
+      },
 
-                        return m("div", {
-                            class: `rounded-3xl border overflow-hidden flex shadow-sm hover:shadow-md transition-all group ${ThemeState.darkMode ? "bg-slate-800 border-slate-700" : "bg-white border-slate-100"
-                                }`
-                        }, [
-                            m("div", { class: "w-32 bg-cover bg-center", style: `background-image: url(${c.img})` }),
-                            // Añadimos flex-col y justify-between para forzar el tamaño uniforme
-                            m("div", { class: "p-4 flex-1 flex flex-col justify-between" }, [
-                                m("div", [
-                                    m("h4", { class: `font-black text-xs mb-1 truncate ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, c.name),
-                                    m("div", { class: "flex justify-between items-center mb-3" }, [
-                                        m("span", { class: "text-[9px] text-slate-400 font-bold uppercase" }, c.type),
-                                        m("span", { class: "text-[10px] font-black text-green-600" }, c.price),
-                                    ]),
+      joinByCode: () => {
+        if (!State.inviteInput) return;
+        let found = null;
+        Object.keys(State.data).forEach(date => {
+          const match = (State.data[date] || []).find(m => m.inviteCode === State.inviteInput.toUpperCase());
+          if (match) found = { ...match, date };
+        });
+        if (found) {
+          Actions.openBooking(found.courtId, found.time, found.date);
+          State.inviteInput = "";
+        } else {
+          Actions.showToast("Código no válido");
+        }
+      },
+      
+      toggleUserMenu: (e) => { e.stopPropagation(); State.showUserMenu = !State.showUserMenu; },
+      scrollToBooking: () => { document.getElementById("booking-section")?.scrollIntoView({ behavior: "smooth" }); }
+    };
 
-                                    // Bloque de progreso: ahora siempre ocupa espacio. 
-                                    // Si no hay match, se mantiene 'invisible' para que la tarjeta no encoja.
-                                    m("div", { class: `mb-3 ${match ? "block" : "invisible"}` }, [
-                                        m("div", { class: "flex justify-between text-[8px] font-black mb-1" }, [
-                                            m("span", { class: isFull ? "text-slate-400" : match?.type === "private" ? "text-red-400" : "text-amber-500" }, label),
-                                            m("span", { class: "text-slate-400" }, `${match?.players.length || 0}/4`),
-                                        ]),
-                                        m("div", { class: `w-full h-1 rounded-full overflow-hidden ${ThemeState.darkMode ? "bg-slate-700" : "bg-slate-50"}` },
-                                            m("div", {
-                                                class: `h-full transition-all duration-500 ${isFull ? "bg-slate-300" : "bg-green-500"}`,
-                                                style: `width: ${((match?.players.length || 0) / 4) * 100}%`
-                                            }),
-                                        ),
-                                    ]),
-                                ]),
-                                m("button", {
-                                    class: `w-full py-2.5 rounded-xl text-[10px] font-black transition ${userIn
-                                            ? (ThemeState.darkMode ? "bg-slate-700 text-slate-500" : "bg-slate-100 text-slate-400")
-                                            : isFull
-                                                ? (ThemeState.darkMode ? "bg-slate-900 text-slate-600" : "bg-slate-50 text-slate-300")
-                                                : match
-                                                    ? (ThemeState.darkMode ? "bg-white text-slate-900" : "bg-slate-900 text-white shadow-lg")
-                                                    : "bg-green-500 text-slate-900"
-                                        }`,
-                                    onclick: () => !userIn && !isFull && Actions.openBooking(c.id, State.selectedTime),
-                                }, userIn ? "INSCRITO" : isFull ? "LLENO" : match ? "UNIRSE" : "RESERVAR"),
-                            ]),
-                        ]);
-                    }),
-                ),
-        };
-
-        const Footer = {
-            view: () =>
-                m("footer", { class: "bg-slate-900 text-white mt-20 pt-16 pb-8 px-4" }, [
-                    m("div", { class: "max-w-6xl mx-auto" }, [
-                        m("div", { class: "grid grid-cols-1 md:grid-cols-3 gap-12 mb-12" }, [
-                            // Columna 1: Branding
-                            m("div", [
-                                m("div", { class: "flex items-center gap-2 mb-6" }, [
-                                    m("div", { class: "w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-white font-black italic text-sm" }, "P"),
-                                    m("span", { class: "font-extrabold text-xl tracking-tighter" }, "PADELPINTO "),
-                                ]),
-                                m("p", { class: "text-slate-400 text-sm leading-relaxed" }, "La plataforma líder para la gestión de pistas y comunidades de pádel. Reserva, juega y conecta con otros jugadores en un solo lugar."),
-                            ]),
-                            // Columna 2: Enlaces rápidos
-                            m("div", [
-                                m("h4", { class: "font-bold mb-6 text-green-500 uppercase text-xs tracking-widest" }, "Navegación"),
-                                m("ul", { class: "space-y-4 text-sm text-slate-300" }, [
-                                    m("li", { class: "hover:text-white cursor-pointer transition" }, "Centro de Ayuda"),
-                                    m("li", { class: "hover:text-white cursor-pointer transition" }, "Normas del Club"),
-                                    m("li", { class: "hover:text-white cursor-pointer transition" }, "Ranking Local"),
-                                    m("li", { class: "hover:text-white cursor-pointer transition" }, "Torneos"),
-                                ]),
-                            ]),
-                            // Columna 3: Newsletter/Social
-                            m("div", [
-                                m("h4", { class: "font-bold mb-6 text-green-500 uppercase text-xs tracking-widest" }, "Mantente al día"),
-                                m("div", { class: "flex gap-2 mb-6" }, [
-                                    m("input[type=text]", { class: "bg-slate-800 border-none rounded-lg px-4 py-2 text-sm w-full focus:ring-2 focus:ring-green-500", placeholder: "Tu email" }),
-                                    m("button", { class: "bg-green-500 text-slate-900 px-4 py-2 rounded-lg font-bold text-sm hover:bg-green-400 transition" }, "OK"),
-                                ]),
-                                m("div", { class: "flex gap-4 text-slate-400" }, [
-                                    m("a", { href: "https://www.instagram.com/ayuntamientopinto", target: "_blank", rel: "noopener noreferrer", class: "w-8 h-8 flex items-center justify-center hover:text-white transition" }, [
-                                        m("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round", "stroke-linejoin": "round" }, [
-                                            m("rect", { x: "2", y: "2", width: "20", height: "20", rx: "5", ry: "5" }),
-                                            m("path", { d: "M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" }),
-                                            m("line", { x1: "17.5", y1: "6.5", x2: "17.51", y2: "6.5" }),
-                                        ]),
-                                    ]),
-                                    m("a", { href: "https://x.com/AytoPinto", target: "_blank", rel: "noopener noreferrer", class: "w-8 h-8 flex items-center justify-center hover:text-white transition" }, [
-                                        m("svg", { viewBox: "0 0 24 24", width: "18", height: "18", fill: "currentColor" }, [
-                                            m("path", { d: "M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932L18.901 1.153zM17.61 20.644h2.039L6.486 3.24H4.298L17.61 20.644z" }),
-                                        ]),
-                                    ]),
-                                    m("a", { href: "https://www.facebook.com/AytoPinto/", target: "_blank", rel: "noopener noreferrer", class: "w-8 h-8 flex items-center justify-center hover:text-white transition" }, [
-                                        m("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor" }, [
-                                            m("path", { d: "M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" }),
-                                        ]),
-                                    ]),
-                                ]),
-                            ]),
-                        ]),
-                        m("div", { class: "border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest" }, [
-                            m("span", "© 2026 Padel Pro International. Todos los derechos reservados."),
-                            m("div", { class: "flex gap-6" }, [
-                                m("span", { class: "hover:text-slate-300 cursor-pointer" }, "Privacidad"),
-                                m("span", { class: "hover:text-slate-300 cursor-pointer" }, "Términos"),
-                                m("span", { class: "hover:text-slate-300 cursor-pointer" }, "Cookies"),
-                            ]),
-                        ]),
-                    ]),
+    // --- COMPONENTES ---
+    const Navbar = {
+      view: () => m("nav", { class: `border-b sticky top-0 z-50 px-4 transition-colors duration-500 ${ThemeState.darkMode ? "bg-slate-900/80 border-slate-800" : "bg-white/80"} backdrop-blur-md` }, [
+          m("div", { class: "max-w-6xl mx-auto flex justify-between items-center h-16" }, [
+            m("div", { class: "flex items-center gap-2 cursor-pointer", onclick: () => (State.currentView = "booking") }, [
+              m("div", { class: "w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-white font-black italic shadow-lg" }, "P"),
+              m("span", { class: `font-black text-lg tracking-tighter ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, "PADELPINTO"),
+            ]),
+            m("div", { class: "flex items-center gap-6" }, [
+              ["booking", "RESERVAR"], ["matchmaking", "PARTIDAS"], ["agenda", "AGENDA"].map(([view, label]) => 
+                  m("button", { class: `text-[10px] font-black tracking-widest ${State.currentView === view ? "text-green-500 border-b-2 border-green-500" : "text-slate-400"} pb-1 hidden md:block`, onclick: () => (State.currentView = view) }, label)
+              ),
+              m(ThemeToggle),
+              State.isLogged && State.user ? m("div", { class: "relative" }, [
+                m("div", { class: `w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold border-2 border-green-500 cursor-pointer ${ThemeState.darkMode ? "bg-slate-800 text-white" : "bg-slate-100 text-slate-800"}`, onclick: Actions.toggleUserMenu }, State.user.nombre.substring(0,2).toUpperCase()),
+                State.showUserMenu && m("div", { class: `absolute right-0 mt-2 w-48 rounded-2xl shadow-xl border py-2 z-[100] ${ThemeState.darkMode ? "bg-slate-800 border-slate-700" : "bg-white border-slate-100"}` }, [
+                  m("button", { class: "w-full text-left px-4 py-2 text-xs font-bold text-slate-500 hover:text-green-500", onclick: () => window.location.href = "perfil.html" }, "Mi Perfil"),
+                  m("button", { class: "w-full text-left px-4 py-2 text-xs font-bold text-red-500 hover:bg-red-50 transition", onclick: Actions.logout }, "Cerrar sesión"),
                 ]),
-        };
+              ]) : m("div", { class: "flex gap-2" }, [
+                  m("button", { class: "text-xs font-bold text-slate-500 hover:text-green-500", onclick: () => window.location.href="login.html" }, "Entrar"),
+                  m("button", { class: "text-xs font-bold bg-green-500 text-slate-900 px-3 py-1.5 rounded-lg hover:bg-green-400", onclick: () => window.location.href="registro.html" }, "Cuenta")
+              ])
+            ]),
+          ]),
+        ]),
+    };
 
-        const MainLayout = {
-            view: () =>
+    const Hero = {
+      view: () => m("header", { class: "hero-container" }, [
+          m("img", { src: State.heroImage, class: "hero-image animate-fade-up" }),
+          m("div", { class: "hero-content animate-fade-up" }, [
+            m("h1", { class: "text-4xl md:text-6xl font-black mb-4 tracking-tight" }, (State.isLogged && State.user) ? `Hola, ${State.user.nombre.split(" ")[0]}` : "Padel Pinto"),
+            m("div", { class: "flex justify-center" }, [
+              m("button", { class: "bg-green-500 hover:bg-green-400 px-8 py-4 rounded-2xl font-black text-slate-900 transition shadow-xl", onclick: Actions.scrollToBooking }, "VER PISTAS"),
+            ]),
+          ]),
+        ]),
+    };
+
+    const Calendar = {
+      view: () => {
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const firstDay = new Date(State.viewYear, State.viewMonth, 1).getDay();
+        const daysInMonth = new Date(State.viewYear, State.viewMonth + 1, 0).getDate();
+        const blanks = Array(firstDay === 0 ? 6 : firstDay - 1).fill(null);
+        const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+
+        return m("div", { class: `p-5 rounded-[32px] border shadow-sm mb-6 ${ThemeState.darkMode ? "bg-slate-800 border-slate-700" : "bg-white border-slate-100"}` }, [
+          m("div", { class: "flex justify-between items-center mb-5" }, [
+            m("h3", { class: `text-base font-black ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, `${MONTHS[State.viewMonth]} ${State.viewYear}`),
+            m("div", { class: "flex gap-1" }, [
+              m("button", { class: "w-8 h-8 flex items-center justify-center rounded-xl bg-slate-100 text-slate-800", onclick: () => Actions.changeMonth(-1) }, "‹"),
+              m("button", { class: "w-8 h-8 flex items-center justify-center rounded-xl bg-slate-100 text-slate-800", onclick: () => Actions.changeMonth(1) }, "›")
+            ])
+          ]),
+          m("div", { class: `calendar-grid text-[10px] font-black mb-2 text-center uppercase tracking-tighter text-slate-400` }, ["L", "M", "X", "J", "V", "S", "D"].map((d) => m("div", d))),
+          m("div", { class: "calendar-grid" }, [
+            ...blanks.map(() => m("div")),
+            ...days.map((d) => {
+              const currentDate = new Date(State.viewYear, State.viewMonth, d);
+              const dateStr = formatDate(currentDate);
+              const isSelected = State.selectedDate === dateStr;
+              const hasData = State.data[dateStr] && State.data[dateStr].length > 0;
+              const isPast = currentDate < today; 
+              return m("button", {
+                class: `day-cell w-full rounded-2xl flex items-center justify-center text-xs font-bold transition-all relative ${isSelected ? "bg-green-500 text-slate-900 shadow-lg scale-105 z-10" : isPast ? "opacity-40 text-slate-400" : (ThemeState.darkMode ? "hover:bg-slate-700 text-slate-300" : "hover:bg-slate-50 text-slate-600")}`,
+                onclick: () => !isPast && (State.selectedDate = dateStr),
+                disabled: isPast
+              }, [
+                m("span", d),
+                hasData && m("div", { class: `w-1 h-1 rounded-full absolute bottom-1.5 ${isSelected ? "bg-slate-900" : "bg-green-500"}` })
+              ]);
+            })
+          ])
+        ]);
+      }
+    };
+
+    const CourtGrid = {
+      view: () => m("div", { class: "grid grid-cols-1 sm:grid-cols-2 gap-4" },
+          State.courts.length === 0 ? m("p", {class:"text-slate-400 text-sm"}, "Cargando pistas...") :
+          State.courts.map((c) => {
+            const match = (State.data[State.selectedDate] || []).find(m => m.courtId === c.id && m.time === State.selectedTime);
+            const playerCount = match ? match.players.length : 0;
+            const isFull = playerCount >= 4;
+            const userIn = State.isLogged && State.user && match?.playerIds.includes(State.user.id);
+
+            return m("div", { class: `rounded-3xl border overflow-hidden flex shadow-sm hover:shadow-md transition-all group ${ThemeState.darkMode ? "bg-slate-800 border-slate-700" : "bg-white border-slate-100"}` }, [
+              m("div", { class: "w-32 bg-cover bg-center", style: `background-image: url(${c.img})` }),
+              m("div", { class: "p-4 flex-1 flex flex-col justify-between" }, [
                 m("div", [
-                    m(Navbar),
-                    m(Hero),
-                    m("main", {
-                        id: "booking-section",
-                        class: "max-w-6xl mx-auto p-4 py-12 flex flex-col md:flex-row gap-8",
-                    }, [
-                        (State.currentView === "public" || State.currentView === "booking") &&
-                        m("aside", { class: "w-full md:w-80 flex-shrink-0" }, [
-                            State.isLogged &&
-                            m("div", {
-                                class: "bg-slate-900 p-6 rounded-[32px] mb-6 shadow-xl",
-                            }, [
-                                m("p", {
-                                    class: "text-[9px] font-black text-green-500 uppercase tracking-widest mb-3",
-                                }, "Unirse con Código"),
-                                m("div", { class: "flex gap-2" }, [
-                                    m("input", {
-                                        class: "flex-1 bg-white/10 border border-white/10 rounded-xl px-4 py-2 text-white text-xs font-bold focus:outline-none focus:border-green-500 uppercase",
-                                        placeholder: "CÓDIGO",
-                                        value: State.inviteInput,
-                                        oninput: (e) => (State.inviteInput = e.target.value),
-                                    }),
-                                    m("button", {
-                                        class: "bg-green-500 p-2 rounded-xl text-slate-900",
-                                        onclick: Actions.joinByCode,
-                                    }, "→"),
-                                ]),
-                            ]),
-                            m("p", {
-                                class: "text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 pl-1",
-                            }, "Seleccionar Hora"),
-                            m("div", { class: "grid grid-cols-4 gap-2" },
-                                HOURS.map((h) =>
-                                    m("button", {
-                                        class: `py-3 rounded-2xl text-[10px] font-bold border transition-all ${State.selectedTime === h ? "bg-slate-900 text-white border-slate-900 shadow-xl" : "bg-white text-slate-500 border-slate-100 hover:border-green-200"}`,
-                                        onclick: () => (State.selectedTime = h),
-                                    }, h)
-                                )
-                            ),
-                        ]),
-                        State.currentView === "public" || State.currentView === "booking"
-                            ? m("section", { class: "flex-1" }, [
-                                m("div", { class: "flex items-center justify-between mb-8" }, [
-                                    m("div", { class: "flex items-center gap-4" }, [
-                                        m("div", { class: "w-1 h-8 bg-green-500 rounded-full" }),
-                                        m("div", [
-                                            m("h2", {
-                                                class: "text-2xl font-black text-slate-800 tracking-tight",
-                                            }, `Pistas Disponibles`),
-                                            m("p", {
-                                                class: "text-[10px] text-slate-400 font-bold uppercase",
-                                            }, `Viendo resultados para el ${State.selectedDate}`),
-                                        ]),
-                                    ]),
-                                    m("span", {
-                                        class: "text-[10px] font-black text-green-500 bg-green-50 px-3 py-1.5 rounded-full",
-                                    }, `${State.selectedTime}H`),
-                                ]),
-                                m(CourtGrid),
-                            ])
-                            : State.currentView === "matchmaking"
-                                ? m(MatchmakingView)
-                                : m(AgendaView),
-                    ]),
-                    m(Footer),
-                    m("div", {
-                        class: `fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-4 rounded-2xl text-xs font-bold shadow-2xl transition-all z-[200] ${State.toast.show ? "translate-y-0 opacity-100" : "translate-y-24 opacity-0"}`,
-                    }, State.toast.message),
-                    State.isTerminatingSession &&
-                    m("div", {
-                        class: "fixed inset-0 bg-white/80 backdrop-blur-md z-[250] flex flex-col items-center justify-center animate-fade-up",
-                    }, [
-                        m("div", {
-                            class: "w-12 h-12 border-4 border-slate-200 border-t-green-500 rounded-full animate-spin mb-4",
-                        }),
-                        m("p", {
-                            class: "text-slate-800 font-black text-sm tracking-widest uppercase",
-                        }, "Cerrando sesión..."),
-                    ]),
+                  m("h4", { class: `font-black text-xs mb-1 truncate ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, c.name),
+                  m("div", { class: "flex justify-between items-center mb-3" }, [ m("span", { class: "text-[9px] text-slate-400 font-bold uppercase" }, c.type), m("span", { class: "text-[10px] font-black text-green-600" }, c.price) ]),
+                  m("div", { class: `mb-3 ${match ? "block" : "invisible"}` }, [
+                     m("div", { class: "flex justify-between text-[8px] font-black mb-1" }, [ m("span", { class: isFull ? "text-slate-400" : "text-amber-500" }, isFull ? "COMPLETO" : "ABIERTO"), m("span", { class: "text-slate-400" }, `${playerCount}/4`) ]),
+                     m("div", { class: "w-full h-1 bg-slate-100 rounded-full" }, m("div", { class: "h-full bg-green-500", style: `width:${(playerCount/4)*100}%` }))
+                  ])
                 ]),
-        };
+                m("button", {
+                  class: `w-full py-2.5 rounded-xl text-[10px] font-black transition ${userIn ? "bg-slate-100 text-slate-400" : isFull ? "bg-slate-50 text-slate-300" : "bg-green-500 text-slate-900"}`,
+                  onclick: () => !userIn && !isFull && Actions.openBooking(c.id, State.selectedTime)
+                }, userIn ? "INSCRITO" : isFull ? "LLENO" : match ? "UNIRSE" : "RESERVAR")
+              ])
+            ]);
+          })
+      )
+    };
 
-        m.mount(document.getElementById("app"), {
-            oninit: Actions.checkSession,
-            view: () => m("div", [m(MainLayout)]),
-        });
+    const BookingModal = {
+      view: () => State.modal.show && m("div", { class: "fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4" }, [
+          m("div", { class: `w-full max-w-sm rounded-[40px] overflow-hidden shadow-2xl animate-fade-up ${ThemeState.darkMode ? "bg-slate-800" : "bg-white"}` }, [
+            m("div", { class: "bg-slate-900 p-8 text-white" }, [
+              m("div", { class: "flex justify-between items-start" }, [
+                m("div", [ m("h3", { class: "text-xl font-black" }, State.modal.isJoining ? "Unirse" : "Reservar"), m("p", { class: "text-[10px] text-slate-400 font-bold uppercase mt-1" }, `${State.modal.date} - ${State.modal.time}H`) ]),
+                m("button", { onclick: () => State.modal.show = false }, "✕"),
+              ]),
+            ]),
+            m("div", { class: "p-8 text-center" }, [
+              m("p", { class: "text-[10px] font-black text-slate-400 uppercase mb-4" }, "Elige tu posición"),
+              m("div", { class: "relative w-full aspect-[2/3] max-w-[160px] mx-auto bg-green-600 rounded-xl border-2 border-white/40 shadow-xl mb-8" }, [
+                  m("div", { class: "absolute inset-x-0 top-1/2 h-0.5 bg-white/20" }), m("div", { class: "absolute inset-y-0 left-1/2 w-0.5 bg-white/20" }),
+                  [{ id: 0, l: "Izq", t: "15%", lf: "12%" }, { id: 1, l: "Izq", t: "70%", lf: "12%" }, { id: 2, l: "Der", t: "15%", lf: "53%" }, { id: 3, l: "Der", t: "70%", lf: "53%" }]
+                  .map((p) => {
+                    const occ = State.modal.occupiedPositions.includes(p.id);
+                    const sel = State.modal.selectedPos === p.id;
+                    return m("button", {
+                      class: `absolute w-[35%] h-[15%] rounded-xl text-[9px] font-black transition-all ${occ ? "bg-slate-800/50 text-white/20" : sel ? "bg-white text-green-600 scale-110 shadow-lg" : "bg-white/90 text-slate-800 hover:bg-white"}`,
+                      style: `top: ${p.t}; left: ${p.lf}`, disabled: occ, onclick: () => (State.modal.selectedPos = p.id),
+                    }, occ ? "X" : p.l);
+                  }),
+              ]),
+              m("button", {
+                class: `w-full py-4 rounded-2xl text-xs font-black transition-all ${State.modal.selectedPos === null ? "bg-slate-100 text-slate-300" : "bg-green-500 text-slate-900 shadow-xl shadow-green-100 active:scale-95"}`,
+                disabled: State.modal.selectedPos === null, onclick: Actions.confirmMatch,
+              }, State.modal.isJoining ? "CONFIRMAR UNIÓN" : "CONFIRMAR RESERVA"),
+            ]),
+          ]),
+        ]),
+    };
 
-        // Cerrar el menú si se hace click fuera
-        window.addEventListener("click", () => {
-            if (State.showUserMenu) {
-                State.showUserMenu = false;
-                m.redraw();
-            }
-        });
-    </script>
+    const MainLayout = {
+      view: () => m("div", { class: ThemeActions.getMainClasses() }, [
+          m(Navbar), m(Hero),
+          m("main", { id: "booking-section", class: "max-w-6xl mx-auto p-4 py-12 flex flex-col md:flex-row gap-8" }, [
+            m("aside", { class: "w-full md:w-80 flex-shrink-0" }, [
+              m(Calendar),
+              m("div", { class: "grid grid-cols-4 gap-2" }, HOURS.map(h => m("button", { class: `py-3 rounded-2xl text-[10px] font-bold border ${State.selectedTime === h ? "bg-green-500 text-slate-900" : "bg-white text-slate-500"}`, onclick: () => State.selectedTime = h }, h)))
+            ]),
+            m("section", { class: "flex-1" }, [
+              m("div", { class: "flex items-center justify-between mb-8" }, [ m("h2", { class: `text-2xl font-black ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, "Pistas Disponibles"), m("span", { class: "text-[10px] font-black bg-green-50 text-green-500 px-3 py-1.5 rounded-full" }, `${State.selectedTime}H`) ]),
+              m(CourtGrid)
+            ])
+          ]),
+          m(BookingModal),
+          m("div", { class: `fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-4 rounded-2xl text-xs font-bold shadow-2xl transition-all z-[200] ${State.toast.show ? "translate-y-0 opacity-100" : "translate-y-24 opacity-0"}` }, State.toast.message),
+        ]),
+    };
+
+    m.mount(document.getElementById("app"), {
+      oninit: Actions.checkSession,
+      view: () => m("div", { class: ThemeActions.getMainClasses() }, [ m(MainLayout) ]),
+    });
+    window.addEventListener("click", () => { if (State.showUserMenu) { State.showUserMenu = false; m.redraw(); } });
+  </script>
 </body>
-
 </html>

@@ -195,6 +195,9 @@
   <div id="app"></div>
 
   <script>
+    // --- CONFIGURACIÓN ---
+    const API_URL = "backend.php";
+
     const State = {
       email: "",
       password: "",
@@ -206,6 +209,8 @@
     const Actions = {
       login: (e) => {
         e.preventDefault();
+        
+        // 1. Validaciones básicas
         if (!State.email || !State.password) {
           State.error = "Por favor, rellena todos los campos.";
           return;
@@ -214,14 +219,37 @@
         State.isLoading = true;
         State.error = "";
 
-        setTimeout(() => {
-          // Simulación de éxito
-          window.location.href = "loggedView.html?auth=success";
-        }, 1200);
+        // 2. Petición al Backend (Buscamos usuario con ese email y password)
+        // Nota: En producción las contraseñas no deberían viajar así, pero para este ejercicio cumple.
+        m.request({
+            method: "GET",
+            url: `${API_URL}?table=usuarios&email=${State.email}&password=${State.password}`
+        })
+        .then(response => {
+            // El backend devuelve { items: [...] }
+            if (response.items && response.items.length > 0) {
+                const usuarioEncontrado = response.items[0];
+                
+                // 3. Login Exitoso: Guardamos en LocalStorage
+                localStorage.setItem("padel_user", JSON.stringify(usuarioEncontrado));
+                
+                // 4. Redirigimos al index principal
+                window.location.href = "index.html?auth=success";
+            } else {
+                // Login Fallido
+                State.error = "Email o contraseña incorrectos.";
+                State.isLoading = false;
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            State.error = "Error de conexión con el servidor.";
+            State.isLoading = false;
+        });
       }
     };
 
-    // Componentes como funciones
+    // Componentes
     function LeftPanel() {
       return {
         view: () => m(".hero-side", [

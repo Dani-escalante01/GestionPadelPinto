@@ -379,46 +379,75 @@
 <body> <div id="app"></div>
 
 <script>
+    const API_URL = "backend.php";
+
     const State = {
         isEditing: false,
-        user: {
-            nombre: "Carlos",
-            apellidos: "Pérez García",
-            email: "carlos.perez@gmail.com",
-            nivel: "Intermedio",
-            partidas: 124,
-            victorias: 82,
-            foto: "[https://media.licdn.com/dms/image/v2/D4D03AQEOP6WWeuAT4Q/profile-displayphoto-crop_800_800/B4DZowOnToGwAI-/0/1761745729736?e=1772064000&v=beta&t=x671SPTKjj55Pfb5XihA9X-Vb7eW5BlhVhA5841ntJI](https://media.licdn.com/dms/image/v2/D4D03AQEOP6WWeuAT4Q/profile-displayphoto-crop_800_800/B4DZowOnToGwAI-/0/1761745729736?e=1772064000&v=beta&t=x671SPTKjj55Pfb5XihA9X-Vb7eW5BlhVhA5841ntJI)",
-        },
+        user: null, // Se carga dinámicamente
         tempUser: {},
         downloading: false,
     };
 
     const Actions = {
+        init: () => {
+            const stored = localStorage.getItem("padel_user");
+            if (!stored) {
+                window.location.href = "login.html";
+                return;
+            }
+            State.user = JSON.parse(stored);
+            // Cargar datos frescos de la BD para tener victorias/partidas actualizadas
+            Actions.refreshData();
+        },
+        refreshData: () => {
+            m.request({
+                method: "GET",
+                url: `${API_URL}?table=usuarios&id=${State.user.id}`
+            }).then(res => {
+                if (res.items && res.items.length > 0) {
+                    State.user = res.items[0];
+                    localStorage.setItem("padel_user", JSON.stringify(State.user));
+                    m.redraw();
+                }
+            });
+        },
         toggleEdit: () => {
             if (!State.isEditing) State.tempUser = { ...State.user };
             State.isEditing = !State.isEditing;
         },
         saveProfile: () => {
-            const camposVacios = !State.tempUser.nombre.trim() ||
-                !State.tempUser.apellidos.trim() ||
-                !State.tempUser.email.trim();
+            // Validaciones
+            if (!State.tempUser.nombre.trim() || !State.tempUser.email.trim()) {
+                alert("Nombre y Email son obligatorios");
+                return;
+            }
 
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            const emailInvalido = !emailRegex.test(State.tempUser.email);
-
-            if (camposVacios) { alert("Por favor, rellene todos los campos obligatorios"); return; }
-            if (emailInvalido) { alert("Por favor, introduzca un correo electrónico válido"); return; }
-
-            State.user = { ...State.tempUser };
-            State.isEditing = false;
+            // Enviamos petición al backend
+            // IMPORTANTE: backend.php debe soportar action=update
+            m.request({
+                method: "POST",
+                url: `${API_URL}?table=usuarios&action=update&id=${State.user.id}`,
+                body: State.tempUser
+            }).then(res => {
+                if(res.status === "ok" || res.ok) {
+                    State.user = { ...State.tempUser };
+                    localStorage.setItem("padel_user", JSON.stringify(State.user)); // Guardar cambios en local
+                    State.isEditing = false;
+                    alert("Perfil actualizado correctamente");
+                } else {
+                    alert("Error al guardar: " + (res.error || "Error desconocido"));
+                }
+            }).catch(err => {
+                console.error(err);
+                alert("Error de conexión con el servidor");
+            });
         },
         handleFileUpload: (e) => {
             const file = e.target.files[0];
             if (file && file.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onload = (event) => {
-                    State.tempUser.foto = event.target.result;
+                    State.tempUser.foto = event.target.result; // Base64
                     m.redraw();
                 };
                 reader.readAsDataURL(file);
@@ -431,7 +460,7 @@
         const card = document.getElementById("citizen-card");
         html2canvas(card, { useCORS: true, scale: 2, backgroundColor: null }).then((canvas) => {
             const link = document.createElement("a");
-            link.download = `Tarjeta_${State.user.nombre}.png`;
+            link.download = `Tarjeta_${State.user.nombre.replace(" ", "_")}.png`;
             link.href = canvas.toDataURL("image/png");
             link.click();
             State.downloading = false;
@@ -445,7 +474,7 @@
                 class: `navbar ${ThemeState.darkMode ? "dark" : "light"}`
             }, [
                 m("div", { class: "navbar-content" }, [
-                    m("div", { class: "flex items-center gap-2 cursor-pointer", onclick: () => (window.location.href = "loggedView.html") }, [
+                    m("div", { class: "flex items-center gap-2 cursor-pointer", onclick: () => (window.location.href = "index.html") }, [
                         m("div", { class: "logo-box" }, "P"),
                         m("span", { class: `logo-text ${ThemeState.darkMode ? "dark" : "light"}` }, "PADELPINTO"),
                     ]),
@@ -453,7 +482,7 @@
                         m(ThemeToggle),
                         m("button", {
                             class: `nav-link ${ThemeState.darkMode ? "dark" : "light"}`,
-                            onclick: () => (window.location.href = "loggedView.html")
+                            onclick: () => (window.location.href = "index.html")
                         }, "← Volver a Reservas"),
                     ])
                 ]),
@@ -462,6 +491,9 @@
     }
 
     function CitizenCardPreview() {
+        // Aseguramos que haya usuario antes de renderizar
+        if(!State.user) return null;
+
         return {
             view: () => m("div", { class: "preview-container" }, [
                 m("h3", { class: `section-title ${ThemeState.darkMode ? "dark" : "light"}` }, "Tu Tarjeta Digital"),
@@ -470,20 +502,15 @@
                         m("img", {
                             src: State.user.foto,
                             class: "card-avatar",
-                            onerror: (e) => e.target.src = "[https://api.dicebear.com/7.x/initials/svg?seed=CP&backgroundColor=2ecc71&textColor=0f172a](https://api.dicebear.com/7.x/initials/svg?seed=CP&backgroundColor=2ecc71&textColor=0f172a)"
+                            onerror: (e) => e.target.src = "https://api.dicebear.com/7.x/initials/svg?seed=" + State.user.nombre + "&backgroundColor=2ecc71"
                         }),
                         m("div", { class: "card-logo-box" }, [
-                            m("img", {
-                                src: "src/logo_escudo_pinto.png",
-                                class: "logo-ayto",
-                                style: "max-height: 45px; width: auto; display: block;"
-                            })
+                            m("div", { class: "text-2xl" }, "🎾") // Logo placeholder simplificado
                         ])
                     ]),
                     m("div", [
                         m("p", { class: "card-member-label" }, "Miembro Oficial"),
-                        m("h2", { class: "card-name" }, State.user.nombre),
-                        m("h2", { class: "card-name", style: "margin-top: -0.25rem" }, State.user.apellidos),
+                        m("h2", { class: "card-name" }, State.user.nombre), // Solo nombre completo
                     ]),
                 ]),
                 m("button", {
@@ -496,6 +523,8 @@
     }
 
     function ProfileCard() {
+        if(!State.user) return { view: () => m("div", "Cargando perfil...") };
+
         return {
             view: () => m("div", { class: "profile-container" }, [
                 m("div", {
@@ -509,7 +538,7 @@
                                 m("img", {
                                     src: State.isEditing ? State.tempUser.foto : State.user.foto,
                                     class: `avatar-img ${ThemeState.darkMode ? "dark" : "light"}`,
-                                    onerror: (e) => e.target.src = "[https://api.dicebear.com/7.x/initials/svg?seed=CP&backgroundColor=2ecc71&textColor=0f172a](https://api.dicebear.com/7.x/initials/svg?seed=CP&backgroundColor=2ecc71&textColor=0f172a)"
+                                    onerror: (e) => e.target.src = "https://api.dicebear.com/7.x/initials/svg?seed=" + State.user.nombre + "&backgroundColor=2ecc71"
                                 }),
                                 State.isEditing && m("label", {
                                     class: "avatar-overlay"
@@ -520,7 +549,7 @@
                             ]),
 
                             m("div", { class: "user-info" }, [
-                                m("h1", { class: `user-name ${ThemeState.darkMode ? "dark" : "light"}` }, State.user.nombre + " " + State.user.apellidos),
+                                m("h1", { class: `user-name ${ThemeState.darkMode ? "dark" : "light"}` }, State.user.nombre),
                                 m("p", { class: "user-level" }, "Nivel " + State.user.nivel),
                             ]),
 
@@ -548,13 +577,12 @@
                                         }),
                                     ]),
 
-                                    // Contenedor dinámico para los campos
+                                    // Campos dinámicos adaptados a la BD
                                     [
-                                        { label: "Nombre", key: "nombre" },
-                                        { label: "Apellidos", key: "apellidos" },
+                                        { label: "Nombre Completo", key: "nombre", colSpan: true },
                                         { label: "Email", key: "email", colSpan: true }
                                     ].map(field => {
-                                        const isEmpty = State.isEditing && State.tempUser[field.key].trim() === "";
+                                        const isEmpty = State.isEditing && (!State.tempUser[field.key] || State.tempUser[field.key].trim() === "");
                                         const mode = State.isEditing ? "editing" : "view";
                                         const filledState = isEmpty ? "empty" : "filled";
                                         const theme = ThemeState.darkMode ? "dark" : "light";
@@ -584,7 +612,7 @@
                                                 onchange: (e) => State.tempUser.nivel = e.target.value,
                                                 value: State.tempUser.nivel
                                             }, [
-                                                ["Principiante", "Intermedio", "Avanzado"].map(opt => m("option", { value: opt }, opt))
+                                                ["1.0", "1.5", "2.0", "2.5", "3.0", "3.5", "4.0", "4.5", "5.0"].map(opt => m("option", { value: opt }, "Nivel " + opt))
                                             ])
                                             : m("p", { class: `field-text ${ThemeState.darkMode ? "dark" : "light"}`, style: "font-weight: 700; margin: 0; font-size: 0.875rem;" }, State.user.nivel),
                                     ]),
@@ -609,12 +637,15 @@
                                 m("div", { class: "stats-card" }, [
                                     m("div", { class: "stats-header" }, [
                                         m("span", { class: "stats-label" }, "Victorias"),
-                                        m("span", { class: "stats-value" }, State.user.victorias),
+                                        m("span", { class: "stats-value" }, State.user.victorias || 0),
                                     ]),
                                     m("div", { class: "progress-bg" }, [
-                                        m("div", { class: "progress-bar", style: "width: " + (State.user.victorias / State.user.partidas) * 100 + "%" }),
+                                        m("div", { 
+                                            class: "progress-bar", 
+                                            style: "width: " + ((State.user.victorias || 0) / (State.user.partidas_jugadas || 1)) * 100 + "%" 
+                                        }),
                                     ]),
-                                    m("p", { class: "stats-footer" }, State.user.partidas + " partidas jugadas"),
+                                    m("p", { class: "stats-footer" }, (State.user.partidas_jugadas || 0) + " partidas jugadas"),
                                 ]),
                             ]),
                         ]),
@@ -625,6 +656,7 @@
     }
 
     m.mount(document.getElementById("app"), {
+        oninit: Actions.init,
         view: () => m("div", { class: `app-root ${ThemeState.darkMode ? "dark" : "light"}` }, [
             m(Navbar),
             m(ProfileCard)
@@ -633,4 +665,4 @@
 </script>
 </body>
 
-</html>         
+</html>

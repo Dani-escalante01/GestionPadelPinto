@@ -7,11 +7,8 @@
   <title>Padel Pinto - Reserva tu pista</title>
   <script src="https://unpkg.com/mithril/mithril.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="toggleTheme.js"></script> <!--modo oscuro/claro-->
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="icon" type="image/svg+xml" href="src/favicon.svg" /> <!-- favicon -->
-
-  <style>
+  <script src="toggleTheme.js"></script> <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="src/favicon.svg" /> <style>
     :root {
       --padel-green: #2ecc71;
       --padel-blue: #0f172a;
@@ -142,6 +139,9 @@
 
   <script>
     // --- CONSTANTES ---
+    const API_URL = "backend.php";
+    
+    // Imagenes por defecto por si la DB no tiene foto
     const COURT_IMAGES = [
       "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?q=80&w=2070&auto=format&fit=crop",
       "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=2070&auto=format&fit=crop",
@@ -160,103 +160,20 @@
 
     // --- ESTADO ---
     const State = {
-      isLogged: true,
+      isLogged: false,
+      user: null, // Se llenará con LocalStorage
       showUserMenu: false,
       currentView: "booking",
       selectedDate: formatDate(new Date()),
       selectedTime: "10:30",
       viewMonth: new Date().getMonth(),
       viewYear: new Date().getFullYear(),
-      user: {
-        name: "Carlos P.",
-        id: "user_123",
-        foto: "https://api.dicebear.com/7.x/initials/svg?seed=CP&backgroundColor=2ecc71&textColor=0f172a", //foto con las iniciales (CP)
-      },
       inviteInput: "",
-      data: {
-        [formatDate(new Date())]: [
-          {
-            courtId: 2,
-            time: "10:30",
-            type: "public",
-            players: ["Dani L.", "Marta G."],
-            positions: [0, 2],
-            inviteCode: null,
-            creator: "Dani L.",
-          },
-          {
-            courtId: 1,
-            time: "10:30",
-            type: "private",
-            players: ["Daniel M.", "Dario D.", "Mario O."],
-            positions: [0, 1, 3],
-            inviteCode: "AXX123", //aqui tendria que poner generateInviteCode() pero para las pruebas he puesto este codigo reconocible
-            creator: "Daniel M.",
-          },
-          {
-            courtId: 3,
-            time: "10:30",
-            type: "private",
-            players: ["Javier J.", "Javier A.", "Hugo G.", "Mateo C."],
-            positions: [0, 1, 2, 3],
-            inviteCode: generateInviteCode(),
-            creator: "Javier J.",
-          },
-          {
-            courtId: 5,
-            time: "10:30",
-            type: "public",
-            players: ["Carlos P."],
-            positions: [3],
-            inviteCode: null,
-            creator: "Carlos P.",
-          },
-        ],
-      },
-      courts: [
-        {
-          id: 1,
-          name: "Pista Central World Padel Tour",
-          type: "Panorámica",
-          price: "18€",
-          img: COURT_IMAGES[0],
-        },
-        {
-          id: 2,
-          name: "Pista Premium Cristal 1",
-          type: "Cristal",
-          price: "14€",
-          img: COURT_IMAGES[1],
-        },
-        {
-          id: 3,
-          name: "Pista 3 - Muro Clásica",
-          type: "Muro",
-          price: "10€",
-          img: COURT_IMAGES[2],
-        },
-        {
-          id: 4,
-          name: "Pista 4 - Panorámica Azul",
-          type: "Panorámica",
-          price: "15€",
-          img: COURT_IMAGES[0],
-        },
-        {
-          id: 5,
-          name: "Pista 5 - Cristal Outdoor",
-          type: "Cristal",
-          price: "12€",
-          img: COURT_IMAGES[1],
-        },
-        {
-          id: 6,
-          name: "Pista 6 - Individual",
-          type: "Individual",
-          price: "9€",
-          img: COURT_IMAGES[2],
-        },
-      ],
+      
+      // Datos dinámicos (Vacíos al inicio)
+      data: {}, 
+      courts: [], 
+
       modal: {
         show: false,
         courtId: null,
@@ -267,52 +184,120 @@
         date: "",
         inviteCode: null,
       },
+      confirmModal: { show: false, date: "", matchIndex: -1 },
       toast: { show: false, message: "" },
-      modal: { show: false },
-      confirmModal: { show: false },
       heroImage: "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=2070&auto=format&fit=crop",
     };
 
     // --- ACCIONES ---
     const Actions = {
+      // 1. CARGA DE DATOS: "JOIN" MANUAL EN FRONTEND
+      loadData: async () => {
+        try {
+            // A. Obtener Pistas
+            const pistasRes = await m.request({ url: `${API_URL}?table=pistas` });
+            State.courts = (pistasRes.items || []).map(p => ({
+                id: p.id,
+                name: p.nombre,
+                type: p.tipo,
+                price: p.precio,
+                img: p.foto_url || COURT_IMAGES[0]
+            }));
+
+            // B. Obtener Partidas y Participantes
+            const partidasRes = await m.request({ url: `${API_URL}?table=partidas` });
+            const participantesRes = await m.request({ url: `${API_URL}?table=participantes` });
+            
+            const partidas = partidasRes.items || [];
+            const participantes = participantesRes.items || [];
+
+            // C. Procesar y Fusionar (Simular JOIN)
+            State.data = {};
+
+            partidas.forEach(partida => {
+                const fecha = partida.fecha; // Debe coincidir con formato DD/MM/YYYY
+
+                // Buscamos quién juega en esta partida
+                const jugInscritos = participantes.filter(p => p.partida_id == partida.id);
+                
+                // Construimos el objeto Match
+                const matchObj = {
+                    dbId: partida.id, // ID real de la BD
+                    courtId: partida.pista_id,
+                    time: partida.hora,
+                    type: partida.tipo_partida || partida.tipo, // Ajuste por nombre de columna
+                    inviteCode: partida.codigo_invitacion,
+                    creatorId: partida.creador_id,
+                    // Arrays derivados de participantes
+                    players: jugInscritos.map(p => p.nombre_jugador),
+                    positions: jugInscritos.map(p => parseInt(p.posicion)),
+                    playerIds: jugInscritos.map(p => p.usuario_id)
+                };
+
+                // Agrupar por fecha
+                if (!State.data[fecha]) State.data[fecha] = [];
+                State.data[fecha].push(matchObj);
+            });
+            m.redraw();
+
+        } catch (e) {
+            console.error("Error cargando datos:", e);
+            Actions.showToast("Error de conexión con base de datos");
+        }
+      },
+
+      checkSession: () => {
+        const savedUser = localStorage.getItem("padel_user");
+        if (savedUser) {
+            State.user = JSON.parse(savedUser);
+            State.isLogged = true;
+            
+            const params = new URLSearchParams(window.location.search);
+            if (params.get("auth") === "success") {
+                Actions.showToast("¡Sesión iniciada correctamente!");
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+        // Cargamos datos independientemente de si hay login (para ver ocupación)
+        Actions.loadData();
+      },
+
+      logout: () => {
+        State.isTerminatingSession = true;
+        State.showUserMenu = false;
+        m.redraw();
+        setTimeout(() => {
+          localStorage.removeItem("padel_user");
+          window.location.href = "login.html"; // Redirigir al login
+        }, 1200);
+      },
+
       changeMonth: (dir) => {
         State.viewMonth += dir;
         if (State.viewMonth < 0) { State.viewMonth = 11; State.viewYear--; }
         else if (State.viewMonth > 11) { State.viewMonth = 0; State.viewYear++; }
         m.redraw();
       },
-      logout: () => {
-        State.isTerminatingSession = true;
-        State.showUserMenu = false;
-        m.redraw();
-        setTimeout(() => {
-          window.location.href = "index.html";
-        }, 1200);
-      },
-      checkSession: () => {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get("auth") === "success") {
-          State.isLogged = true;
-          State.currentView = "booking";
-          window.history.replaceState(
-            {}, //limpiamos la URL para que no diga "?auth=success" todo el tiempo
-            document.title,
-            window.location.pathname,
-          );
-          Actions.showToast("¡Sesión iniciada correctamente!");
-        }
-      },
+
       toggleUserMenu: (e) => {
         e.stopPropagation();
         State.showUserMenu = !State.showUserMenu;
       },
+
       showToast: (msg) => {
         State.toast.message = msg;
         State.toast.show = true;
         m.redraw();
         setTimeout(() => { State.toast.show = false; m.redraw(); }, 3000);
       },
+
       openBooking: (courtId, time, date = State.selectedDate) => {
+        if (!State.isLogged) {
+            Actions.showToast("Inicia sesión para reservar");
+            setTimeout(() => window.location.href="login.html", 1500);
+            return;
+        }
+
         const match = (State.data[date] || []).find(m => m.courtId === courtId && m.time === time);
         State.modal = {
           show: true,
@@ -321,31 +306,89 @@
           selectedPos: null,
           occupiedPositions: match ? match.positions : [],
           isJoining: !!match,
+          currentMatchId: match ? match.dbId : null, // ID para unirse
           generatedCode: match ? match.inviteCode : generateInviteCode(),
         };
       },
-      confirmMatch: () => {
-        if (State.modal.selectedPos === null) return;
-        if (!State.data[State.modal.date]) State.data[State.modal.date] = [];
-        const existing = State.data[State.modal.date].find(m => m.courtId === State.modal.courtId && m.time === State.modal.time);
 
-        if (existing) {
-          existing.players.push(State.user.name);
-          existing.positions.push(State.modal.selectedPos);
-        } else {
-          State.data[State.modal.date].push({
-            courtId: State.modal.courtId,
-            time: State.modal.time,
-            type: State.modal.isPrivate ? "private" : "public",
-            inviteCode: State.modal.isPrivate ? State.modal.generatedCode : null,
-            players: [State.user.name],
-            positions: [State.modal.selectedPos],
-            creator: State.user.name,
-          });
+      // --- CREAR / UNIRSE A RESERVA ---
+      confirmMatch: async () => {
+        if (State.modal.selectedPos === null) return;
+        
+        const userName = State.user.nombre;
+        const userId = State.user.id;
+
+        // CASO 1: UNIRSE A PARTIDA EXISTENTE
+        if (State.modal.isJoining && State.modal.currentMatchId) {
+            try {
+                // Insertar participante
+                await m.request({
+                    method: "POST",
+                    url: `${API_URL}?table=participantes`,
+                    body: {
+                        partida_id: State.modal.currentMatchId,
+                        usuario_id: userId,
+                        nombre_jugador: userName,
+                        posicion: State.modal.selectedPos,
+                        equipo: (State.modal.selectedPos < 2) ? 'A' : 'B' // Lógica simple equipos
+                    }
+                });
+                Actions.showToast("¡Te has unido al partido!");
+                State.modal.show = false;
+                Actions.loadData(); // Recargar todo
+
+            } catch (e) {
+                console.error(e);
+                Actions.showToast("Error al unirse.");
+            }
+            return;
         }
-        State.modal.show = false;
-        Actions.showToast("¡Reserva confirmada!");
+
+        // CASO 2: CREAR NUEVA RESERVA
+        try {
+            // 1. Crear Partida
+            const nuevaPartida = {
+                pista_id: State.modal.courtId,
+                creador_id: userId,
+                fecha: State.modal.date,
+                hora: State.modal.time,
+                tipo_partida: State.modal.isPrivate ? "private" : "public",
+                codigo_invitacion: State.modal.isPrivate ? State.modal.generatedCode : null,
+                estado: "abierta"
+            };
+
+            const resPartida = await m.request({
+                method: "POST",
+                url: `${API_URL}?table=partidas`,
+                body: nuevaPartida
+            });
+
+            if (resPartida.id) {
+                // 2. Insertar al Creador como Participante
+                await m.request({
+                    method: "POST",
+                    url: `${API_URL}?table=participantes`,
+                    body: {
+                        partida_id: resPartida.id,
+                        usuario_id: userId,
+                        nombre_jugador: userName,
+                        posicion: State.modal.selectedPos,
+                        equipo: (State.modal.selectedPos < 2) ? 'A' : 'B',
+                        es_propietario: 1
+                    }
+                });
+
+                Actions.showToast("¡Reserva Creada con Éxito!");
+                State.modal.show = false;
+                Actions.loadData(); // Recargar datos
+            }
+
+        } catch (e) {
+            console.error(e);
+            Actions.showToast("Error al reservar pista.");
+        }
       },
+
       joinByCode: () => {
         if (!State.inviteInput) return;
         let found = null;
@@ -356,24 +399,21 @@
 
         if (found) {
           if (found.players.length >= 4) return Actions.showToast("La partida ya está completa");
-          if (found.players.includes(State.user.name)) return Actions.showToast("Ya estás en esta partida");
+          if (found.players.includes(State.user.nombre)) return Actions.showToast("Ya estás en esta partida");
           Actions.openBooking(found.courtId, found.time, found.date);
           State.inviteInput = "";
         } else {
           Actions.showToast("Código no válido");
         }
       },
+
       cancelBooking: (date, matchIndex) => {
-        const match = State.data[date][matchIndex];
-        const playerIndex = match.players.indexOf(State.user.name);
-        if (playerIndex > -1) {
-          match.players.splice(playerIndex, 1);
-          match.positions.splice(playerIndex, 1);
-          if (match.players.length === 0) State.data[date].splice(matchIndex, 1);
-          Actions.showToast("Reserva cancelada");
-        }
+        // Para simplificar en esta versión, solo mostramos el toast
+        // Implementar borrado real requeriría DELETE en backend.php
+        Actions.showToast("Función de cancelar pendiente de implementar en backend");
         State.confirmModal.show = false;
       },
+
       scrollToBooking: () => {
         document.getElementById("booking-section")?.scrollIntoView({ behavior: "smooth" });
       }
@@ -381,14 +421,12 @@
 
     // --- COMPONENTES ---
 
-    //barra de navegacion
     const Navbar = {
       view: () =>
         m("nav", {
           class: `border-b sticky top-0 z-50 px-4 transition-colors duration-500 ${ThemeState.darkMode ? "bg-slate-900/80 border-slate-800" : "bg-white/80"} backdrop-blur-md`
         }, [
           m("div", { class: "max-w-6xl mx-auto flex justify-between items-center h-16" }, [
-            //logo
             m("div", {
               class: "flex items-center gap-2 cursor-pointer",
               onclick: () => (State.currentView = "booking")
@@ -397,80 +435,73 @@
               m("span", { class: `font-black text-lg tracking-tighter ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, "PADELPINTO"),
             ]),
 
-            //menú de navegación y acciones
             m("div", { class: "flex items-center gap-6" }, [
-              m("button", {
-                class: `text-[10px] font-black tracking-widest ${State.currentView === "booking" ? "text-green-500 border-b-2 border-green-500" : "text-slate-400"} pb-1`,
-                onclick: () => (State.currentView = "booking"),
-              }, "RESERVAR"),
-              m("button", {
-                class: `text-[10px] font-black tracking-widest ${State.currentView === "matchmaking" ? "text-green-500 border-b-2 border-green-500" : "text-slate-400"} pb-1`,
-                onclick: () => (State.currentView = "matchmaking"),
-              }, "PARTIDAS ABIERTAS"),
-              m("button", {
-                class: `text-[10px] font-black tracking-widest ${State.currentView === "agenda" ? "text-green-500 border-b-2 border-green-500" : "text-slate-400"} pb-1`,
-                onclick: () => (State.currentView = "agenda"),
-              }, "MI AGENDA"),
-
-              //boton para modo claro/oscuro
+              // Botones de navegación
+              ["booking", "RESERVAR"], ["matchmaking", "PARTIDAS ABIERTAS"], ["agenda", "MI AGENDA"].map(([view, label]) => 
+                  m("button", {
+                    class: `text-[10px] font-black tracking-widest ${State.currentView === view ? "text-green-500 border-b-2 border-green-500" : "text-slate-400"} pb-1`,
+                    onclick: () => (State.currentView = view),
+                  }, label)
+              ),
+              
               m(ThemeToggle),
 
-              //menú de usuario
-              m("div", { class: "relative" }, [
+              // Lógica de Usuario Logueado / No Logueado
+              State.isLogged ? m("div", { class: "relative" }, [
                 m("div", {
                   class: `w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold border-2 border-green-500 cursor-pointer hover:scale-105 transition-transform ${ThemeState.darkMode ? "bg-slate-800 text-white" : "bg-slate-100 text-slate-800"}`,
                   onclick: Actions.toggleUserMenu,
-                }, "CP"),
+                }, State.user.nombre.substring(0,2).toUpperCase()),
 
                 State.showUserMenu && m("div", {
                   class: `absolute right-0 mt-2 w-48 rounded-2xl shadow-xl border py-2 z-[100] animate-fade-up ${ThemeState.darkMode ? "bg-slate-800 border-slate-700" : "bg-white border-slate-100"}`,
                 }, [
                   m("div", { class: `px-4 py-2 border-b mb-1 ${ThemeState.darkMode ? "border-slate-700" : "border-slate-50"}` }, [
                     m("p", { class: "text-[10px] font-black text-slate-400 uppercase" }, "Usuario"),
-                    m("p", { class: `text-xs font-bold ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, State.user.name),
+                    m("p", { class: `text-xs font-bold ${ThemeState.darkMode ? "text-white" : "text-slate-800"}` }, State.user.nombre),
                   ]),
                   m("button", {
                     class: `w-full text-left px-4 py-2 text-xs font-bold transition ${ThemeState.darkMode ? "text-slate-300 hover:bg-slate-700 hover:text-green-400" : "text-slate-600 hover:bg-slate-50 hover:text-green-500"}`,
                     onclick: () => window.location.href = "perfil.html",
                   }, "Mi Perfil"),
-                  m("button", {
-                    class: `w-full text-left px-4 py-2 text-xs font-bold transition ${ThemeState.darkMode ? "text-slate-300 hover:bg-slate-700 hover:text-green-400" : "text-slate-600 hover:bg-slate-50 hover:text-green-500"}`,
-                    onclick: () => { State.showUserMenu = false; },
-                  }, "Configuración"),
                   m("hr", { class: `my-1 ${ThemeState.darkMode ? "border-slate-700" : "border-slate-50"}` }),
                   m("button", {
                     class: "w-full text-left px-4 py-2 text-xs font-bold text-red-500 hover:bg-red-50 transition",
                     onclick: Actions.logout,
                   }, "Cerrar sesión"),
                 ]),
-              ]),
+              ]) : 
+              // Botones si NO está logueado
+              m("div", { class: "flex gap-2" }, [
+                  m("button", { class: "text-xs font-bold text-slate-500 hover:text-green-500", onclick: () => window.location.href="login.html" }, "Entrar"),
+                  m("button", { class: "text-xs font-bold bg-green-500 text-slate-900 px-3 py-1.5 rounded-lg hover:bg-green-400", onclick: () => window.location.href="registro.html" }, "Crear Cuenta")
+              ])
             ]),
           ]),
         ]),
     };
 
-    //hero (foto principal)
     const Hero = {
       view: () =>
         m("header", { class: "hero-container" }, [
           m("img", { src: State.heroImage, class: "hero-image animate-fade-up" }),
           m("div", { class: "hero-content animate-fade-up" }, [
             m("span", { class: "inline-block px-3 py-1 bg-green-500 text-slate-900 text-[10px] font-black rounded-full mb-4" }, "ZONA JUGADORES"),
-            m("h1", { class: "text-4xl md:text-6xl font-black mb-4 tracking-tight" }, "Hola, " + State.user.name.split(" ")[0]),
+            m("h1", { class: "text-4xl md:text-6xl font-black mb-4 tracking-tight" }, 
+                State.isLogged ? "Hola, " + State.user.nombre.split(" ")[0] : "Bienvenido a PadelPinto"
+            ),
             m("p", { class: "text-slate-200 text-sm md:text-lg max-w-xl mx-auto font-medium mb-8" }, "Gestiona tus reservas y únete a los próximos partidos en tu club."),
             m("div", { class: "flex flex-col sm:flex-row justify-center gap-4" }, [
               m("button", { class: "bg-green-500 hover:bg-green-400 px-8 py-4 rounded-2xl font-black text-slate-900 transition shadow-xl transform hover:scale-105", onclick: Actions.scrollToBooking }, "VER PISTAS"),
-              m("button", { class: "bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 px-8 py-4 rounded-2xl font-black transition", onclick: () => State.currentView = "agenda" }, "MI AGENDA"),
             ]),
           ]),
         ]),
     };
 
-    //calendario de fechas 
     const Calendar = {
       view: () => {
         const today = new Date();
-        today.setHours(0, 0, 0, 0); //limpiamos horas para comparar solo fechas
+        today.setHours(0, 0, 0, 0);
 
         const firstDay = new Date(State.viewYear, State.viewMonth, 1).getDay();
         const daysInMonth = new Date(State.viewYear, State.viewMonth + 1, 0).getDate();
@@ -507,7 +538,7 @@
 
               const isSelected = State.selectedDate === dateStr;
               const hasData = State.data[dateStr] && State.data[dateStr].length > 0;
-              const isPast = currentDate < today; //lógica para detectar si el día ya pasó
+              const isPast = currentDate < today; 
 
               return m("button", {
                 class: `day-cell w-full rounded-2xl flex items-center justify-center text-xs font-bold transition-all relative ${isSelected
@@ -517,7 +548,7 @@
                     : (ThemeState.darkMode ? "hover:bg-slate-700 text-slate-300" : "hover:bg-slate-50 text-slate-600")
                   }`,
                 onclick: () => !isPast && (State.selectedDate = dateStr),
-                disabled: isPast //evitamos que se puedan seleccionar días pasados
+                disabled: isPast
               }, [
                 m("span", d),
                 hasData && m("div", { class: `w-1 h-1 rounded-full absolute bottom-1.5 ${isSelected ? "bg-slate-900" : "bg-green-500"} ${isPast ? "opacity-30" : ""}` })
@@ -528,27 +559,25 @@
       }
     };
 
-    //zona donde se visualizan las pistas para reservar y/o unirse
     const CourtGrid = {
       view: () =>
         m("div", { class: "grid grid-cols-1 sm:grid-cols-2 gap-4" },
+          State.courts.length === 0 ? m("p", "Cargando pistas...") :
           State.courts.map((c) => {
             const match = (State.data[State.selectedDate] || []).find(
               (m) => m.courtId === c.id && m.time === State.selectedTime
             );
 
-            //calculamos cuántos jugadores hay (si no hay partida, es 0)
             const playerCount = match ? match.players.length : 0;
             const isFull = playerCount >= 4;
-            const userIn = match?.players.includes("Carlos P.");
+            // Comprobamos si el usuario actual ya está en la partida
+            const userIn = State.isLogged && match?.playerIds.includes(State.user.id);
             const label = isFull ? "CERRADO" : match?.type === "private" ? "PRIVADO" : "ABIERTO";
 
-            //lógica de porcentaje: (jugadores actuales / máximo 4) * 100
             const progressPercentage = (playerCount / 4) * 100;
 
             return m("div", {
-              class: `rounded-3xl border overflow-hidden flex shadow-sm hover:shadow-md transition-all group ${ThemeState.darkMode ? "bg-slate-800 border-slate-700" : "bg-white border-slate-100"
-                }`
+              class: `rounded-3xl border overflow-hidden flex shadow-sm hover:shadow-md transition-all group ${ThemeState.darkMode ? "bg-slate-800 border-slate-700" : "bg-white border-slate-100"}`
             }, [
               m("div", {
                 class: "w-32 bg-cover bg-center",
@@ -562,19 +591,15 @@
                     m("span", { class: "text-[10px] font-black text-green-600" }, c.price)
                   ]),
 
-                  //bloque de progreso
                   m("div", { class: `mb-3 ${match ? "block" : "invisible"}` }, [
                     m("div", { class: "flex justify-between text-[8px] font-black mb-1" }, [
                       m("span", { class: isFull ? "text-slate-400" : match?.type === "private" ? "text-red-400" : "text-amber-500" }, label),
                       m("span", { class: "text-slate-400" }, `${playerCount}/4`)
                     ]),
-                    //contenedor de la barra
                     m("div", { class: `w-full h-1.5 rounded-full overflow-hidden ${ThemeState.darkMode ? "bg-slate-700" : "bg-slate-100"}` },
-                      //la barra que se llena
                       m("div", {
-                        class: `h-full transition-all duration-500 ease-out ${isFull ? "bg-slate-400" : "bg-green-500"
-                          }`,
-                        style: `width: ${progressPercentage}%`//depende los jugadores se llena mas o menos
+                        class: `h-full transition-all duration-500 ease-out ${isFull ? "bg-slate-400" : "bg-green-500"}`,
+                        style: `width: ${progressPercentage}%`
                       })
                     )
                   ]),
@@ -597,7 +622,6 @@
         )
     };
 
-    //vista del matchmaking para unirse a partidas
     const MatchmakingView = {
       view: () => {
         const openMatches = [];
@@ -619,6 +643,7 @@
             : m("div", { class: "grid gap-4" }, openMatches.map((match) => {
               const court = State.courts.find((c) => c.id === match.courtId);
               const isFull = match.players.length >= 4;
+              const courtName = court ? court.name : "Pista " + match.courtId;
 
               return m("div", {
                 class: `p-5 rounded-3xl shadow-sm flex items-center justify-between border transition-colors duration-300 ${ThemeState.darkMode
@@ -627,7 +652,6 @@
                   }`
               }, [
                 m("div", { class: "flex gap-4 items-center" }, [
-                  //cuadro de fecha
                   m("div", {
                     class: `w-12 h-12 rounded-2xl flex flex-col items-center justify-center font-black ${ThemeState.darkMode ? "bg-slate-900 text-white" : "bg-slate-50 text-slate-800"
                       }`
@@ -635,17 +659,15 @@
                     m("span", { class: "text-[10px] text-slate-400" }, match.date.split("/")[1]),
                     m("span", { class: "text-sm" }, match.date.split("/")[0]),
                   ]),
-                  //información de la partida
                   m("div", [
                     m("p", {
                       class: `text-xs font-black ${ThemeState.darkMode ? "text-white" : "text-slate-800"}`
-                    }, `${match.time}H - ${court.name}`),
+                    }, `${match.time}H - ${courtName}`),
                     m("p", { class: "text-[10px] font-bold text-slate-400" },
                       isFull ? "PARTIDA CERRADA" : `${match.players.length}/4 jugadores inscritos`
                     ),
                   ]),
                 ]),
-                //botón de acción
                 m("button", {
                   class: `px-6 py-2 rounded-xl text-[10px] font-black transition-all ${isFull
                     ? (ThemeState.darkMode ? "bg-slate-700 text-slate-500" : "bg-slate-100 text-slate-400")
@@ -662,19 +684,20 @@
       },
     };
 
-    //agenda personal para visualizar las partidas que tiene el jugador
     const AgendaView = {
       view: () => {
+        if (!State.isLogged) return m("div", {class:"p-10 text-center"}, "Inicia sesión para ver tu agenda");
+
         const myMatches = [];
         Object.keys(State.data).forEach((date) => {
           State.data[date].forEach((m, idx) => {
-            if (m.players.includes("Carlos P."))
-              myMatches.push({ ...m, date, originalIndex: idx });
+            // Buscamos por ID de usuario
+            if (m.playerIds.includes(State.user.id))
+              myMatches.push({ ...m, date });
           });
         });
 
         return m("div", { class: "flex-1 animate-fade-up" }, [
-          //título con color dinámico
           m("h2", {
             class: `text-2xl font-black mb-6 ${ThemeState.darkMode ? "text-white" : "text-slate-800"}`
           }, "Mi Agenda"),
@@ -686,6 +709,8 @@
             : m("div", { class: "grid gap-4" },
               myMatches.map((match) => {
                 const court = State.courts.find((c) => c.id === match.courtId);
+                const courtName = court ? court.name : "Pista " + match.courtId;
+                
                 return m("div", {
                   class: `p-5 rounded-3xl shadow-sm border-l-4 border-green-500 flex justify-between items-center hover:shadow-md transition-all ${ThemeState.darkMode ? "bg-slate-800 border-y border-r border-slate-700" : "bg-white border-l-4"
                     }`
@@ -696,23 +721,21 @@
                         class: `text-xs font-black ${ThemeState.darkMode ? "text-white" : "text-slate-900"}`
                       }, `${match.date} - ${match.time}H`),
 
-                      //badge del id con estilo para modo oscuro
                       match.inviteCode && m("span", {
                         class: `text-[8px] px-1.5 py-0.5 rounded font-black tracking-widest ${ThemeState.darkMode ? "bg-slate-700 text-slate-400" : "bg-slate-100 text-slate-500"
                           }`
                       }, `ID: ${match.inviteCode}`),
                     ]),
-                    m("p", { class: "text-[10px] font-bold text-slate-400 uppercase" }, court.name),
+                    m("p", { class: "text-[10px] font-bold text-slate-400 uppercase" }, courtName),
                   ]),
 
-                  //botón de cancelar con estilo adaptado
                   m("button", {
                     class: `px-4 py-2 rounded-xl text-[10px] font-black transition-all ${ThemeState.darkMode
                       ? "bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white"
                       : "bg-red-50 text-red-500 hover:bg-red-500 hover:text-white"
                       }`,
                     onclick: () => {
-                      State.confirmModal = { show: true, date: match.date, matchIndex: match.originalIndex };
+                      State.confirmModal = { show: true, date: match.date };
                     },
                   }, "CANCELAR"),
                 ]);
@@ -722,7 +745,6 @@
       },
     };
 
-    //zona para configurar los aspectos de la reserva (partida pública/privada, zona del campo, etc.)
     const BookingModal = {
       view: () =>
         State.modal.show &&
@@ -730,7 +752,6 @@
           m("div", {
             class: `w-full max-w-sm rounded-[40px] overflow-hidden shadow-2xl animate-fade-up transition-colors duration-500 ${ThemeState.darkMode ? "bg-slate-800" : "bg-white"}`
           }, [
-            // Cabecera
             m("div", { class: "bg-slate-900 p-8 text-white" }, [
               m("div", { class: "flex justify-between items-start" }, [
                 m("div", [
@@ -745,7 +766,6 @@
             ]),
 
             m("div", { class: "p-8 text-center" }, [
-              // 1. Lógica de bloqueo: Si es unión a privada y el código es incorrecto
               State.modal.isJoining && State.modal.isPrivate && State.modal.tempCode !== State.modal.generatedCode ? [
                 m("div", { class: "mb-6" }, [
                   m("div", { class: "w-12 h-12 bg-amber-500/10 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-4" }, "🔒"),
@@ -763,7 +783,6 @@
                   m("p", { class: "text-[9px] text-red-500 font-bold mt-2 animate-pulse" }, "CÓDIGO INCORRECTO")
                 ])
               ] : [
-                // 2. Interfaz desbloqueada (Reserva nueva OR Código correcto OR Partida pública)
                 !State.modal.isJoining && m("div", {
                   class: `flex items-center justify-between mb-6 p-4 rounded-2xl border transition-colors ${ThemeState.darkMode ? "bg-slate-900 border-slate-700" : "bg-slate-50 border-slate-100"}`
                 }, [
@@ -786,7 +805,6 @@
 
                 m("p", { class: "text-[10px] font-black text-slate-400 uppercase mb-4" }, "Elige tu posición"),
 
-                // Pista visual
                 m("div", { class: "relative w-full aspect-[2/3] max-w-[160px] mx-auto bg-green-600 rounded-xl border-2 border-white/40 shadow-xl mb-8" }, [
                   m("div", { class: "absolute inset-x-0 top-1/2 h-0.5 bg-white/20" }),
                   m("div", { class: "absolute inset-y-0 left-1/2 w-0.5 bg-white/20" }),
@@ -810,14 +828,13 @@
                 m("button", {
                   class: `w-full py-4 rounded-2xl text-xs font-black transition-all ${State.modal.selectedPos === null
                     ? (ThemeState.darkMode ? "bg-slate-700 text-slate-500" : "bg-slate-100 text-slate-300")
-                    : "bg-green-500 text-slate-900 shadow-xl shadow-green-100 active:scale-95"
+                    : "bg-green-50 text-slate-900 shadow-xl shadow-green-100 active:scale-95"
                     }`,
                   disabled: State.modal.selectedPos === null,
                   onclick: () => {
-                    console.log("Confirmando reserva...");
                     Actions.confirmMatch();
                   },
-                }, "CONFIRMAR RESERVA"),
+                }, State.modal.isJoining ? "UNIRSE AL PARTIDO" : "CONFIRMAR RESERVA"),
               ]
             ]),
           ]),
@@ -853,7 +870,6 @@
         ]),
     };
 
-    //footer con informacion
     const Footer = {
       view: () =>
         m("footer", {
@@ -864,27 +880,22 @@
         }, [
           m("div", { class: "max-w-6xl mx-auto" }, [
             m("div", { class: "grid grid-cols-1 md:grid-cols-3 gap-12 mb-12" }, [
-              //columna 1: branding
               m("div", [
                 m("div", { class: "flex items-center gap-2 mb-6" }, [
                   m("div", { class: "w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-white font-black italic text-sm shadow-lg shadow-green-500/20" }, "P"),
                   m("span", { class: "font-extrabold text-xl tracking-tighter" }, "PADELPINTO "),
                 ]),
-                m("p", { class: "text-slate-400 text-sm leading-relaxed" }, "La plataforma líder para la gestión de pistas y comunidades de pádel. Reserva, juega y conecta con otros jugadores en un solo lugar."),
+                m("p", { class: "text-slate-400 text-sm leading-relaxed" }, "La plataforma líder para la gestión de pistas y comunidades de pádel."),
               ]),
 
-              //columna 2: enlaces rápidos
               m("div", [
                 m("h4", { class: "font-bold mb-6 text-green-500 uppercase text-xs tracking-widest" }, "Navegación"),
                 m("ul", { class: "space-y-4 text-sm text-slate-300" }, [
                   m("li", { class: "hover:text-white cursor-pointer transition" }, "Centro de Ayuda"),
                   m("li", { class: "hover:text-white cursor-pointer transition" }, "Normas del Club"),
-                  m("li", { class: "hover:text-white cursor-pointer transition" }, "Ranking Local"),
-                  m("li", { class: "hover:text-white cursor-pointer transition" }, "Torneos"),
                 ]),
               ]),
 
-              //columna 3: newsletter
               m("div", [
                 m("h4", { class: "font-bold mb-6 text-green-500 uppercase text-xs tracking-widest" }, "Mantente al día"),
                 m("div", { class: "flex gap-2 mb-6" }, [
@@ -895,53 +906,21 @@
                   }),
                   m("button", { class: "bg-green-500 text-slate-900 px-4 py-2 rounded-lg font-bold text-sm hover:bg-green-400 transition" }, "OK"),
                 ]),
-
-                //redes Sociales
-                m("div", { class: "flex gap-4 text-slate-400" }, [
-                  //instagram
-                  m("a", { href: "https://www.instagram.com/ayuntamientopinto", target: "_blank", rel: "noopener noreferrer", class: "w-8 h-8 flex items-center justify-center hover:text-white transition" }, [
-                    m("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "none", stroke: "currentColor", "stroke-width": "2", "stroke-linecap": "round", "stroke-linejoin": "round" }, [
-                      m("rect", { x: "2", y: "2", width: "20", height: "20", rx: "5", ry: "5" }),
-                      m("path", { d: "M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" }),
-                      m("line", { x1: "17.5", y1: "6.5", x2: "17.51", y2: "6.5" }),
-                    ]),
-                  ]),
-                  //twitter
-                  m("a", { href: "https://x.com/AytoPinto", target: "_blank", rel: "noopener noreferrer", class: "w-8 h-8 flex items-center justify-center hover:text-white transition" }, [
-                    m("svg", { viewBox: "0 0 24 24", width: "18", height: "18", fill: "currentColor" }, [
-                      m("path", { d: "M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932L18.901 1.153zM17.61 20.644h2.039L6.486 3.24H4.298L17.61 20.644z" }),
-                    ]),
-                  ]),
-                  //facebook
-                  m("a", { href: "https://www.facebook.com/AytoPinto/", target: "_blank", rel: "noopener noreferrer", class: "w-8 h-8 flex items-center justify-center hover:text-white transition" }, [
-                    m("svg", { viewBox: "0 0 24 24", width: "20", height: "20", fill: "currentColor" }, [
-                      m("path", { d: "M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" }),
-                    ]),
-                  ]),
-                ]),
               ]),
             ]),
 
-            //copyright bar
             m("div", {
               class: `border-t pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-bold uppercase tracking-widest transition-colors ${ThemeState.darkMode ? "border-slate-800 text-slate-600" : "border-slate-800 text-slate-500"
                 }`
             }, [
-              m("span", "© 2026 Padel Pro International. Todos los derechos reservados."),
-              m("div", { class: "flex gap-6" }, [
-                m("span", { class: "hover:text-slate-300 cursor-pointer transition" }, "Privacidad"),
-                m("span", { class: "hover:text-slate-300 cursor-pointer transition" }, "Términos"),
-                m("span", { class: "hover:text-slate-300 cursor-pointer transition" }, "Cookies"),
-              ]),
+              m("span", "© 2026 Padel Pro International."),
             ]),
           ]),
         ]),
     };
 
-    //parte principal que contiene el calendario, horas, el codigo privado, y las pistas para reservar/unirse
     const MainLayout = {
       view: () =>
-        // Aplicamos la función que controla el fondo y el color de texto global
         m("div", { class: ThemeActions.getMainClasses() }, [
           m(Navbar),
           m(Hero),
@@ -1028,7 +1007,6 @@
       ),
     });
 
-    //cerrar el menú si se hace click fuera
     window.addEventListener("click", () => {
       if (State.showUserMenu) {
         State.showUserMenu = false;

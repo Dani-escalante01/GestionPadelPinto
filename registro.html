@@ -1,451 +1,441 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Padel Pinto - Crear Cuenta</title>
-  <script src="https://unpkg.com/mithril/mithril.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="icon" type="image/svg+xml" href="src/favicon.svg" />
-  
-  <style>
-    :root {
-      --slate-50: #f8fafc;
-      --slate-100: #f1f5f9;
-      --slate-200: #e2e8f0;
-      --slate-300: #cbd5e1;
-      --slate-400: #94a3b8;
-      --slate-500: #64748b;
-      --slate-600: #475569;
-      --slate-700: #334155;
-      --slate-800: #1e293b;
-      --slate-900: #0f172a;
-      --green-400: #4ade80;
-      --green-500: #22c55e;
-      --green-600: #16a34a;
-      --red-500: #ef4444;
-      --white: #ffffff;
-      --padel-green: #2ecc71;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Cuenta - Padel Pinto</title>
+    
+    <script src="https://unpkg.com/mithril/mithril.js"></script>
+    
+    <script src="api.js"></script>
+    <script src="toggleTheme.js"></script>
 
-    * { box-sizing: border-box; }
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- 1. VARIABLES & RESET (Coherente con Login) --- */
+        :root {
+            --primary: #22c55e;
+            --primary-dark: #16a34a;
+            --dark-bg: #0f172a;
+            --bg-dirty-white: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius: 24px;
+            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
 
-    body {
-      font-family: "Plus Jakarta Sans", sans-serif;
-      background-color: var(--slate-50);
-      margin: 0;
-      padding: 0;
-    }
+        .dark body { background-color: #0f172a; color: #f8fafc; }
+        .dark .form-side { background-color: #020617; }
+        .dark .register-card { background-color: #1e293b; border-color: #334155; }
+        .dark .input-field { background-color: #0f172a; border-color: #334155; color: white; }
+        .dark .label { color: #cbd5e1; }
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+        }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+        /* --- 2. LAYOUT SPLIT --- */
+        .split-layout {
+            display: flex;
+            flex: 1;
+            height: 100%;
+            width: 100%;
+        }
 
-    .animate-fade-up {
-      animation: fadeIn 0.6s ease-out forwards;
-    }
+        /* Lado Izquierdo (Imagen Full) */
+        .hero-side {
+            display: none;
+            flex: 1.2;
+            position: relative;
+            background-color: var(--dark-bg);
+            overflow: hidden;
+        }
 
-    .flex-container { display: flex; min-height: 100vh; }
+        @media (min-width: 900px) {
+            .hero-side { display: flex; }
+        }
 
-    /* Left Panel */
-    .hero-panel {
-      display: none;
-      width: 50%;
-      position: relative;
-      background-color: var(--slate-900);
-      overflow: hidden;
-    }
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.6;
+            mix-blend-mode: overlay;
+            transform: scale(1.05);
+        }
 
-    @media (min-width: 1024px) {
-      .hero-panel { display: flex; }
-    }
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(15, 23, 42, 0.9), transparent);
+            z-index: 1;
+        }
 
-    .hero-img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0.5;
-    }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            height: 100%;
+            color: white;
+        }
 
-    .hero-overlay {
-      position: relative;
-      z-index: 10;
-      margin: auto;
-      text-align: center;
-      padding: 0 3rem;
-    }
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+            line-height: 1;
+            letter-spacing: -1px;
+        }
 
-    .hero-title {
-      font-size: 2.25rem;
-      font-weight: 900;
-      color: var(--white);
-      margin-bottom: 1.5rem;
-    }
+        /* Lado Derecho (Formulario Scrollable) */
+        .form-side {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; /* Centrado vertical */
+            background-color: var(--bg-dirty-white);
+            position: relative;
+            padding: 20px;
+            overflow-y: auto; /* Permitir scroll si el formulario es alto */
+        }
 
-    .hero-text {
-      color: var(--slate-300);
-      font-size: 1.125rem;
-    }
+        /* --- NAVBAR FLOTANTE --- */
+        .navbar-floating {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
 
-    /* Right Panel */
-    .form-panel {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-      background-color: var(--white);
-    }
+        .brand-mobile {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 18px;
+            color: var(--text-main);
+        }
+        @media (min-width: 900px) { .brand-mobile { display: none; } }
 
-    @media (min-width: 1024px) {
-      .form-panel { width: 50%; }
-    }
+        /* --- TARJETA DE REGISTRO --- */
+        .register-card {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 450px; /* Un poco más ancha que login */
+            padding: 40px;
+            border-radius: 32px;
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.6s ease-out;
+            margin-top: 60px; /* Espacio para navbar móvil */
+            margin-bottom: 20px;
+        }
 
-    .form-container {
-      width: 100%;
-      max-width: 28rem;
-    }
+        .form-header { margin-bottom: 25px; text-align: left; }
+        
+        h1 { font-size: 28px; font-weight: 800; margin: 0 0 10px 0; letter-spacing: -0.5px; }
+        .subtitle { color: var(--text-muted); font-size: 14px; font-weight: 500; }
 
-    .title {
-      font-size: 1.875rem;
-      font-weight: 900;
-      color: var(--slate-800);
-      margin-bottom: 0.5rem;
-    }
+        .form-group { margin-bottom: 15px; }
 
-    .subtitle {
-      color: var(--slate-400);
-      font-weight: 500;
-      margin-bottom: 2rem;
-    }
+        .label {
+            display: block;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            color: var(--text-main);
+            letter-spacing: 0.5px;
+        }
 
-    .form-group { margin-bottom: 1rem; }
+        .input-field {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 2px solid var(--bg-dirty-white);
+            background-color: #f8fafc;
+            font-size: 14px;
+            font-weight: 600;
+            outline: none;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
 
-    .label {
-      display: block;
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--slate-700);
-      text-transform: uppercase;
-      margin-bottom: 0.5rem;
-    }
+        .input-field:focus {
+            border-color: var(--primary);
+            background-color: white;
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+        }
 
-    .input-field {
-      width: 100%;
-      padding: 0.75rem 1.25rem;
-      background-color: var(--slate-50);
-      border: 1px solid var(--slate-200);
-      border-radius: 1rem;
-      font-size: 0.875rem;
-      font-weight: 700;
-      transition: all 0.2s;
-    }
+        /* Estilo especial para Select */
+        select.input-field {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%231e293b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 0.65em auto;
+            cursor: pointer;
+        }
 
-    .input-field:focus {
-      border-color: var(--padel-green);
-      box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.1);
-      outline: none;
-    }
+        .btn-primary {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            margin-top: 10px;
+            box-shadow: 0 10px 20px -5px rgba(34, 197, 94, 0.4);
+        }
 
-    .btn-primary {
-      width: 100%;
-      padding: 1rem;
-      border-radius: 1rem;
-      font-weight: 900;
-      font-size: 0.875rem;
-      border: none;
-      cursor: pointer;
-      transition: all 0.2s;
-      margin-top: 1rem;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    }
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
 
-    .btn-active {
-      background-color: var(--green-500);
-      color: var(--slate-900);
-    }
+        .btn-primary:disabled {
+            background: var(--border);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
 
-    .btn-active:hover { background-color: var(--green-400); }
-    .btn-active:active { transform: scale(0.95); }
+        .error-msg {
+            background: #fee2e2;
+            color: #ef4444;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-    .btn-disabled {
-      background-color: var(--slate-100);
-      color: var(--slate-400);
-      cursor: not-allowed;
-    }
+        .form-footer {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
 
-    .divider-container {
-      position: relative;
-      padding: 2rem 0;
-    }
+        .link { color: var(--primary); font-weight: 800; text-decoration: none; transition: color 0.2s; }
+        .link:hover { color: var(--primary-dark); text-decoration: underline; }
 
-    .divider-line {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-    }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-    .divider-hr {
-      width: 100%;
-      border-top: 1px solid var(--slate-100);
-    }
-
-    .divider-text-box {
-      position: relative;
-      display: flex;
-      justify-content: center;
-      font-size: 0.75rem;
-    }
-
-    .divider-text {
-      padding: 0 1rem;
-      background-color: var(--white);
-      color: var(--slate-400);
-      font-weight: 700;
-    }
-
-    .btn-google {
-      width: 100%;
-      padding: 1rem;
-      background-color: var(--white);
-      border: 1px solid var(--slate-200);
-      border-radius: 1rem;
-      font-size: 0.875rem;
-      font-weight: 700;
-      color: var(--slate-600);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.75rem;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-
-    .btn-google:hover { background-color: var(--slate-50); }
-
-    .footer-link {
-      margin-top: 5rem;
-      text-align: center;
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: var(--slate-500);
-    }
-
-    .accent-link {
-      color: var(--green-600);
-      font-weight: 700;
-      text-decoration: none;
-    }
-
-    .accent-link:hover { text-decoration: underline; }
-    .text-red { color: var(--red-500); }
-    .text-tiny { font-size: 10px; color: var(--slate-400); font-weight: 700; margin-top: 0.5rem; }
-  </style>
+    </style>
 </head>
-
 <body>
-  <div id="app"></div>
+    <div id="app"></div>
 
-  <script>
-    const API_URL = "backend.php";
-
-    const State = {
-      nombre: "",
-      email: "",
-      password: "",
-      nivel: "1.0",
-      isLoading: false,
-      heroImage: "https://images.unsplash.com/photo-1599423300746-b62533397364?q=80&w=2070&auto=format&fit=crop",
-    };
-
-    const Actions = {
-      register: (e) => {
-        e.preventDefault();
-        // Validaciones Frontend
-        if (!State.nombre.trim() || !State.email.trim() || !State.password.trim()) {
-          alert("Por favor, completa todos los campos marcados como obligatorios.");
-          return;
-        }
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(State.email)) {
-          alert("Por favor, introduce un correo electrónico válido.");
-          return;
-        }
-        if (State.password.length < 6) {
-          alert("La contraseña debe tener al menos 6 caracteres.");
-          return;
-        }
-
-        State.isLoading = true;
-
-        // Datos del nuevo usuario
-        // NOTA: Se envían las claves exactas que espera la base de datos (tabla usuarios)
-        const newUser = {
-            nombre: State.nombre,
-            email: State.email,
-            password: State.password,
-            nivel: State.nivel,
-            // Valores por defecto que quizás quieras forzar (aunque la BD ya tiene defaults)
-            foto: "https://api.dicebear.com/7.x/initials/svg?seed=" + State.nombre.substring(0,2) + "&backgroundColor=2ecc71"
+    <script>
+        // --- ESTADO ---
+        const State = {
+            form: {
+                nombre: "",
+                email: "",
+                password: "",
+                nivel: "2.5"
+            },
+            loading: false,
+            error: null
         };
 
-        // Petición al Backend
-        m.request({
-            method: "POST",
-            url: `${API_URL}?table=usuarios`,
-            body: newUser
-        })
-        .then(response => {
-            if (response.status === "ok" || response.id) {
-                // Registro Exitoso
-                // Construimos el objeto usuario para la sesión (LocalStorage)
-                // Así el usuario entra ya logueado
-                const sessionUser = {
-                    id: response.id,
-                    nombre: newUser.nombre,
-                    email: newUser.email,
-                    nivel: newUser.nivel,
-                    foto: newUser.foto
-                    // No guardamos la contraseña en localstorage por seguridad
-                };
+        // --- ACCIONES ---
+        const Actions = {
+            setInput: (field, value) => {
+                State.form[field] = value;
+                State.error = null;
+            },
 
-                localStorage.setItem("padel_user", JSON.stringify(sessionUser));
+            register: async (e) => {
+                e.preventDefault();
+                State.loading = true;
+                State.error = null;
+
+                if (!State.form.nombre || !State.form.email || !State.form.password) {
+                    State.error = "Todos los campos son obligatorios.";
+                    State.loading = false;
+                    return;
+                }
+
+                const res = await Auth.register(State.form);
+
+                if (res.success) {
+                    alert("¡Cuenta creada con éxito! Inicia sesión.");
+                    window.location.href = "login.html";
+                } else {
+                    State.error = res.error || "Error al registrarse.";
+                }
                 
-                // Redirigir
-                window.location.href = "index.html?auth=success";
-            } else {
-                alert("Error al registrar el usuario. Inténtalo de nuevo.");
-                State.isLoading = false;
+                State.loading = false;
+                m.redraw();
             }
-        })
-        .catch(err => {
-            console.error(err);
-            // Comprobamos si el error es por email duplicado (Constraint UNIQUE)
-            if (err.message && err.message.includes("UNIQUE")) {
-                alert("Este correo electrónico ya está registrado.");
-            } else {
-                alert("Error de conexión con el servidor.");
-            }
-            State.isLoading = false;
-        });
-      },
-      googleLogin: () => {
-        alert("Conectando con Google... (Próximamente)");
-      }
-    };
+        };
 
-    function LeftPanel() {
-      return {
-        view: () =>
-          m("div", { class: "hero-panel" }, [
-            m("img", { src: State.heroImage, class: "hero-img" }),
-            m("div", { class: "hero-overlay" }, [
-              m("h2", { class: "hero-title" }, "Únete al club."),
-              m("p", { class: "hero-text" }, "Crea tu perfil en 30 segundos y empieza a organizar tus partidas.")
-            ])
-          ])
-      };
-    }
+        // --- COMPONENTES ---
 
-    function RegisterForm() {
-      return {
-        view: () =>
-          m("div", { class: "form-panel" }, [
-            m("div", { class: "form-container animate-fade-up" }, [
-              m("h1", { class: "title" }, "Crear cuenta"),
-              m("p", { class: "subtitle" }, "Completa tus datos para empezar a jugar."),
-              m("form", { onsubmit: Actions.register }, [
-                m("div", { class: "form-group" }, [
-                  m("label", { class: "label" }, [
-                    "Nombre Completo ",
-                    m("span", { class: "text-red" }, "*")
-                  ]),
-                  m("input", {
-                    class: "input-field",
-                    required: true,
-                    placeholder: "Ej. Juan Pérez",
-                    oninput: (e) => (State.nombre = e.target.value)
-                  })
-                ]),
-                m("div", { class: "form-group" }, [
-                  m("label", { class: "label" }, [
-                    "Email ",
-                    m("span", { class: "text-red" }, "*")
-                  ]),
-                  m("input", {
-                    type: "email",
-                    class: "input-field",
-                    required: true,
-                    placeholder: "tu@email.com",
-                    oninput: (e) => (State.email = e.target.value)
-                  })
-                ]),
-                m("div", { class: "form-group" }, [
-                  m("label", { class: "label" }, "Nivel de Pádel"),
-                  m("select", {
-                    class: "input-field",
-                    style: "appearance: none;",
-                    onchange: (e) => (State.nivel = e.target.value)
-                  }, [
-                    m("option", { value: "1.0" }, "Iniciación (1.0 - 2.0)"),
-                    m("option", { value: "3.0" }, "Intermedio (3.0 - 4.0)"),
-                    m("option", { value: "5.0" }, "Avanzado / Pro (5.0+)")
-                  ])
-                ]),
-                m("div", { class: "form-group" }, [
-                  m("label", { class: "label" }, [
-                    "Contraseña ",
-                    m("span", { class: "text-red" }, "*")
-                  ]),
-                  m("input", {
-                    type: "password",
-                    class: "input-field",
-                    required: true,
-                    placeholder: "••••••••",
-                    oninput: (e) => (State.password = e.target.value)
-                  })
-                ]),
-                m("button", {
-                  type: "submit",
-                  disabled: State.isLoading,
-                  class: "btn-primary " + (State.isLoading ? "btn-disabled" : "btn-active")
-                }, State.isLoading ? "CREANDO CUENTA..." : "REGISTRARSE"),
-                m("p", { class: "text-tiny" }, [
-                  "Los campos marcados con ", m("span", { class: "text-red" }, "(*)"), " son obligatorios."
+        // 1. Panel Izquierdo (Imagen Diferente)
+        function HeroSide() {
+            return {
+                view: () => m("div", { class: "hero-side" }, [
+                    m("img", { 
+                        src: "https://images.unsplash.com/photo-1599423300746-b62533397364?q=80&w=2070", 
+                        class: "hero-bg" 
+                    }),
+                    m("div", { class: "hero-overlay" }),
+                    m("div", { class: "hero-content" }, [
+                        m("div", { 
+                            style: "background: var(--primary); width: 50px; height: 50px; display:flex; align-items:center; justify-content:center; border-radius:12px; font-weight:900; font-size:24px; margin-bottom:20px; box-shadow: 0 10px 20px rgba(0,0,0,0.3);" 
+                        }, "P"),
+                        m("h2", { class: "hero-title" }, "Sube de nivel."),
+                        m("p", { style: "font-size: 1.2rem; opacity: 0.8; font-weight:500; max-width: 400px;" }, 
+                            "Crea tu perfil en segundos y empieza a competir en la mejor liga local."
+                        )
+                    ])
                 ])
-              ]),
-              m("div", { class: "divider-container" }, [
-                m("div", { class: "divider-line" }, m("div", { class: "divider-hr" })),
-                m("div", { class: "divider-text-box" }, m("span", { class: "divider-text" }, "O continúe con"))
-              ]),
-              m("button", {
-                type: "button",
-                onclick: Actions.googleLogin,
-                class: "btn-google"
-              }, [m("span", { style: "font-size: 1.125rem;" }, "G"), "Google"]),
-              m("p", { class: "footer-link" }, [
-                "¿Ya tienes cuenta? ",
-                m("a", { href: "login.html", class: "accent-link" }, "Inicia sesión")
-              ])
-            ])
-          ])
-      };
-    }
+            };
+        }
 
-    const App = {
-      view: () => m("div", { class: "flex-container" }, [
-        m(LeftPanel),
-        m(RegisterForm)
-      ])
-    };
+        // 2. Formulario de Registro
+        function RegisterCard() {
+            return {
+                view: () => m("div", { class: "register-card" }, [
+                    m("form", { onsubmit: Actions.register }, [
+                        
+                        m("div", { class: "form-header" }, [
+                            m("h1", "Crear Cuenta"),
+                            m("p", { class: "subtitle" }, "Completa tus datos para unirte al club.")
+                        ]),
 
-    m.mount(document.getElementById("app"), App);
-  </script>
+                        State.error ? m("div", { class: "error-msg animate-fade-up" }, [
+                            m("span", "⚠️"), m("span", State.error)
+                        ]) : null,
+
+                        // Nombre
+                        m("div", { class: "form-group" }, [
+                            m("label", { class: "label" }, "Nombre Completo"),
+                            m("input", { 
+                                type: "text", 
+                                class: "input-field", 
+                                placeholder: "Ej. Carlos Pérez",
+                                value: State.form.nombre,
+                                oninput: (e) => Actions.setInput("nombre", e.target.value)
+                            })
+                        ]),
+
+                        // Email
+                        m("div", { class: "form-group" }, [
+                            m("label", { class: "label" }, "Correo Electrónico"),
+                            m("input", { 
+                                type: "email", 
+                                class: "input-field", 
+                                placeholder: "tu@email.com",
+                                value: State.form.email,
+                                oninput: (e) => Actions.setInput("email", e.target.value)
+                            })
+                        ]),
+
+                        // Password
+                        m("div", { class: "form-group" }, [
+                            m("label", { class: "label" }, "Contraseña"),
+                            m("input", { 
+                                type: "password", 
+                                class: "input-field", 
+                                placeholder: "Mínimo 6 caracteres",
+                                value: State.form.password,
+                                oninput: (e) => Actions.setInput("password", e.target.value)
+                            })
+                        ]),
+
+                        // Nivel
+                        m("div", { class: "form-group" }, [
+                            m("label", { class: "label" }, "Nivel Inicial"),
+                            m("select", { 
+                                class: "input-field",
+                                value: State.form.nivel,
+                                onchange: (e) => Actions.setInput("nivel", e.target.value)
+                            }, [
+                                m("option", { value: "1.0" }, "1.0 - Iniciación"),
+                                m("option", { value: "2.0" }, "2.0 - Principiante"),
+                                m("option", { value: "3.0" }, "3.0 - Intermedio"),
+                                m("option", { value: "4.0" }, "4.0 - Avanzado"),
+                                m("option", { value: "5.0" }, "5.0 - Profesional")
+                            ])
+                        ]),
+
+                        m("button", { 
+                            type: "submit", 
+                            class: "btn-primary",
+                            disabled: State.loading
+                        }, State.loading ? "Creando perfil..." : "REGISTRARME GRATIS"),
+
+                        m("div", { class: "form-footer" }, [
+                            m("span", "¿Ya eres miembro? "),
+                            m("a", { href: "login.html", class: "link" }, "Inicia sesión aquí")
+                        ])
+                    ])
+                ])
+            };
+        }
+
+        // --- LAYOUT ---
+        function Layout() {
+            return {
+                view: () => m("div", { class: "split-layout" }, [
+                    // Izquierda
+                    m(HeroSide),
+                    
+                    // Derecha
+                    m("div", { class: "form-side" }, [
+                        // Navbar flotante
+                        m("div", { class: "navbar-floating" }, [
+                            m("a", { href: "index.html", style: "text-decoration:none; color:var(--text-muted); font-size:12px; font-weight:700;" }, "VOLVER"),
+                            m(ThemeToggle)
+                        ]),
+                        m("a", { href: "index.html", class: "brand-mobile" }, [
+                            m("div", { style: "background:var(--primary); color:white; width:30px; height:30px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:bold;" }, "P"),
+                            m("span", "PADELPINTO")
+                        ]),
+
+                        m(RegisterCard)
+                    ])
+                ])
+            };
+        }
+
+        // --- INIT ---
+        m.mount(document.getElementById("app"), Layout);
+
+    </script>
 </body>
-
 </html>

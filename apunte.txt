@@ -2,6 +2,3 @@ la hora mas grande
 horas ocupadas rojo todo ocupado amarillo 2 libres y verde 4 libres
 calendario mismo codigo de color
 resaltar cosas precio hora jugadores duracion de las partidas
-
-
-00000000000

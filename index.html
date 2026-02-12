@@ -1,23 +1,29 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Padel Pinto Pro</title>
-    
+
     <script src="https://unpkg.com/mithril/mithril.js"></script>
-    
+
     <script src="api.js"></script>
     <script src="toggleTheme.js"></script>
+    <link rel="icon" type="image/svg+xml" href="src/favicon.svg" /> <!-- favicon -->
 
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
     <style>
         /* --- VARIABLES Y BASE --- */
         :root {
-            --primary: #22c55e;       /* Green 500 */
-            --primary-dark: #16a34a;  /* Green 600 */
-            --dark-bg: #0f172a;       /* Slate 900 */
+            --primary: #22c55e;
+            /* Green 500 */
+            --primary-dark: #16a34a;
+            /* Green 600 */
+            --dark-bg: #0f172a;
+            /* Slate 900 */
             --card-bg: #ffffff;
             --text-main: #1e293b;
             --text-muted: #94a3b8;
@@ -31,14 +37,33 @@
             background-color: #0f172a;
             color: #f8fafc;
         }
-        .dark .navbar, .dark .calendar-widget, .dark .court-card, .dark .time-btn {
+
+        .dark .navbar,
+        .dark .calendar-widget,
+        .dark .court-card,
+        .dark .time-btn {
             background-color: #1e293b;
             border-color: #334155;
         }
-        .dark .court-title, .dark h2, .dark h3 { color: white; }
-        .dark .cal-day:hover { background-color: #334155; }
-        .dark .time-btn { color: #cbd5e1; }
-        .dark .btn-action { background-color: #f8fafc; color: #0f172a; }
+
+        .dark .court-title,
+        .dark h2,
+        .dark h3 {
+            color: white;
+        }
+
+        .dark .cal-day:hover {
+            background-color: #334155;
+        }
+
+        .dark .time-btn {
+            color: #cbd5e1;
+        }
+
+        .dark .btn-action {
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -66,14 +91,17 @@
         }
 
         @media (min-width: 768px) {
-            .main-layout { flex-direction: row; }
+            .main-layout {
+                flex-direction: row;
+            }
         }
 
         .sidebar {
             width: 100%;
             max-width: 320px;
             flex-shrink: 0;
-            margin-top: -80px; /* Efecto flotante sobre el Hero */
+            margin-top: -80px;
+            /* Efecto flotante sobre el Hero */
             position: relative;
             z-index: 10;
         }
@@ -114,8 +142,15 @@
             justify-content: center;
         }
 
-        .nav-links { display: none; }
-        @media(min-width: 768px) { .nav-links { display: block; } }
+        .nav-links {
+            display: none;
+        }
+
+        @media(min-width: 768px) {
+            .nav-links {
+                display: block;
+            }
+        }
 
         .nav-links a {
             text-decoration: none;
@@ -127,7 +162,8 @@
             transition: color 0.3s;
         }
 
-        .nav-links a:hover, .nav-links a.active {
+        .nav-links a:hover,
+        .nav-links a.active {
             color: var(--primary);
         }
 
@@ -227,8 +263,14 @@
             transition: background 0.2s;
         }
 
-        .cal-day:hover { background: var(--border); }
-        .cal-day.selected { background: var(--primary); color: white; }
+        .cal-day:hover {
+            background: var(--border);
+        }
+
+        .cal-day.selected {
+            background: var(--primary);
+            color: white;
+        }
 
         /* --- SELECTOR DE HORA --- */
         .time-grid {
@@ -313,8 +355,15 @@
             text-transform: uppercase;
         }
 
-        .badge.private { background: #fef3c7; color: #d97706; }
-        .badge.public { background: #dcfce7; color: #166534; }
+        .badge.private {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .badge.public {
+            background: #dcfce7;
+            color: #166534;
+        }
 
         .progress-container {
             background: var(--border);
@@ -343,8 +392,10 @@
             color: white;
             transition: background 0.2s;
         }
-        
-        .btn-action:hover { opacity: 0.9; }
+
+        .btn-action:hover {
+            opacity: 0.9;
+        }
 
         .btn-action.full {
             background: var(--border);
@@ -357,6 +408,7 @@
             display: flex;
             margin-top: 5px;
         }
+
         .player-ball {
             width: 24px;
             height: 24px;
@@ -375,8 +427,11 @@
         /* --- MODAL --- */
         .modal-overlay {
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -393,7 +448,10 @@
             animation: fadeIn 0.3s ease-out;
         }
 
-        .dark .modal-content { background: #1e293b; color: white; }
+        .dark .modal-content {
+            background: #1e293b;
+            color: white;
+        }
 
         .modal-header {
             background: var(--dark-bg);
@@ -404,7 +462,9 @@
             align-items: center;
         }
 
-        .modal-body { padding: 25px; }
+        .modal-body {
+            padding: 25px;
+        }
 
         .input-code {
             width: 100%;
@@ -422,16 +482,32 @@
             color: inherit;
         }
 
-        .input-code:focus { border-color: var(--primary); }
+        .input-code:focus {
+            border-color: var(--primary);
+        }
 
-        .close-btn { background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer; }
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
+
 <body>
     <div id="app"></div>
 
@@ -489,7 +565,7 @@
                 State.modal.show = true;
                 State.modal.court = court;
                 State.modal.match = match; // Si hay match, es modo "Unirse"
-                
+
                 if (!match) {
                     // Modo Crear
                     State.modal.type = 'public';
@@ -501,7 +577,7 @@
 
             submitBooking: async () => {
                 const dateStr = State.selectedDate.toLocaleDateString('es-ES');
-                
+
                 // A. UNIRSE
                 if (State.modal.match) {
                     const res = await PadelData.unirseReserva(State.modal.match.id, State.modal.inputCode);
@@ -553,10 +629,10 @@
                             // Botón de tema
                             m(ThemeToggle),
                             m("span", { style: "margin: 0 10px" }), // Espaciador
-                            
-                            Auth.user 
-                            ? m("span", { style: "font-weight:bold; font-size: 14px;" }, Auth.user.nombre)
-                            : m("button", { class: "btn-primary", onclick: () => window.location.href="login.html" }, "ENTRAR")
+
+                            Auth.user
+                                ? m("span", { style: "font-weight:bold; font-size: 14px;" }, Auth.user.nombre)
+                                : m("button", { class: "btn-primary", onclick: () => window.location.href = "login.html" }, "ENTRAR")
                         ])
                     ])
                 ])
@@ -566,7 +642,7 @@
         function Hero() {
             return {
                 view: () => m("section", { class: "hero" }, [
-                    m("img", { src: "https://images.unsplash.com/photo-1530103862676-de3c9a59af38?q=80&w=2000", class: "hero-bg" }),
+                    m("img", { src: "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=2070&auto=format&fit=crop", class: "hero-bg" }),
                     m("div", { class: "hero-content" }, [
                         m("h1", "Juega como un Pro"),
                         m("button", { class: "btn-primary" }, "VER PISTAS DISPONIBLES")
@@ -578,27 +654,49 @@
         function CalendarWidget() {
             return {
                 view: () => {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0); // Normalizamos hoy para comparar
+
                     const year = State.selectedDate.getFullYear();
                     const month = State.selectedDate.getMonth();
                     const daysInMonth = new Date(year, month + 1, 0).getDate();
-                    const days = Array.from({length: daysInMonth}, (_, i) => i + 1);
+                    const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
                     return m("div", { class: "calendar-widget" }, [
                         m("div", { class: "cal-header" }, [
                             m("span", `${MONTHS[month]} ${year}`),
-                            m("div", [
-                                m("button", { class: "cal-day", onclick: () => Actions.selectDate(new Date(year, month - 1, 1)) }, "‹"),
-                                m("button", { class: "cal-day", onclick: () => Actions.selectDate(new Date(year, month + 1, 1)) }, "›")
+                            // Botones uno al lado del otro
+                            m("div", { class: "flex", style: "display: flex; gap: 4px;" }, [
+                                m("button", {
+                                    class: "cal-day",
+                                    onclick: () => Actions.selectDate(new Date(year, month - 1, 1))
+                                }, "‹"),
+                                m("button", {
+                                    class: "cal-day",
+                                    onclick: () => Actions.selectDate(new Date(year, month + 1, 1))
+                                }, "›")
                             ])
                         ]),
                         m("div", { class: "cal-grid" }, [
-                            ["L","M","X","J","V","S","D"].map(d => m("span", { class: "cal-day-name" }, d)),
+                            ["L", "M", "X", "J", "V", "S", "D"].map(d => m("span", { class: "cal-day-name" }, d)),
                             days.map(day => {
-                                const isSelected = day === State.selectedDate.getDate();
+                                const dateIter = new Date(year, month, day);
+                                const isSelected = day === State.selectedDate.getDate() && month === State.selectedDate.getMonth();
+                                const isToday = dateIter.getTime() === today.getTime();
+                                const isPast = dateIter < today;
+
                                 return m("button", {
                                     class: `cal-day ${isSelected ? 'selected' : ''}`,
-                                    onclick: () => Actions.selectDate(new Date(year, month, day))
-                                }, day);
+                                    style: `position: relative; ${isPast ? 'opacity: 0.4; cursor: default;' : ''}`,
+                                    onclick: () => !isPast && Actions.selectDate(new Date(year, month, day)),
+                                    disabled: isPast
+                                }, [
+                                    m("span", day),
+                                    // Punto indicador de día actual
+                                    isToday ? m("div", {
+                                        style: "position: absolute; bottom: 4px; width: 4px; height: 4px; border-radius: 50%; background: " + (isSelected ? "white" : "var(--primary)")
+                                    }) : null
+                                ]);
                             })
                         ])
                     ]);
@@ -608,7 +706,7 @@
 
         function TimeSelector() {
             return {
-                view: () => m("div", { class: "time-grid" }, 
+                view: () => m("div", { class: "time-grid" },
                     HOURS.map(h => m("button", {
                         class: `time-btn ${State.selectedTime === h ? 'selected' : ''}`,
                         onclick: () => State.selectedTime = h
@@ -626,9 +724,9 @@
                     const isPrivate = match && match.tipo === 'private';
 
                     return m("div", { class: "court-card" }, [
-                        m("img", { 
-                            class: "court-img", 
-                            src: court.foto_url || "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea" 
+                        m("img", {
+                            class: "court-img",
+                            src: court.foto_url || "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea"
                         }),
                         m("div", { class: "court-info" }, [
                             m("div", [
@@ -641,13 +739,13 @@
                                     m("span", `${players.length}/4 Jugadores`)
                                 ]),
                                 m("div", { class: "progress-container" }, [
-                                    m("div", { 
-                                        class: "progress-bar", 
-                                        style: `width: ${(players.length/4)*100}%` 
+                                    m("div", {
+                                        class: "progress-bar",
+                                        style: `width: ${(players.length / 4) * 100}%`
                                     })
                                 ]),
                                 // Ranking Balls
-                                m("div", { class: "ranking-container" }, 
+                                m("div", { class: "ranking-container" },
                                     players.map(p => m("div", { class: "player-ball", title: p.nombre }, Math.round(p.nivel)))
                                 )
                             ]),
@@ -666,7 +764,7 @@
                 view: () => {
                     if (!State.modal.show) return null;
                     const { isJoining, type } = State.modal; // Leemos estado
-                    const isJoinMode = !!State.modal.match; 
+                    const isJoinMode = !!State.modal.match;
                     const isPrivate = State.modal.type === 'private';
 
                     return m("div", { class: "modal-overlay" }, [
@@ -676,43 +774,43 @@
                                 m("button", { class: "close-btn", onclick: () => State.modal.show = false }, "✕")
                             ]),
                             m("div", { class: "modal-body" }, [
-                                
+
                                 // CASO 1: CREAR RESERVA
                                 !isJoinMode ? [
                                     m("div", { style: "margin-bottom:20px; display:flex; gap:10px" }, [
-                                        m("button", { 
+                                        m("button", {
                                             class: `time-btn ${State.modal.type === 'public' ? 'selected' : ''}`,
                                             style: "flex:1",
                                             onclick: () => State.modal.type = 'public'
                                         }, "Pública (Ranking)"),
-                                        m("button", { 
+                                        m("button", {
                                             class: `time-btn ${State.modal.type === 'private' ? 'selected' : ''}`,
                                             style: "flex:1",
                                             onclick: () => State.modal.type = 'private'
                                         }, "Privada (Código)")
                                     ]),
-                                    
-                                    State.modal.type === 'private' 
-                                    ? m("div", { style: "text-align:center; background:#f0f9ff; padding:15px; border-radius:15px; margin-bottom:20px; border:1px solid #bae6fd;" }, [
-                                        m("p", { style: "margin:0 0 5px 0; font-size:10px; font-weight:800; color:#0369a1" }, "TU CÓDIGO DE ACCESO"),
-                                        m("div", { style: "font-size:24px; font-weight:900; letter-spacing:3px; color:#0f172a;" }, State.modal.generatedCode)
-                                      ])
-                                    : m("p", { style: "font-size:12px; color:var(--text-muted); margin-bottom:20px" }, "La partida será visible para todos. Se mostrará tu nivel para equilibrar el juego.")
-                                ] 
-                                
-                                // CASO 2: UNIRSE
-                                : [
-                                    State.modal.match.tipo === 'private'
-                                    ? m("div", [
-                                        m("p", { style: "font-size:12px; margin-bottom:10px; font-weight:700" }, "Introduce el código de invitación:"),
-                                        m("input", { 
-                                            class: "input-code", 
-                                            placeholder: "CÓDIGO",
-                                            oninput: (e) => State.modal.inputCode = e.target.value
-                                        })
-                                      ])
-                                    : m("p", { style: "margin-bottom:20px" }, "¿Confirmas unirte a esta partida pública?")
-                                ],
+
+                                    State.modal.type === 'private'
+                                        ? m("div", { style: "text-align:center; background:#f0f9ff; padding:15px; border-radius:15px; margin-bottom:20px; border:1px solid #bae6fd;" }, [
+                                            m("p", { style: "margin:0 0 5px 0; font-size:10px; font-weight:800; color:#0369a1" }, "TU CÓDIGO DE ACCESO"),
+                                            m("div", { style: "font-size:24px; font-weight:900; letter-spacing:3px; color:#0f172a;" }, State.modal.generatedCode)
+                                        ])
+                                        : m("p", { style: "font-size:12px; color:var(--text-muted); margin-bottom:20px" }, "La partida será visible para todos. Se mostrará tu nivel para equilibrar el juego.")
+                                ]
+
+                                    // CASO 2: UNIRSE
+                                    : [
+                                        State.modal.match.tipo === 'private'
+                                            ? m("div", [
+                                                m("p", { style: "font-size:12px; margin-bottom:10px; font-weight:700" }, "Introduce el código de invitación:"),
+                                                m("input", {
+                                                    class: "input-code",
+                                                    placeholder: "CÓDIGO",
+                                                    oninput: (e) => State.modal.inputCode = e.target.value
+                                                })
+                                            ])
+                                            : m("p", { style: "margin-bottom:20px" }, "¿Confirmas unirte a esta partida pública?")
+                                    ],
 
                                 m("div", { style: "display:flex; gap:10px" }, [
                                     m("button", { class: "btn-action full", style: "flex:1", onclick: () => State.modal.show = false }, "CANCELAR"),
@@ -741,18 +839,18 @@
                                 m("h2", { style: "font-weight:800; margin:0" }, "Pistas Disponibles"),
                                 m("span", { style: "background:var(--primary); color:white; padding:5px 10px; border-radius:20px; font-weight:bold; font-size:12px" }, `${State.selectedTime}H`)
                             ]),
-                            State.loading 
-                            ? m("p", { style: "color:var(--text-muted)" }, "Cargando pistas...") 
-                            : m("div", { class: "courts-list" }, 
-                                State.courts.map(court => {
-                                    // Buscar reserva para esta pista y hora
-                                    const match = State.reservations.find(r => 
-                                        parseInt(r.pista_id) === parseInt(court.id) && 
-                                        r.hora === State.selectedTime
-                                    );
-                                    return m(CourtCard, { court, match });
-                                })
-                              )
+                            State.loading
+                                ? m("p", { style: "color:var(--text-muted)" }, "Cargando pistas...")
+                                : m("div", { class: "courts-list" },
+                                    State.courts.map(court => {
+                                        // Buscar reserva para esta pista y hora
+                                        const match = State.reservations.find(r =>
+                                            parseInt(r.pista_id) === parseInt(court.id) &&
+                                            r.hora === State.selectedTime
+                                        );
+                                        return m(CourtCard, { court, match });
+                                    })
+                                )
                         ])
                     ]),
                     m(BookingModal)
@@ -768,4 +866,5 @@
 
     </script>
 </body>
+
 </html>

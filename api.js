@@ -79,6 +79,16 @@ const Auth = {
 // --- LÓGICA DE PÁDEL (DATOS) ---
 const PadelData = {
     
+    // Obtener lista de ranking
+    getRanking: async () => {
+        try {
+            return await m.request({ method: "GET", url: `${API_URL}?action=ranking` });
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
+    },
+
     // Obtener lista de pistas
     getPistas: async () => {
         try {

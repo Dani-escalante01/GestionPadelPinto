@@ -8,7 +8,7 @@
     <script src="https://components.digitalvalue.es/lib/mithril.min.js"></script>
     <script src="api.js"></script>
     <script src="toggleTheme.js"></script>
-    <link rel="icon" type="image/svg+xml" href="src/favicon.svg" /> <!-- favicon -->
+    <link rel="icon" type="image/svg+xml" href="src/favicon.svg" />
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
@@ -28,6 +28,15 @@
             --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
         }
 
+        /* Variables para MODO OSCURO */
+        .dark {
+            --bg-dirty-white: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
         .dark body {
             background-color: #0f172a;
             color: #f8fafc;
@@ -35,18 +44,25 @@
 
         .dark .form-side {
             background-color: #020617;
+            /* Un poco más oscuro que el fondo general */
         }
 
         /* Fondo oscuro en modo noche */
         .dark .login-card {
-            background-color: #1e293b;
-            border-color: #334155;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
         }
 
         .dark .input-field {
             background-color: #0f172a;
-            border-color: #334155;
+            border-color: var(--border);
             color: white;
+        }
+
+        .dark .input-field:focus {
+            border-color: var(--primary);
+            background-color: #0f172a;
         }
 
         .dark .label {
@@ -65,23 +81,21 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            /* Evitar scroll en layout full */
+            overflow: auto;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         /* --- 2. LAYOUT SPLIT --- */
         .split-layout {
             display: flex;
             flex: 1;
-            height: 100%;
+            min-height: 100vh;
             width: 100%;
         }
 
-        /* Lado Izquierdo (Imagen Full) */
         .hero-side {
             display: none;
             flex: 1.2;
-            /* Un poco más ancho para dar impacto */
             position: relative;
             background-color: var(--dark-bg);
             overflow: hidden;
@@ -102,7 +116,6 @@
             opacity: 0.6;
             mix-blend-mode: overlay;
             transform: scale(1.05);
-            /* Zoom sutil */
         }
 
         .hero-overlay {
@@ -113,12 +126,13 @@
         }
 
         .hero-content {
-            position: relative;
             z-index: 2;
             padding: 60px;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end;
+            justify-content: flex-start;
+            padding-top: 25vh;
+            /* AJUSTE PRECISO: Pone el texto un poco por encima del centro */
             height: 100%;
             color: white;
         }
@@ -131,7 +145,6 @@
             letter-spacing: -1px;
         }
 
-        /* Lado Derecho (Formulario) */
         .form-side {
             flex: 1;
             display: flex;
@@ -139,9 +152,9 @@
             align-items: center;
             justify-content: center;
             background-color: var(--bg-dirty-white);
-            /* Color de fondo para contraste */
             position: relative;
             padding: 20px;
+            transition: background-color 0.3s ease;
         }
 
         /* --- NAVBAR FLOTANTE --- */
@@ -153,6 +166,22 @@
             display: flex;
             align-items: center;
             gap: 20px;
+        }
+
+        .nav-link-back {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 700;
+            transition: color 0.3s;
+        }
+
+        .dark .nav-link-back {
+            color: #94a3b8;
+        }
+
+        .nav-link-back:hover {
+            color: var(--primary);
         }
 
         .brand-mobile {
@@ -174,18 +203,16 @@
             }
         }
 
-        /* --- TARJETA DE LOGIN (Pop-up style) --- */
+        /* --- TARJETA DE LOGIN --- */
         .login-card {
             background-color: var(--card-bg);
             width: 100%;
             max-width: 420px;
             padding: 40px;
-            /* Más padding para aire */
             border-radius: 32px;
-            /* Bordes muy redondeados */
             box-shadow: var(--shadow);
-            /* Sombra suave para "elevarlo" del fondo */
             animation: fadeIn 0.6s ease-out;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
 
         .form-header {
@@ -198,6 +225,7 @@
             font-weight: 800;
             margin: 0 0 10px 0;
             letter-spacing: -0.5px;
+            color: var(--text-main);
         }
 
         .subtitle {
@@ -224,19 +252,19 @@
             width: 100%;
             padding: 14px 16px;
             border-radius: 12px;
-            border: 2px solid var(--bg-dirty-white);
-            /* Borde sutil */
+            border: 2px solid var(--border);
             background-color: #f8fafc;
             font-size: 14px;
             font-weight: 600;
             outline: none;
             transition: all 0.2s;
             box-sizing: border-box;
+            color: var(--text-main);
         }
 
         .input-field:focus {
             border-color: var(--primary);
-            background-color: white;
+            background-color: var(--card-bg);
             box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
         }
 
@@ -301,6 +329,56 @@
             text-decoration: underline;
         }
 
+        /* --- ESTILOS DEL BOTÓN TOGGLE --- */
+        .theme-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            padding: 0;
+            cursor: pointer;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            background-color: var(--card-bg);
+            color: var(--text-muted);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            outline: none;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-1px);
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        /* Toggle en Oscuro */
+        .dark .theme-toggle {
+            background-color: #1e293b;
+            border-color: #334155;
+            color: #fbbf24;
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.1);
+        }
+
+        .dark .theme-toggle:hover {
+            border-color: #fbbf24;
+            background-color: #334155;
+        }
+
+        .theme-toggle svg {
+            transition: transform 0.5s ease;
+        }
+
+        .theme-toggle:hover svg {
+            transform: rotate(15deg);
+        }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -319,6 +397,7 @@
     <div id="app"></div>
 
     <script>
+
         // --- ESTADO ---
         const State = {
             email: "",
@@ -341,12 +420,8 @@
                 }
 
                 try {
-                    // Llamada a la API (Usando la nueva función Auth.login de api.js)
                     const res = await Auth.login(State.email, State.password);
-
                     if (res.success) {
-                        console.log("Login correcto:", res);
-                        // Redirigir al index
                         window.location.href = "index.html";
                     } else {
                         State.error = res.error || "Email o contraseña incorrectos.";
@@ -363,7 +438,6 @@
 
         // --- COMPONENTES ---
 
-        // 1. Panel Izquierdo (Imagen Full)
         function HeroSide() {
             return {
                 view: () => m("div", { class: "hero-side" }, [
@@ -374,7 +448,7 @@
                     m("div", { class: "hero-overlay" }),
                     m("div", { class: "hero-content" }, [
                         m("div", {
-                            style: "background: var(--primary); width: 50px; height: 50px; display:flex; align-items:center; justify-content:center; border-radius:12px; font-weight:900; font-size:24px; margin-bottom:20px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); color:white;"
+                            style: "background: var(--primary); width: 50px; height: 50px; display:flex; align-items:center; justify-content:center; border-radius:12px; font-weight:900; font-size:24px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); color:white;"
                         }, "P"),
                         m("h2", { class: "hero-title" }, "Bienvenido de nuevo."),
                         m("p", { style: "font-size: 1.2rem; opacity: 0.8; font-weight:500; max-width: 400px;" },
@@ -385,7 +459,6 @@
             };
         }
 
-        // 2. Formulario en Tarjeta
         function LoginCard() {
             return {
                 view: () => m("div", { class: "login-card" }, [
@@ -396,12 +469,10 @@
                             m("p", { class: "subtitle" }, "Introduce tus credenciales para acceder.")
                         ]),
 
-                        // Error
                         State.error ? m("div", { class: "error-msg animate-fade-up" }, [
                             m("span", "⚠️"), m("span", State.error)
                         ]) : null,
 
-                        // Email
                         m("div", { class: "form-group" }, [
                             m("label", { class: "label" }, "Correo Electrónico"),
                             m("input", {
@@ -413,7 +484,6 @@
                             })
                         ]),
 
-                        // Password
                         m("div", { class: "form-group" }, [
                             m("div", { style: "display:flex; justify-content:space-between;" }, [
                                 m("label", { class: "label" }, "Contraseña"),
@@ -446,31 +516,32 @@
         // --- LAYOUT ---
         function Layout() {
             return {
-                view: () => m("div", { class: "split-layout" }, [
-                    // Izquierda
-                    m(HeroSide),
+                view: () => {
+                    // IMPORTANTE: Esto activa el CSS del modo oscuro en el HTML
+                    document.documentElement.classList.toggle('dark', ThemeState.darkMode);
 
-                    // Derecha (Fondo manchado + Tarjeta blanca)
-                    m("div", { class: "form-side" }, [
-                        // Navbar solo para botón de tema y home en móvil
-                        m("div", { class: "navbar-floating" }, [
-                            m("a", { href: "index.html", style: "text-decoration:none; color:var(--text-muted); font-size:12px; font-weight:700;" }, "VOLVER AL INICIO"),
-                            m(ThemeToggle)
-                        ]),
-                        m("a", { href: "index.html", class: "brand-mobile" }, [
-                            m("div", { style: "background:var(--primary); color:white; width:30px; height:30px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:bold;" }, "P"),
-                            m("span", { style: "margin-left:10px" }, "PADELPINTO")
-                        ]),
-
-                        m(LoginCard)
-                    ])
-                ])
+                    return m("div", { class: "split-layout" }, [
+                        m(HeroSide),
+                        m("div", { class: "form-side" }, [
+                            m("div", { class: "navbar-floating" }, [
+                                m("a", {
+                                    href: "index.html",
+                                    class: "nav-link-back" // Clase nueva para mejor hover/dark mode
+                                }, "VOLVER AL INICIO"),
+                                m(ThemeToggle)
+                            ]),
+                            m("a", { href: "index.html", class: "brand-mobile" }, [
+                                m("div", { style: "background:var(--primary); color:white; width:30px; height:30px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:bold;" }, "P"),
+                                m("span", { style: "margin-left:10px" }, "PADELPINTO")
+                            ]),
+                            m(LoginCard)
+                        ])
+                    ]);
+                }
             };
         }
 
-        // --- INIT ---
         m.mount(document.getElementById("app"), Layout);
-
     </script>
 </body>
 

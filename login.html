@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión - Padel Pinto</title>
-    <script src="https://unpkg.com/mithril/mithril.js"></script>
+    <script src="https://components.digitalvalue.es/lib/mithril.min.js"></script>
     <script src="api.js"></script>
     <script src="toggleTheme.js"></script>
     <link rel="icon" type="image/svg+xml" href="src/favicon.svg" /> <!-- favicon -->
 
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
     <style>
         /* --- 1. VARIABLES & RESET --- */
         :root {
@@ -26,13 +28,35 @@
             --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
         }
 
-        .dark body { background-color: #0f172a; color: #f8fafc; }
-        .dark .form-side { background-color: #020617; } /* Fondo oscuro en modo noche */
-        .dark .login-card { background-color: #1e293b; border-color: #334155; }
-        .dark .input-field { background-color: #0f172a; border-color: #334155; color: white; }
-        .dark .label { color: #cbd5e1; }
-        .dark .brand-mobile { color: white; }
-        
+        .dark body {
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        .dark .form-side {
+            background-color: #020617;
+        }
+
+        /* Fondo oscuro en modo noche */
+        .dark .login-card {
+            background-color: #1e293b;
+            border-color: #334155;
+        }
+
+        .dark .input-field {
+            background-color: #0f172a;
+            border-color: #334155;
+            color: white;
+        }
+
+        .dark .label {
+            color: #cbd5e1;
+        }
+
+        .dark .brand-mobile {
+            color: white;
+        }
+
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             margin: 0;
@@ -41,7 +65,8 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* Evitar scroll en layout full */
+            overflow: hidden;
+            /* Evitar scroll en layout full */
         }
 
         /* --- 2. LAYOUT SPLIT --- */
@@ -55,14 +80,17 @@
         /* Lado Izquierdo (Imagen Full) */
         .hero-side {
             display: none;
-            flex: 1.2; /* Un poco más ancho para dar impacto */
+            flex: 1.2;
+            /* Un poco más ancho para dar impacto */
             position: relative;
             background-color: var(--dark-bg);
             overflow: hidden;
         }
 
         @media (min-width: 900px) {
-            .hero-side { display: flex; }
+            .hero-side {
+                display: flex;
+            }
         }
 
         .hero-bg {
@@ -73,7 +101,8 @@
             object-fit: cover;
             opacity: 0.6;
             mix-blend-mode: overlay;
-            transform: scale(1.05); /* Zoom sutil */
+            transform: scale(1.05);
+            /* Zoom sutil */
         }
 
         .hero-overlay {
@@ -109,7 +138,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background-color: var(--bg-dirty-white); /* Color de fondo para contraste */
+            background-color: var(--bg-dirty-white);
+            /* Color de fondo para contraste */
             position: relative;
             padding: 20px;
         }
@@ -137,25 +167,48 @@
             color: var(--text-main);
             text-decoration: none;
         }
-        @media (min-width: 900px) { .brand-mobile { display: none; } }
+
+        @media (min-width: 900px) {
+            .brand-mobile {
+                display: none;
+            }
+        }
 
         /* --- TARJETA DE LOGIN (Pop-up style) --- */
         .login-card {
             background-color: var(--card-bg);
             width: 100%;
             max-width: 420px;
-            padding: 40px; /* Más padding para aire */
-            border-radius: 32px; /* Bordes muy redondeados */
-            box-shadow: var(--shadow); /* Sombra suave para "elevarlo" del fondo */
+            padding: 40px;
+            /* Más padding para aire */
+            border-radius: 32px;
+            /* Bordes muy redondeados */
+            box-shadow: var(--shadow);
+            /* Sombra suave para "elevarlo" del fondo */
             animation: fadeIn 0.6s ease-out;
         }
 
-        .form-header { margin-bottom: 30px; text-align: left; }
-        
-        h1 { font-size: 28px; font-weight: 800; margin: 0 0 10px 0; letter-spacing: -0.5px; }
-        .subtitle { color: var(--text-muted); font-size: 14px; font-weight: 500; }
+        .form-header {
+            margin-bottom: 30px;
+            text-align: left;
+        }
 
-        .form-group { margin-bottom: 20px; }
+        h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin: 0 0 10px 0;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
 
         .label {
             display: block;
@@ -171,7 +224,8 @@
             width: 100%;
             padding: 14px 16px;
             border-radius: 12px;
-            border: 2px solid var(--bg-dirty-white); /* Borde sutil */
+            border: 2px solid var(--bg-dirty-white);
+            /* Borde sutil */
             background-color: #f8fafc;
             font-size: 14px;
             font-weight: 600;
@@ -235,13 +289,32 @@
             font-weight: 500;
         }
 
-        .link { color: var(--primary); font-weight: 800; text-decoration: none; transition: color 0.2s; }
-        .link:hover { color: var(--primary-dark); text-decoration: underline; }
+        .link {
+            color: var(--primary);
+            font-weight: 800;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .link:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
 
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
+
 <body>
     <div id="app"></div>
 
@@ -282,7 +355,7 @@
                     console.error(err);
                     State.error = "Error al conectar con el servidor.";
                 }
-                
+
                 State.loading = false;
                 m.redraw();
             }
@@ -294,17 +367,17 @@
         function HeroSide() {
             return {
                 view: () => m("div", { class: "hero-side" }, [
-                    m("img", { 
-                        src: "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=2070", 
-                        class: "hero-bg" 
+                    m("img", {
+                        src: "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=2070",
+                        class: "hero-bg"
                     }),
                     m("div", { class: "hero-overlay" }),
                     m("div", { class: "hero-content" }, [
-                        m("div", { 
-                            style: "background: var(--primary); width: 50px; height: 50px; display:flex; align-items:center; justify-content:center; border-radius:12px; font-weight:900; font-size:24px; margin-bottom:20px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); color:white;" 
+                        m("div", {
+                            style: "background: var(--primary); width: 50px; height: 50px; display:flex; align-items:center; justify-content:center; border-radius:12px; font-weight:900; font-size:24px; margin-bottom:20px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); color:white;"
                         }, "P"),
                         m("h2", { class: "hero-title" }, "Bienvenido de nuevo."),
-                        m("p", { style: "font-size: 1.2rem; opacity: 0.8; font-weight:500; max-width: 400px;" }, 
+                        m("p", { style: "font-size: 1.2rem; opacity: 0.8; font-weight:500; max-width: 400px;" },
                             "Gestiona tus reservas y conecta con tu comunidad de pádel."
                         )
                     ])
@@ -317,7 +390,7 @@
             return {
                 view: () => m("div", { class: "login-card" }, [
                     m("form", { onsubmit: Actions.login }, [
-                        
+
                         m("div", { class: "form-header" }, [
                             m("h1", "Iniciar Sesión"),
                             m("p", { class: "subtitle" }, "Introduce tus credenciales para acceder.")
@@ -331,9 +404,9 @@
                         // Email
                         m("div", { class: "form-group" }, [
                             m("label", { class: "label" }, "Correo Electrónico"),
-                            m("input", { 
-                                type: "email", 
-                                class: "input-field", 
+                            m("input", {
+                                type: "email",
+                                class: "input-field",
                                 placeholder: "ejemplo@padel.com",
                                 value: State.email,
                                 oninput: (e) => State.email = e.target.value
@@ -346,17 +419,17 @@
                                 m("label", { class: "label" }, "Contraseña"),
                                 m("a", { href: "#", style: "font-size:11px; color:var(--primary); font-weight:700; text-decoration:none;" }, "¿Olvidaste?")
                             ]),
-                            m("input", { 
-                                type: "password", 
-                                class: "input-field", 
+                            m("input", {
+                                type: "password",
+                                class: "input-field",
                                 placeholder: "••••••••",
                                 value: State.password,
                                 oninput: (e) => State.password = e.target.value
                             })
                         ]),
 
-                        m("button", { 
-                            type: "submit", 
+                        m("button", {
+                            type: "submit",
                             class: "btn-primary",
                             disabled: State.loading
                         }, State.loading ? "Verificando..." : "ACCEDER A MI CUENTA"),
@@ -376,7 +449,7 @@
                 view: () => m("div", { class: "split-layout" }, [
                     // Izquierda
                     m(HeroSide),
-                    
+
                     // Derecha (Fondo manchado + Tarjeta blanca)
                     m("div", { class: "form-side" }, [
                         // Navbar solo para botón de tema y home en móvil
@@ -400,4 +473,5 @@
 
     </script>
 </body>
+
 </html>

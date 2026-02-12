@@ -1,668 +1,971 @@
 <!DOCTYPE html>
-
 <html lang="es">
 
-<head> <meta charset="UTF-8" /> <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <title>Padel Pinto - Mi Perfil</title> <script src="https://unpkg.com/mithril/mithril.js"></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script> <script src="toggleTheme.js"></script> <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet" /> <link rel="icon" type="image/svg+xml" href="src/favicon.svg" />
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Padel Pinto - Mi Perfil</title>
+    <script src="https://components.digitalvalue.es/lib/mithril.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="toggleTheme.js"></script>
+    <link rel="icon" type="image/svg+xml" href="src/favicon.svg" /> <!-- favicon -->
 
-<style>
-    :root {
-        /* Palette mapped from Tailwind values */
-        --slate-50: #f8fafc;
-        --slate-100: #f1f5f9;
-        --slate-200: #e2e8f0;
-        --slate-300: #cbd5e1;
-        --slate-400: #94a3b8;
-        --slate-500: #64748b;
-        --slate-600: #475569;
-        --slate-700: #334155;
-        --slate-800: #1e293b;
-        --slate-900: #0f172a;
-        
-        --green-200: #bbf7d0;
-        --green-400: #4ade80;
-        --green-500: #22c55e;
-        --green-600: #16a34a;
-        --green-900: #14532d;
-        
-        --red-50: #fef2f2;
-        --red-500: #ef4444;
-        --red-900: #7f1d1d;
-        
-        --white: #ffffff;
-        --black: #000000;
-    }
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
 
-    *, *::before, *::after {
-        box-sizing: border-box;
-    }
+    <style>
+        :root {
+            /* Palette mapped from Tailwind values */
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-300: #cbd5e1;
+            --slate-400: #94a3b8;
+            --slate-500: #64748b;
+            --slate-600: #475569;
+            --slate-700: #334155;
+            --slate-800: #1e293b;
+            --slate-900: #0f172a;
 
-    body {
-        font-family: "Plus Jakarta Sans", sans-serif;
-        margin: 0;
-        padding: 0;
-        transition: background-color 0.5s ease;
-    }
+            --green-200: #bbf7d0;
+            --green-400: #4ade80;
+            --green-500: #22c55e;
+            --green-600: #16a34a;
+            --green-900: #14532d;
 
-    /* App Wrapper */
-    .app-root {
-        min-height: 100vh;
-        transition: background-color 0.5s;
-    }
-    .app-root.light { background-color: var(--white); }
-    .app-root.dark { background-color: var(--slate-900); }
+            --red-50: #fef2f2;
+            --red-500: #ef4444;
+            --red-900: #7f1d1d;
 
-    /* Utilities */
-    .hidden { display: none; }
-    .flex { display: flex; }
-    .flex-col { flex-direction: column; }
-    .items-center { align-items: center; }
-    .justify-between { justify-content: space-between; }
-    .justify-center { justify-content: center; }
-    .w-full { width: 100%; }
-    .cursor-pointer { cursor: pointer; }
-    .uppercase { text-transform: uppercase; }
-    .transition { transition: all 0.2s ease; }
-    
-    /* Navbar */
-    .navbar {
-        border-bottom: 1px solid;
-        position: sticky;
-        top: 0;
-        z-index: 50;
-        padding: 1rem 1.5rem;
-        transition: background-color 0.5s, border-color 0.5s;
-    }
-    .navbar.light { background-color: var(--white); border-color: var(--slate-200); }
-    .navbar.dark { background-color: var(--slate-900); border-color: var(--slate-800); }
+            --white: #ffffff;
+            --black: #000000;
+        }
 
-    .navbar-content {
-        max-width: 64rem;
-        margin: 0 auto;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
 
-    .logo-box {
-        width: 2rem;
-        height: 2rem;
-        background-color: var(--green-500);
-        border-radius: 0.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--white);
-        font-weight: 900;
-    }
-    
-    .logo-text { font-weight: 900; }
-    .logo-text.light { color: var(--slate-800); }
-    .logo-text.dark { color: var(--white); }
+        body {
+            font-family: "Plus Jakarta Sans", sans-serif;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.5s ease;
+        }
 
-    .nav-link {
-        font-size: 0.75rem;
-        font-weight: 700;
-        background: none;
-        border: none;
-        cursor: pointer;
-        transition: color 0.2s;
-    }
-    .nav-link.light { color: var(--slate-500); }
-    .nav-link.light:hover { color: var(--green-600); }
-    .nav-link.dark { color: var(--slate-400); }
-    .nav-link.dark:hover { color: var(--green-400); }
+        /* App Wrapper */
+        .app-root {
+            min-height: 100vh;
+            transition: background-color 0.5s;
+        }
 
-    /* Profile Card Structure */
-    .profile-container {
-        max-width: 64rem;
-        margin: 0 auto;
-        padding: 1.5rem;
-    }
+        .app-root.light {
+            background-color: var(--white);
+        }
 
-    .profile-card {
-        border-radius: 40px;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        border: 1px solid;
-        transition: background-color 0.5s, border-color 0.5s;
-        overflow: hidden;
-    }
-    .profile-card.light { background-color: var(--white); border-color: var(--slate-100); }
-    .profile-card.dark { background-color: var(--slate-800); border-color: var(--slate-700); }
+        .app-root.dark {
+            background-color: var(--slate-900);
+        }
 
-    .profile-gradient {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-    }
-    .header-bg { height: 10rem; }
+        /* Utilities */
+        .hidden {
+            display: none;
+        }
 
-    .profile-body { padding: 0 2rem 2rem 2rem; }
-    
-    .profile-header-row {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 1.5rem;
-        margin-top: -4rem;
-        margin-bottom: 2rem;
-    }
+        .flex {
+            display: flex;
+        }
 
-    .avatar-wrapper { position: relative; }
-    .avatar-img {
-        width: 8rem;
-        height: 8rem;
-        border-radius: 32px;
-        border-width: 8px;
-        border-style: solid;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        object-fit: cover;
-        background-color: var(--white);
-    }
-    .avatar-img.light { border-color: var(--white); }
-    .avatar-img.dark { border-color: var(--slate-800); }
+        .flex-col {
+            flex-direction: column;
+        }
 
-    .avatar-overlay {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: rgba(0, 0, 0, 0.4);
-        border-radius: 32px;
-        cursor: pointer;
-        color: var(--white);
-        font-size: 10px;
-        font-weight: 700;
-        opacity: 0;
-        transition: opacity 0.2s;
-    }
-    .avatar-wrapper:hover .avatar-overlay { opacity: 1; }
+        .items-center {
+            align-items: center;
+        }
 
-    .user-info { flex: 1; margin-bottom: 0.5rem; margin-top: 5rem; }
-    .user-name { font-size: 1.875rem; font-weight: 900; margin: 0; }
-    .user-name.light { color: var(--slate-800); }
-    .user-name.dark { color: var(--white); }
-    .user-level { font-size: 0.875rem; font-weight: 700; color: var(--slate-400); text-transform: uppercase; letter-spacing: 0.1em; margin: 0; }
+        .justify-between {
+            justify-content: space-between;
+        }
 
-    .btn-edit {
-        padding: 0.75rem 1.5rem;
-        border-radius: 1rem;
-        font-size: 0.75rem;
-        font-weight: 700;
-        border: none;
-        cursor: pointer;
-        transition: background-color 0.2s;
-        margin-bottom: 0.5rem;
-    }
-    .btn-edit.light { background-color: var(--slate-900); color: var(--white); }
-    .btn-edit.light:hover { background-color: var(--slate-800); }
-    .btn-edit.dark { background-color: var(--white); color: var(--slate-900); }
-    .btn-edit.dark:hover { background-color: var(--slate-200); }
+        .justify-center {
+            justify-content: center;
+        }
 
-    /* Grid Layouts */
-    .main-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 3rem;
-    }
+        .w-full {
+            width: 100%;
+        }
 
-    .details-col { }
-    .stats-col { }
+        .cursor-pointer {
+            cursor: pointer;
+        }
 
-    .details-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
+        .uppercase {
+            text-transform: uppercase;
+        }
 
-    /* Inputs and Cards */
-    .section-title {
-        font-size: 0.875rem;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 1.5rem;
-        margin-top: 0;
-    }
-    .section-title.light { color: var(--slate-800); }
-    .section-title.dark { color: var(--white); }
+        .transition {
+            transition: all 0.2s ease;
+        }
 
-    .input-card {
-        padding: 1rem;
-        border-radius: 1rem;
-        border: 2px solid transparent;
-        transition: all 0.2s;
-    }
-    /* Editing State Colors */
-    .input-card.editing.empty.light { border-color: var(--red-500); background-color: var(--red-50); }
-    .input-card.editing.empty.dark { border-color: var(--red-500); background-color: rgba(127, 29, 29, 0.2); }
-    .input-card.editing.filled.light { border-color: var(--green-200); background-color: var(--white); }
-    .input-card.editing.filled.dark { border-color: var(--green-200); background-color: var(--slate-900); }
-    /* View State Colors */
-    .input-card.view.light { background-color: var(--slate-50); border-color: transparent; }
-    .input-card.view.dark { background-color: var(--slate-900); border-color: transparent; }
-    
-    .field-label {
-        font-size: 10px;
-        font-weight: 900;
-        text-transform: uppercase;
-        margin-bottom: 0.25rem;
-        margin-top: 0;
-    }
-    .field-label.error { color: var(--red-500); }
-    .field-label.normal { color: var(--slate-400); }
-    .field-label.green { color: var(--green-600); }
+        /* Navbar */
+        .navbar {
+            border-bottom: 1px solid;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            padding: 1rem 1.5rem;
+            transition: background-color 0.5s, border-color 0.5s;
+        }
 
-    .field-input {
-        background-color: transparent;
-        font-size: 0.875rem;
-        font-weight: 700;
-        width: 100%;
-        outline: none;
-        border: none;
-        padding: 0;
-        margin: 0;
-    }
-    .field-input.light { color: var(--slate-700); }
-    .field-input.dark { color: var(--white); }
-    .field-text.light { color: var(--slate-700); }
-    .field-text.dark { color: var(--white); }
-    
-    .field-select option { color: var(--slate-900); }
+        .navbar.light {
+            background-color: var(--white);
+            border-color: var(--slate-200);
+        }
 
-    /* Action Buttons */
-    .action-buttons { margin-top: 1.5rem; display: flex; gap: 0.75rem; }
-    
-    .btn-save {
-        background-color: var(--green-500);
-        color: var(--slate-900);
-        padding: 1rem 2rem;
-        border-radius: 1rem;
-        font-size: 0.875rem;
-        font-weight: 900;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        border: none;
-        cursor: pointer;
-        transition: transform 0.1s, background-color 0.2s;
-    }
-    .btn-save:hover { background-color: var(--green-400); }
-    .btn-save:active { transform: scale(0.95); }
+        .navbar.dark {
+            background-color: var(--slate-900);
+            border-color: var(--slate-800);
+        }
 
-    .btn-cancel {
-        padding: 1rem 1.5rem;
-        border-radius: 1rem;
-        font-size: 0.875rem;
-        font-weight: 700;
-        border: none;
-        cursor: pointer;
-        transition: background-color 0.2s;
-    }
-    .btn-cancel.light { background-color: var(--slate-200); color: var(--slate-600); }
-    .btn-cancel.light:hover { background-color: var(--slate-300); }
-    .btn-cancel.dark { background-color: var(--slate-700); color: var(--slate-300); }
+        .navbar-content {
+            max-width: 64rem;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-    /* Stats Card */
-    .stats-card {
-        background-color: var(--green-500);
-        padding: 1.5rem;
-        border-radius: 32px;
-        color: var(--slate-900);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-    }
-    .stats-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-    .stats-label { font-size: 10px; font-weight: 900; text-transform: uppercase; }
-    .stats-value { font-size: 1.5rem; font-weight: 900; }
-    .progress-bg { width: 100%; background-color: rgba(255, 255, 255, 0.3); height: 0.5rem; border-radius: 9999px; margin-bottom: 0.5rem; }
-    .progress-bar { background-color: var(--white); height: 100%; border-radius: 9999px; }
-    .stats-footer { font-size: 10px; font-weight: 700; margin: 0; }
+        .logo-box {
+            width: 2rem;
+            height: 2rem;
+            background-color: var(--green-500);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 900;
+        }
 
-    /* Citizen Card Preview */
-    .preview-container { margin-top: 2.5rem; }
-    
-    #citizen-card {
-        width: 400px;
-        height: 220px;
-        position: relative;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        color: var(--white);
-        border-radius: 1.5rem;
-        padding: 1.5rem;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        margin-bottom: 1rem;
-    }
+        .logo-text {
+            font-weight: 900;
+        }
 
-    .card-header { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; }
-    .card-avatar {
-        width: 4rem;
-        height: 4rem;
-        border-radius: 1rem;
-        border: 2px solid var(--green-500);
-        background-color: var(--white);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        object-fit: cover;
-    }
-    .card-logo-box { padding: 0.625rem; border-radius: 0.75rem; box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06); }
-    
-    .card-member-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--slate-400); font-weight: 700; margin: 0; }
-    .card-name { font-size: 1.25rem; font-weight: 800; margin: 0; line-height: 1.2; }
-    
-    .btn-download {
-        width: 100%;
-        padding: 0.75rem 2rem;
-        border-radius: 1rem;
-        font-size: 0.75rem;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        border: none;
-        cursor: pointer;
-        transition: background-color 0.2s;
-    }
-    .btn-download.active { background-color: var(--green-500); color: var(--slate-900); }
-    .btn-download.active:hover { background-color: var(--green-600); }
-    .btn-download.disabled { background-color: var(--slate-400); color: var(--slate-900); cursor: not-allowed; }
+        .logo-text.light {
+            color: var(--slate-800);
+        }
 
-    @media (min-width: 768px) {
-        .profile-header-row { flex-direction: row; align-items: flex-end; }
-        .main-grid { grid-template-columns: repeat(3, 1fr); }
-        .details-col { grid-column: span 2 / span 2; }
-        .details-grid { grid-template-columns: repeat(2, 1fr); }
-        .col-span-full { grid-column: 1 / -1; }
-        .btn-download { width: auto; }
-    }
-</style>
-</head>
+        .logo-text.dark {
+            color: var(--white);
+        }
 
-<body> <div id="app"></div>
+        .nav-link {
+            font-size: 0.75rem;
+            font-weight: 700;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
 
-<script>
-    const API_URL = "backend.php";
+        .nav-link.light {
+            color: var(--slate-500);
+        }
 
-    const State = {
-        isEditing: false,
-        user: null, // Se carga dinámicamente
-        tempUser: {},
-        downloading: false,
-    };
+        .nav-link.light:hover {
+            color: var(--green-600);
+        }
 
-    const Actions = {
-        init: () => {
-            const stored = localStorage.getItem("padel_user");
-            if (!stored) {
-                window.location.href = "login.html";
-                return;
+        .nav-link.dark {
+            color: var(--slate-400);
+        }
+
+        .nav-link.dark:hover {
+            color: var(--green-400);
+        }
+
+        /* Profile Card Structure */
+        .profile-container {
+            max-width: 64rem;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .profile-card {
+            border-radius: 40px;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            border: 1px solid;
+            transition: background-color 0.5s, border-color 0.5s;
+            overflow: hidden;
+        }
+
+        .profile-card.light {
+            background-color: var(--white);
+            border-color: var(--slate-100);
+        }
+
+        .profile-card.dark {
+            background-color: var(--slate-800);
+            border-color: var(--slate-700);
+        }
+
+        .profile-gradient {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+
+        .header-bg {
+            height: 10rem;
+        }
+
+        .profile-body {
+            padding: 0 2rem 2rem 2rem;
+        }
+
+        .profile-header-row {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 1.5rem;
+            margin-top: -4rem;
+            margin-bottom: 2rem;
+        }
+
+        .avatar-wrapper {
+            position: relative;
+        }
+
+        .avatar-img {
+            width: 8rem;
+            height: 8rem;
+            border-radius: 32px;
+            border-width: 8px;
+            border-style: solid;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            object-fit: cover;
+            background-color: var(--white);
+        }
+
+        .avatar-img.light {
+            border-color: var(--white);
+        }
+
+        .avatar-img.dark {
+            border-color: var(--slate-800);
+        }
+
+        .avatar-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.4);
+            border-radius: 32px;
+            cursor: pointer;
+            color: var(--white);
+            font-size: 10px;
+            font-weight: 700;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .avatar-wrapper:hover .avatar-overlay {
+            opacity: 1;
+        }
+
+        .user-info {
+            flex: 1;
+            margin-bottom: 0.5rem;
+            margin-top: 5rem;
+        }
+
+        .user-name {
+            font-size: 1.875rem;
+            font-weight: 900;
+            margin: 0;
+        }
+
+        .user-name.light {
+            color: var(--slate-800);
+        }
+
+        .user-name.dark {
+            color: var(--white);
+        }
+
+        .user-level {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--slate-400);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin: 0;
+        }
+
+        .btn-edit {
+            padding: 0.75rem 1.5rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-edit.light {
+            background-color: var(--slate-900);
+            color: var(--white);
+        }
+
+        .btn-edit.light:hover {
+            background-color: var(--slate-800);
+        }
+
+        .btn-edit.dark {
+            background-color: var(--white);
+            color: var(--slate-900);
+        }
+
+        .btn-edit.dark:hover {
+            background-color: var(--slate-200);
+        }
+
+        /* Grid Layouts */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 3rem;
+        }
+
+        /* .details-col {
+
+        }
+
+        .stats-col {
+
+        } */
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        /* Inputs and Cards */
+        .section-title {
+            font-size: 0.875rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1.5rem;
+            margin-top: 0;
+        }
+
+        .section-title.light {
+            color: var(--slate-800);
+        }
+
+        .section-title.dark {
+            color: var(--white);
+        }
+
+        .input-card {
+            padding: 1rem;
+            border-radius: 1rem;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        /* Editing State Colors */
+        .input-card.editing.empty.light {
+            border-color: var(--red-500);
+            background-color: var(--red-50);
+        }
+
+        .input-card.editing.empty.dark {
+            border-color: var(--red-500);
+            background-color: rgba(127, 29, 29, 0.2);
+        }
+
+        .input-card.editing.filled.light {
+            border-color: var(--green-200);
+            background-color: var(--white);
+        }
+
+        .input-card.editing.filled.dark {
+            border-color: var(--green-200);
+            background-color: var(--slate-900);
+        }
+
+        /* View State Colors */
+        .input-card.view.light {
+            background-color: var(--slate-50);
+            border-color: transparent;
+        }
+
+        .input-card.view.dark {
+            background-color: var(--slate-900);
+            border-color: transparent;
+        }
+
+        .field-label {
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+            margin-top: 0;
+        }
+
+        .field-label.error {
+            color: var(--red-500);
+        }
+
+        .field-label.normal {
+            color: var(--slate-400);
+        }
+
+        .field-label.green {
+            color: var(--green-600);
+        }
+
+        .field-input {
+            background-color: transparent;
+            font-size: 0.875rem;
+            font-weight: 700;
+            width: 100%;
+            outline: none;
+            border: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .field-input.light {
+            color: var(--slate-700);
+        }
+
+        .field-input.dark {
+            color: var(--white);
+        }
+
+        .field-text.light {
+            color: var(--slate-700);
+        }
+
+        .field-text.dark {
+            color: var(--white);
+        }
+
+        .field-select option {
+            color: var(--slate-900);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn-save {
+            background-color: var(--green-500);
+            color: var(--slate-900);
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 900;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border: none;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
+        }
+
+        .btn-save:hover {
+            background-color: var(--green-400);
+        }
+
+        .btn-save:active {
+            transform: scale(0.95);
+        }
+
+        .btn-cancel {
+            padding: 1rem 1.5rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-cancel.light {
+            background-color: var(--slate-200);
+            color: var(--slate-600);
+        }
+
+        .btn-cancel.light:hover {
+            background-color: var(--slate-300);
+        }
+
+        .btn-cancel.dark {
+            background-color: var(--slate-700);
+            color: var(--slate-300);
+        }
+
+        /* Stats Card */
+        .stats-card {
+            background-color: var(--green-500);
+            padding: 1.5rem;
+            border-radius: 32px;
+            color: var(--slate-900);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stats-label {
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .stats-value {
+            font-size: 1.5rem;
+            font-weight: 900;
+        }
+
+        .progress-bg {
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.3);
+            height: 0.5rem;
+            border-radius: 9999px;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-bar {
+            background-color: var(--white);
+            height: 100%;
+            border-radius: 9999px;
+        }
+
+        .stats-footer {
+            font-size: 10px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        /* Citizen Card Preview */
+        .preview-container {
+            margin-top: 2.5rem;
+        }
+
+        #citizen-card {
+            width: 400px;
+            height: 220px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            color: var(--white);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            margin-bottom: 1rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .card-avatar {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 1rem;
+            border: 2px solid var(--green-500);
+            background-color: var(--white);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            object-fit: cover;
+        }
+
+        .card-logo-box {
+            padding: 0.625rem;
+            border-radius: 0.75rem;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        .card-member-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--slate-400);
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .card-name {
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .btn-download {
+            width: 100%;
+            padding: 0.75rem 2rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-download.active {
+            background-color: var(--green-500);
+            color: var(--slate-900);
+        }
+
+        .btn-download.active:hover {
+            background-color: var(--green-600);
+        }
+
+        .btn-download.disabled {
+            background-color: var(--slate-400);
+            color: var(--slate-900);
+            cursor: not-allowed;
+        }
+
+        @media (min-width: 768px) {
+            .profile-header-row {
+                flex-direction: row;
+                align-items: flex-end;
             }
-            State.user = JSON.parse(stored);
-            // Cargar datos frescos de la BD para tener victorias/partidas actualizadas
-            Actions.refreshData();
-        },
-        refreshData: () => {
-            m.request({
-                method: "GET",
-                url: `${API_URL}?table=usuarios&id=${State.user.id}`
-            }).then(res => {
-                if (res.items && res.items.length > 0) {
-                    State.user = res.items[0];
-                    localStorage.setItem("padel_user", JSON.stringify(State.user));
-                    m.redraw();
-                }
-            });
-        },
-        toggleEdit: () => {
-            if (!State.isEditing) State.tempUser = { ...State.user };
-            State.isEditing = !State.isEditing;
-        },
-        saveProfile: () => {
-            // Validaciones
-            if (!State.tempUser.nombre.trim() || !State.tempUser.email.trim()) {
-                alert("Nombre y Email son obligatorios");
-                return;
+
+            .main-grid {
+                grid-template-columns: repeat(3, 1fr);
             }
 
-            // Enviamos petición al backend
-            // IMPORTANTE: backend.php debe soportar action=update
-            m.request({
-                method: "POST",
-                url: `${API_URL}?table=usuarios&action=update&id=${State.user.id}`,
-                body: State.tempUser
-            }).then(res => {
-                if(res.status === "ok" || res.ok) {
-                    State.user = { ...State.tempUser };
-                    localStorage.setItem("padel_user", JSON.stringify(State.user)); // Guardar cambios en local
-                    State.isEditing = false;
-                    alert("Perfil actualizado correctamente");
-                } else {
-                    alert("Error al guardar: " + (res.error || "Error desconocido"));
-                }
-            }).catch(err => {
-                console.error(err);
-                alert("Error de conexión con el servidor");
-            });
-        },
-        handleFileUpload: (e) => {
-            const file = e.target.files[0];
-            if (file && file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    State.tempUser.foto = event.target.result; // Base64
-                    m.redraw();
-                };
-                reader.readAsDataURL(file);
+            .details-col {
+                grid-column: span 2 / span 2;
+            }
+
+            .details-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .col-span-full {
+                grid-column: 1 / -1;
+            }
+
+            .btn-download {
+                width: auto;
             }
         }
-    };
+    </style>
+</head>
 
-    const downloadCard = () => {
-        State.downloading = true;
-        const card = document.getElementById("citizen-card");
-        html2canvas(card, { useCORS: true, scale: 2, backgroundColor: null }).then((canvas) => {
-            const link = document.createElement("a");
-            link.download = `Tarjeta_${State.user.nombre.replace(" ", "_")}.png`;
-            link.href = canvas.toDataURL("image/png");
-            link.click();
-            State.downloading = false;
-            m.redraw();
-        });
-    };
+<body>
+    <div id="app"></div>
 
-    function Navbar() {
-        return {
-            view: () => m("nav", {
-                class: `navbar ${ThemeState.darkMode ? "dark" : "light"}`
-            }, [
-                m("div", { class: "navbar-content" }, [
-                    m("div", { class: "flex items-center gap-2 cursor-pointer", onclick: () => (window.location.href = "index.html") }, [
-                        m("div", { class: "logo-box" }, "P"),
-                        m("span", { class: `logo-text ${ThemeState.darkMode ? "dark" : "light"}` }, "PADELPINTO"),
-                    ]),
-                    m("div", { class: "flex items-center gap-4" }, [
-                        m(ThemeToggle),
-                        m("button", {
-                            class: `nav-link ${ThemeState.darkMode ? "dark" : "light"}`,
-                            onclick: () => (window.location.href = "index.html")
-                        }, "← Volver a Reservas"),
-                    ])
-                ]),
-            ]),
+    <script>
+        const API_URL = "backend.php";
+
+        const State = {
+            isEditing: false,
+            user: null, // Se carga dinámicamente
+            tempUser: {},
+            downloading: false,
         };
-    }
 
-    function CitizenCardPreview() {
-        // Aseguramos que haya usuario antes de renderizar
-        if(!State.user) return null;
+        const Actions = {
+            init: () => {
+                const stored = localStorage.getItem("padel_user");
+                if (!stored) {
+                    window.location.href = "login.html";
+                    return;
+                }
+                State.user = JSON.parse(stored);
+                // Cargar datos frescos de la BD para tener victorias/partidas actualizadas
+                Actions.refreshData();
+            },
+            refreshData: () => {
+                m.request({
+                    method: "GET",
+                    url: `${API_URL}?table=usuarios&id=${State.user.id}`
+                }).then(res => {
+                    if (res.items && res.items.length > 0) {
+                        State.user = res.items[0];
+                        localStorage.setItem("padel_user", JSON.stringify(State.user));
+                        m.redraw();
+                    }
+                });
+            },
+            toggleEdit: () => {
+                if (!State.isEditing) State.tempUser = { ...State.user };
+                State.isEditing = !State.isEditing;
+            },
+            saveProfile: () => {
+                // Validaciones
+                if (!State.tempUser.nombre.trim() || !State.tempUser.email.trim()) {
+                    alert("Nombre y Email son obligatorios");
+                    return;
+                }
 
-        return {
-            view: () => m("div", { class: "preview-container" }, [
-                m("h3", { class: `section-title ${ThemeState.darkMode ? "dark" : "light"}` }, "Tu Tarjeta Digital"),
-                m("div", { id: "citizen-card", class: "profile-gradient" }, [
-                    m("div", { class: "card-header" }, [
-                        m("img", {
-                            src: State.user.foto,
-                            class: "card-avatar",
-                            onerror: (e) => e.target.src = "https://api.dicebear.com/7.x/initials/svg?seed=" + State.user.nombre + "&backgroundColor=2ecc71"
-                        }),
-                        m("div", { class: "card-logo-box" }, [
-                            m("div", { class: "text-2xl" }, "🎾") // Logo placeholder simplificado
+                // Enviamos petición al backend
+                // IMPORTANTE: backend.php debe soportar action=update
+                m.request({
+                    method: "POST",
+                    url: `${API_URL}?table=usuarios&action=update&id=${State.user.id}`,
+                    body: State.tempUser
+                }).then(res => {
+                    if (res.status === "ok" || res.ok) {
+                        State.user = { ...State.tempUser };
+                        localStorage.setItem("padel_user", JSON.stringify(State.user)); // Guardar cambios en local
+                        State.isEditing = false;
+                        alert("Perfil actualizado correctamente");
+                    } else {
+                        alert("Error al guardar: " + (res.error || "Error desconocido"));
+                    }
+                }).catch(err => {
+                    console.error(err);
+                    alert("Error de conexión con el servidor");
+                });
+            },
+            handleFileUpload: (e) => {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        State.tempUser.foto = event.target.result; // Base64
+                        m.redraw();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        };
+
+        const downloadCard = () => {
+            State.downloading = true;
+            const card = document.getElementById("citizen-card");
+            html2canvas(card, { useCORS: true, scale: 2, backgroundColor: null }).then((canvas) => {
+                const link = document.createElement("a");
+                link.download = `Tarjeta_${State.user.nombre.replace(" ", "_")}.png`;
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+                State.downloading = false;
+                m.redraw();
+            });
+        };
+
+        function Navbar() {
+            return {
+                view: () => m("nav", {
+                    class: `navbar ${ThemeState.darkMode ? "dark" : "light"}`
+                }, [
+                    m("div", { class: "navbar-content" }, [
+                        m("div", { class: "flex items-center gap-2 cursor-pointer", onclick: () => (window.location.href = "index.html") }, [
+                            m("div", { class: "logo-box" }, "P"),
+                            m("span", { class: `logo-text ${ThemeState.darkMode ? "dark" : "light"}` }, "PADELPINTO"),
+                        ]),
+                        m("div", { class: "flex items-center gap-4" }, [
+                            m(ThemeToggle),
+                            m("button", {
+                                class: `nav-link ${ThemeState.darkMode ? "dark" : "light"}`,
+                                onclick: () => (window.location.href = "index.html")
+                            }, "← Volver a Reservas"),
                         ])
                     ]),
-                    m("div", [
-                        m("p", { class: "card-member-label" }, "Miembro Oficial"),
-                        m("h2", { class: "card-name" }, State.user.nombre), // Solo nombre completo
-                    ]),
                 ]),
-                m("button", {
-                    class: `btn-download ${State.downloading ? "disabled" : "active"}`,
-                    onclick: downloadCard,
-                    disabled: State.downloading,
-                }, [State.downloading ? "Generando..." : "Descargar Tarjeta PNG"]),
-            ]),
-        };
-    }
+            };
+        }
 
-    function ProfileCard() {
-        if(!State.user) return { view: () => m("div", "Cargando perfil...") };
+        function CitizenCardPreview() {
+            // Aseguramos que haya usuario antes de renderizar
+            if (!State.user) return null;
 
-        return {
-            view: () => m("div", { class: "profile-container" }, [
-                m("div", {
-                    class: `profile-card ${ThemeState.darkMode ? "dark" : "light"}`
-                }, [
-                    m("div", { class: "profile-gradient header-bg" }),
-
-                    m("div", { class: "profile-body" }, [
-                        m("div", { class: "profile-header-row" }, [
-                            m("div", { class: "avatar-wrapper group" }, [
-                                m("img", {
-                                    src: State.isEditing ? State.tempUser.foto : State.user.foto,
-                                    class: `avatar-img ${ThemeState.darkMode ? "dark" : "light"}`,
-                                    onerror: (e) => e.target.src = "https://api.dicebear.com/7.x/initials/svg?seed=" + State.user.nombre + "&backgroundColor=2ecc71"
-                                }),
-                                State.isEditing && m("label", {
-                                    class: "avatar-overlay"
-                                }, [
-                                    "SUBIR FOTO",
-                                    m("input", { type: "file", class: "hidden", accept: "image/*", onchange: Actions.handleFileUpload })
-                                ])
-                            ]),
-
-                            m("div", { class: "user-info" }, [
-                                m("h1", { class: `user-name ${ThemeState.darkMode ? "dark" : "light"}` }, State.user.nombre),
-                                m("p", { class: "user-level" }, "Nivel " + State.user.nivel),
-                            ]),
-
-                            !State.isEditing && m("button", {
-                                class: `btn-edit ${ThemeState.darkMode ? "dark" : "light"}`,
-                                onclick: Actions.toggleEdit
-                            }, "✎ Editar Perfil"),
+            return {
+                view: () => m("div", { class: "preview-container" }, [
+                    m("h3", { class: `section-title ${ThemeState.darkMode ? "dark" : "light"}` }, "Tu Tarjeta Digital"),
+                    m("div", { id: "citizen-card", class: "profile-gradient" }, [
+                        m("div", { class: "card-header" }, [
+                            m("img", {
+                                src: State.user.foto,
+                                class: "card-avatar",
+                                onerror: (e) => e.target.src = "https://api.dicebear.com/7.x/initials/svg?seed=" + State.user.nombre + "&backgroundColor=2ecc71"
+                            }),
+                            m("div", { class: "card-logo-box" }, [
+                                m("div", { class: "text-2xl" }, "🎾") // Logo placeholder simplificado
+                            ])
                         ]),
+                        m("div", [
+                            m("p", { class: "card-member-label" }, "Miembro Oficial"),
+                            m("h2", { class: "card-name" }, State.user.nombre), // Solo nombre completo
+                        ]),
+                    ]),
+                    m("button", {
+                        class: `btn-download ${State.downloading ? "disabled" : "active"}`,
+                        onclick: downloadCard,
+                        disabled: State.downloading,
+                    }, [State.downloading ? "Generando..." : "Descargar Tarjeta PNG"]),
+                ]),
+            };
+        }
 
-                        m("div", { class: "main-grid" }, [
-                            m("div", { class: "details-col" }, [
-                                m("h3", { class: `section-title ${ThemeState.darkMode ? "dark" : "light"}` }, "Detalles de la cuenta"),
+        function ProfileCard() {
+            if (!State.user) return { view: () => m("div", "Cargando perfil...") };
 
-                                m("div", { class: "details-grid" }, [
-                                    State.isEditing && m("div", {
-                                        class: `input-card col-span-full ${ThemeState.darkMode ? "editing filled dark" : "editing filled light"}`,
-                                        style: ThemeState.darkMode ? "border-color: var(--green-900); background-color: var(--slate-900)" : "border-color: var(--green-500); background-color: var(--white)"
-                                    }, [
-                                        m("p", { class: "field-label green" }, "Link de foto externa (URL)"),
-                                        m("input", {
-                                            class: `field-input ${ThemeState.darkMode ? "dark" : "light"}`,
-                                            placeholder: "Pegue aquí el enlace de su foto...",
-                                            value: State.tempUser.foto.startsWith('data:') ? '' : State.tempUser.foto,
-                                            oninput: (e) => State.tempUser.foto = e.target.value
-                                        }),
-                                    ]),
+            return {
+                view: () => m("div", { class: "profile-container" }, [
+                    m("div", {
+                        class: `profile-card ${ThemeState.darkMode ? "dark" : "light"}`
+                    }, [
+                        m("div", { class: "profile-gradient header-bg" }),
 
-                                    // Campos dinámicos adaptados a la BD
-                                    [
-                                        { label: "Nombre Completo", key: "nombre", colSpan: true },
-                                        { label: "Email", key: "email", colSpan: true }
-                                    ].map(field => {
-                                        const isEmpty = State.isEditing && (!State.tempUser[field.key] || State.tempUser[field.key].trim() === "");
-                                        const mode = State.isEditing ? "editing" : "view";
-                                        const filledState = isEmpty ? "empty" : "filled";
-                                        const theme = ThemeState.darkMode ? "dark" : "light";
-                                        
-                                        return m("div", {
-                                            class: `input-card ${field.colSpan ? "col-span-full" : ""} ${mode} ${filledState} ${theme}`
-                                        }, [
-                                            m("p", { class: `field-label ${isEmpty ? "error" : "normal"}` }, field.label),
-                                            State.isEditing
-                                                ? m("input", {
-                                                    class: `field-input ${ThemeState.darkMode ? "dark" : "light"}`,
-                                                    value: State.tempUser[field.key],
-                                                    oninput: (e) => State.tempUser[field.key] = e.target.value,
-                                                    placeholder: `Escribe tu ${field.label.toLowerCase()}...`
-                                                })
-                                                : m("p", { class: `field-text ${ThemeState.darkMode ? "dark" : "light"}`, style: "font-weight: 700; margin: 0; font-size: 0.875rem;" }, State.user[field.key]),
-                                        ]);
+                        m("div", { class: "profile-body" }, [
+                            m("div", { class: "profile-header-row" }, [
+                                m("div", { class: "avatar-wrapper group" }, [
+                                    m("img", {
+                                        src: State.isEditing ? State.tempUser.foto : State.user.foto,
+                                        class: `avatar-img ${ThemeState.darkMode ? "dark" : "light"}`,
+                                        onerror: (e) => e.target.src = "https://api.dicebear.com/7.x/initials/svg?seed=" + State.user.nombre + "&backgroundColor=2ecc71"
                                     }),
-
-                                    m("div", {
-                                        class: `input-card col-span-full ${State.isEditing ? "editing filled" : "view"} ${ThemeState.darkMode ? "dark" : "light"}`
+                                    State.isEditing && m("label", {
+                                        class: "avatar-overlay"
                                     }, [
-                                        m("p", { class: "field-label normal" }, "Nivel de Habilidad"),
-                                        State.isEditing
-                                            ? m("select", {
-                                                class: `field-input cursor-pointer field-select ${ThemeState.darkMode ? "dark" : "light"}`,
-                                                onchange: (e) => State.tempUser.nivel = e.target.value,
-                                                value: State.tempUser.nivel
-                                            }, [
-                                                ["1.0", "1.5", "2.0", "2.5", "3.0", "3.5", "4.0", "4.5", "5.0"].map(opt => m("option", { value: opt }, "Nivel " + opt))
-                                            ])
-                                            : m("p", { class: `field-text ${ThemeState.darkMode ? "dark" : "light"}`, style: "font-weight: 700; margin: 0; font-size: 0.875rem;" }, State.user.nivel),
-                                    ]),
+                                        "SUBIR FOTO",
+                                        m("input", { type: "file", class: "hidden", accept: "image/*", onchange: Actions.handleFileUpload })
+                                    ])
                                 ]),
 
-                                State.isEditing && m("div", { class: "action-buttons" }, [
-                                    m("button", {
-                                        class: "btn-save",
-                                        onclick: Actions.saveProfile
-                                    }, "✓ Guardar cambios"),
-                                    m("button", {
-                                        class: `btn-cancel ${ThemeState.darkMode ? "dark" : "light"}`,
-                                        onclick: () => State.isEditing = false
-                                    }, "Cancelar")
+                                m("div", { class: "user-info" }, [
+                                    m("h1", { class: `user-name ${ThemeState.darkMode ? "dark" : "light"}` }, State.user.nombre),
+                                    m("p", { class: "user-level" }, "Nivel " + State.user.nivel),
                                 ]),
 
-                                m(CitizenCardPreview),
+                                !State.isEditing && m("button", {
+                                    class: `btn-edit ${ThemeState.darkMode ? "dark" : "light"}`,
+                                    onclick: Actions.toggleEdit
+                                }, "✎ Editar Perfil"),
                             ]),
 
-                            m("div", { class: "stats-col space-y-6" }, [
-                                m("h3", { class: `section-title ${ThemeState.darkMode ? "dark" : "light"}` }, "Estadísticas"),
-                                m("div", { class: "stats-card" }, [
-                                    m("div", { class: "stats-header" }, [
-                                        m("span", { class: "stats-label" }, "Victorias"),
-                                        m("span", { class: "stats-value" }, State.user.victorias || 0),
-                                    ]),
-                                    m("div", { class: "progress-bg" }, [
-                                        m("div", { 
-                                            class: "progress-bar", 
-                                            style: "width: " + ((State.user.victorias || 0) / (State.user.partidas_jugadas || 1)) * 100 + "%" 
+                            m("div", { class: "main-grid" }, [
+                                m("div", { class: "details-col" }, [
+                                    m("h3", { class: `section-title ${ThemeState.darkMode ? "dark" : "light"}` }, "Detalles de la cuenta"),
+
+                                    m("div", { class: "details-grid" }, [
+                                        State.isEditing && m("div", {
+                                            class: `input-card col-span-full ${ThemeState.darkMode ? "editing filled dark" : "editing filled light"}`,
+                                            style: ThemeState.darkMode ? "border-color: var(--green-900); background-color: var(--slate-900)" : "border-color: var(--green-500); background-color: var(--white)"
+                                        }, [
+                                            m("p", { class: "field-label green" }, "Link de foto externa (URL)"),
+                                            m("input", {
+                                                class: `field-input ${ThemeState.darkMode ? "dark" : "light"}`,
+                                                placeholder: "Pegue aquí el enlace de su foto...",
+                                                value: State.tempUser.foto.startsWith('data:') ? '' : State.tempUser.foto,
+                                                oninput: (e) => State.tempUser.foto = e.target.value
+                                            }),
+                                        ]),
+
+                                        // Campos dinámicos adaptados a la BD
+                                        [
+                                            { label: "Nombre Completo", key: "nombre", colSpan: true },
+                                            { label: "Email", key: "email", colSpan: true }
+                                        ].map(field => {
+                                            const isEmpty = State.isEditing && (!State.tempUser[field.key] || State.tempUser[field.key].trim() === "");
+                                            const mode = State.isEditing ? "editing" : "view";
+                                            const filledState = isEmpty ? "empty" : "filled";
+                                            const theme = ThemeState.darkMode ? "dark" : "light";
+
+                                            return m("div", {
+                                                class: `input-card ${field.colSpan ? "col-span-full" : ""} ${mode} ${filledState} ${theme}`
+                                            }, [
+                                                m("p", { class: `field-label ${isEmpty ? "error" : "normal"}` }, field.label),
+                                                State.isEditing
+                                                    ? m("input", {
+                                                        class: `field-input ${ThemeState.darkMode ? "dark" : "light"}`,
+                                                        value: State.tempUser[field.key],
+                                                        oninput: (e) => State.tempUser[field.key] = e.target.value,
+                                                        placeholder: `Escribe tu ${field.label.toLowerCase()}...`
+                                                    })
+                                                    : m("p", { class: `field-text ${ThemeState.darkMode ? "dark" : "light"}`, style: "font-weight: 700; margin: 0; font-size: 0.875rem;" }, State.user[field.key]),
+                                            ]);
                                         }),
+
+                                        m("div", {
+                                            class: `input-card col-span-full ${State.isEditing ? "editing filled" : "view"} ${ThemeState.darkMode ? "dark" : "light"}`
+                                        }, [
+                                            m("p", { class: "field-label normal" }, "Nivel de Habilidad"),
+                                            State.isEditing
+                                                ? m("select", {
+                                                    class: `field-input cursor-pointer field-select ${ThemeState.darkMode ? "dark" : "light"}`,
+                                                    onchange: (e) => State.tempUser.nivel = e.target.value,
+                                                    value: State.tempUser.nivel
+                                                }, [
+                                                    ["1.0", "1.5", "2.0", "2.5", "3.0", "3.5", "4.0", "4.5", "5.0"].map(opt => m("option", { value: opt }, "Nivel " + opt))
+                                                ])
+                                                : m("p", { class: `field-text ${ThemeState.darkMode ? "dark" : "light"}`, style: "font-weight: 700; margin: 0; font-size: 0.875rem;" }, State.user.nivel),
+                                        ]),
                                     ]),
-                                    m("p", { class: "stats-footer" }, (State.user.partidas_jugadas || 0) + " partidas jugadas"),
+
+                                    State.isEditing && m("div", { class: "action-buttons" }, [
+                                        m("button", {
+                                            class: "btn-save",
+                                            onclick: Actions.saveProfile
+                                        }, "✓ Guardar cambios"),
+                                        m("button", {
+                                            class: `btn-cancel ${ThemeState.darkMode ? "dark" : "light"}`,
+                                            onclick: () => State.isEditing = false
+                                        }, "Cancelar")
+                                    ]),
+
+                                    m(CitizenCardPreview),
+                                ]),
+
+                                m("div", { class: "stats-col space-y-6" }, [
+                                    m("h3", { class: `section-title ${ThemeState.darkMode ? "dark" : "light"}` }, "Estadísticas"),
+                                    m("div", { class: "stats-card" }, [
+                                        m("div", { class: "stats-header" }, [
+                                            m("span", { class: "stats-label" }, "Victorias"),
+                                            m("span", { class: "stats-value" }, State.user.victorias || 0),
+                                        ]),
+                                        m("div", { class: "progress-bg" }, [
+                                            m("div", {
+                                                class: "progress-bar",
+                                                style: "width: " + ((State.user.victorias || 0) / (State.user.partidas_jugadas || 1)) * 100 + "%"
+                                            }),
+                                        ]),
+                                        m("p", { class: "stats-footer" }, (State.user.partidas_jugadas || 0) + " partidas jugadas"),
+                                    ]),
                                 ]),
                             ]),
                         ]),
                     ]),
                 ]),
-            ]),
-        };
-    }
+            };
+        }
 
-    m.mount(document.getElementById("app"), {
-        oninit: Actions.init,
-        view: () => m("div", { class: `app-root ${ThemeState.darkMode ? "dark" : "light"}` }, [
-            m(Navbar),
-            m(ProfileCard)
-        ]),
-    });
-</script>
+        m.mount(document.getElementById("app"), {
+            oninit: Actions.init,
+            view: () => m("div", { class: `app-root ${ThemeState.darkMode ? "dark" : "light"}` }, [
+                m(Navbar),
+                m(ProfileCard)
+            ]),
+        });
+    </script>
 </body>
 
 </html>

@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mis Partidas - Padel Pinto</title>
-    
-    <script src="https://unpkg.com/mithril/mithril.js"></script>
-    
+    <script src="https://components.digitalvalue.es/lib/mithril.min.js"></script>
     <script src="api.js"></script>
     <script src="toggleTheme.js"></script>
+    <link rel="icon" type="image/svg+xml" href="src/favicon.svg" /> <!-- favicon -->
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
+
     <style>
         /* --- 1. VARIABLES (Coherencia Visual) --- */
         :root {
@@ -26,11 +26,30 @@
             --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
-        .dark body { background-color: #0f172a; color: #f8fafc; }
-        .dark .navbar, .dark .match-card { background-color: #1e293b; border-color: #334155; }
-        .dark .tab-btn { color: #cbd5e1; }
-        .dark .tab-btn.active { color: white; border-bottom-color: var(--primary); }
-        .dark .empty-state { background: #1e293b; border-color: #334155; }
+        .dark body {
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        .dark .navbar,
+        .dark .match-card {
+            background-color: #1e293b;
+            border-color: #334155;
+        }
+
+        .dark .tab-btn {
+            color: #cbd5e1;
+        }
+
+        .dark .tab-btn.active {
+            color: white;
+            border-bottom-color: var(--primary);
+        }
+
+        .dark .empty-state {
+            background: #1e293b;
+            border-color: #334155;
+        }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -50,30 +69,89 @@
             z-index: 50;
         }
 
-        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
-        
-        .nav-container { display: flex; justify-content: space-between; align-items: center; }
-        
-        .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; text-decoration: none; color: inherit; }
-        .logo-icon { background: var(--primary); color: white; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
 
-        .nav-links a { margin-left: 20px; text-decoration: none; color: var(--text-muted); font-weight: 700; font-size: 14px; text-transform: uppercase; }
-        .nav-links a.active { color: var(--primary); }
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 20px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .logo-icon {
+            background: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-links a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .nav-links a.active {
+            color: var(--primary);
+        }
 
         /* --- LAYOUT --- */
-        .page-content { padding: 40px 20px; max-width: 1000px; margin: 0 auto; }
+        .page-content {
+            padding: 40px 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
 
-        .page-header { margin-bottom: 30px; }
-        .page-title { font-size: 2rem; font-weight: 800; margin: 0; }
-        .page-date { color: var(--text-muted); font-weight: 600; margin-top: 5px; }
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .page-date {
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-top: 5px;
+        }
 
         /* --- TABS --- */
-        .tabs { display: flex; gap: 30px; border-bottom: 2px solid var(--border); margin-bottom: 30px; }
-        
+        .tabs {
+            display: flex;
+            gap: 30px;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 30px;
+        }
+
         .tab-btn {
-            background: none; border: none;
+            background: none;
+            border: none;
             padding: 15px 0;
-            font-size: 16px; font-weight: 700;
+            font-size: 16px;
+            font-weight: 700;
             color: var(--text-muted);
             cursor: pointer;
             border-bottom: 3px solid transparent;
@@ -81,11 +159,20 @@
             transition: all 0.2s;
         }
 
-        .tab-btn:hover { color: var(--text-main); }
-        .tab-btn.active { color: var(--text-main); border-bottom-color: var(--primary); }
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            color: var(--text-main);
+            border-bottom-color: var(--primary);
+        }
 
         /* --- MATCH CARD --- */
-        .match-list { display: grid; gap: 20px; }
+        .match-list {
+            display: grid;
+            gap: 20px;
+        }
 
         .match-card {
             background: var(--card-bg);
@@ -99,7 +186,10 @@
             transition: transform 0.2s;
         }
 
-        .match-card:hover { transform: translateY(-3px); border-color: var(--primary); }
+        .match-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary);
+        }
 
         .match-time {
             text-align: center;
@@ -107,33 +197,73 @@
             border-right: 2px solid var(--border);
             min-width: 90px;
         }
-        
-        .time-big { font-size: 24px; font-weight: 900; line-height: 1; }
-        .court-name { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-top: 5px; }
 
-        .match-info { flex: 1; padding: 0 25px; }
-        
+        .time-big {
+            font-size: 24px;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .court-name {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        .match-info {
+            flex: 1;
+            padding: 0 25px;
+        }
+
         .match-type {
             display: inline-block;
-            font-size: 10px; font-weight: 800; text-transform: uppercase;
-            padding: 4px 8px; rounded: 6px; margin-bottom: 8px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 4px 8px;
+            border-radius: 6px;
+            margin-bottom: 8px;
         }
-        .type-public { background: #dcfce7; color: #166534; }
-        .type-private { background: #fef3c7; color: #d97706; }
 
-        .players-row { display: flex; align-items: center; gap: 10px; margin-top: 5px; }
-        
+        .type-public {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .type-private {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .players-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
         .player-avatar {
-            width: 32px; height: 32px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             background: var(--border);
             border: 2px solid white;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 10px; font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 800;
             color: var(--text-main);
         }
 
-        .slots-text { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-left: 10px; }
+        .slots-text {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-left: 10px;
+        }
 
         .match-action .btn {
             padding: 12px 24px;
@@ -146,11 +276,20 @@
             transition: 0.2s;
         }
 
-        .btn-join { background: var(--primary); color: white; }
-        .btn-join:hover { background: var(--primary-dark); }
-        
-        .btn-view { background: var(--dark-bg); color: white; }
-        
+        .btn-join {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-join:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-view {
+            background: var(--dark-bg);
+            color: white;
+        }
+
         .empty-state {
             text-align: center;
             padding: 60px;
@@ -161,14 +300,40 @@
         }
 
         @media (max-width: 768px) {
-            .match-card { flex-direction: column; align-items: flex-start; gap: 20px; }
-            .match-time { border-right: none; border-bottom: 1px solid var(--border); padding-right: 0; padding-bottom: 15px; width: 100%; text-align: left; display:flex; justify-content: space-between; align-items: center; }
-            .match-info { padding: 0; width: 100%; }
-            .match-action { width: 100%; }
-            .match-action .btn { width: 100%; }
+            .match-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .match-time {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding-right: 0;
+                padding-bottom: 15px;
+                width: 100%;
+                text-align: left;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .match-info {
+                padding: 0;
+                width: 100%;
+            }
+
+            .match-action {
+                width: 100%;
+            }
+
+            .match-action .btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
+
 <body>
     <div id="app"></div>
 
@@ -196,21 +361,21 @@
             loadData: async () => {
                 State.loading = true;
                 const dateStr = State.currentDate.toLocaleDateString('es-ES');
-                
+
                 // 1. Pedir todas las reservas del día
                 const todas = await PadelData.getReservas(dateStr);
-                
+
                 // 2. Filtrar
                 const userId = Auth.user.id;
 
                 // A. Mis Partidas: Donde yo estoy en la lista de jugadores
-                State.myMatches = todas.filter(m => 
+                State.myMatches = todas.filter(m =>
                     m.jugadores.some(p => parseInt(p.usuario_id) === parseInt(userId))
                 );
 
                 // B. Partidas Abiertas: Públicas, NO estoy yo, y NO están llenas
-                State.openMatches = todas.filter(m => 
-                    m.tipo === 'public' && 
+                State.openMatches = todas.filter(m =>
+                    m.tipo === 'public' &&
                     m.estado !== 'cerrada' &&
                     m.jugadores.length < 4 &&
                     !m.jugadores.some(p => parseInt(p.usuario_id) === parseInt(userId))
@@ -221,9 +386,9 @@
             },
 
             joinMatch: async (match) => {
-                if(confirm("¿Quieres unirte a esta partida?")) {
+                if (confirm("¿Quieres unirte a esta partida?")) {
                     const res = await PadelData.unirseReserva(match.id);
-                    if(res.success) {
+                    if (res.success) {
                         alert("¡Te has unido!");
                         Actions.loadData(); // Recargar para moverla de lista
                     } else {
@@ -266,7 +431,7 @@
                 view: (vnode) => {
                     const match = vnode.attrs.match;
                     const isMyMatch = vnode.attrs.isMyMatch;
-                    
+
                     return m("div", { class: "match-card animate-fade-up" }, [
                         // Columna Hora
                         m("div", { class: "match-time" }, [
@@ -276,25 +441,25 @@
 
                         // Columna Info
                         m("div", { class: "match-info" }, [
-                            m("span", { 
-                                class: `match-type ${match.tipo === 'private' ? 'type-private' : 'type-public'}` 
+                            m("span", {
+                                class: `match-type ${match.tipo === 'private' ? 'type-private' : 'type-public'}`
                             }, match.tipo === 'private' ? 'PRIVADA' : 'PÚBLICA'),
-                            
-                            match.tipo === 'private' && isMyMatch 
+
+                            match.tipo === 'private' && isMyMatch
                                 ? m("span", { style: "font-size:10px; margin-left:10px; font-weight:bold; color:#d97706" }, `CÓDIGO: ${match.codigo_acceso}`)
                                 : null,
 
                             m("div", { class: "players-row" }, [
                                 // Renderizar bolas de jugadores
-                                match.jugadores.map(p => 
-                                    m("div", { 
-                                        class: "player-avatar", 
+                                match.jugadores.map(p =>
+                                    m("div", {
+                                        class: "player-avatar",
                                         title: p.nombre,
                                         style: p.usuario_id == Auth.user.id ? "border-color:var(--primary)" : ""
                                     }, Math.round(p.nivel))
                                 ),
                                 // Huecos libres
-                                Array.from({length: 4 - match.jugadores.length}).map(() => 
+                                Array.from({ length: 4 - match.jugadores.length }).map(() =>
                                     m("div", { class: "player-avatar", style: "border: 2px dashed var(--border); color: transparent;" }, "")
                                 ),
                                 m("span", { class: "slots-text" }, `${match.jugadores.length}/4 Jugadores`)
@@ -303,12 +468,12 @@
 
                         // Columna Acción
                         m("div", { class: "match-action" }, [
-                            isMyMatch 
-                            ? m("button", { class: "btn btn-view" }, "INSCRITO")
-                            : m("button", { 
-                                class: "btn btn-join",
-                                onclick: () => Actions.joinMatch(match)
-                              }, "UNIRSE")
+                            isMyMatch
+                                ? m("button", { class: "btn btn-view" }, "INSCRITO")
+                                : m("button", {
+                                    class: "btn btn-join",
+                                    onclick: () => Actions.joinMatch(match)
+                                }, "UNIRSE")
                         ])
                     ]);
                 }
@@ -321,22 +486,22 @@
                 view: () => m("div", [
                     m(Navbar),
                     m("div", { class: "page-content" }, [
-                        
+
                         // Encabezado con selector de fecha simple
                         m("div", { class: "page-header" }, [
                             m("div", { style: "display:flex; justify-content:space-between; align-items:center" }, [
                                 m("div", [
                                     m("h1", { class: "page-title" }, "Partidas"),
-                                    m("p", { class: "page-date" }, 
+                                    m("p", { class: "page-date" },
                                         State.currentDate.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
                                     )
                                 ]),
                                 m("div", { style: "display:flex; gap:10px" }, [
-                                    m("button", { 
+                                    m("button", {
                                         style: "padding:10px 15px; border-radius:10px; border:1px solid #e2e8f0; background:white; cursor:pointer;",
                                         onclick: () => Actions.changeDate(-1)
                                     }, "← Ayer"),
-                                    m("button", { 
+                                    m("button", {
                                         style: "padding:10px 15px; border-radius:10px; border:1px solid #e2e8f0; background:white; cursor:pointer;",
                                         onclick: () => Actions.changeDate(1)
                                     }, "Mañana →")
@@ -346,41 +511,41 @@
 
                         // Tabs
                         m("div", { class: "tabs" }, [
-                            m("button", { 
+                            m("button", {
                                 class: `tab-btn ${State.activeTab === 'mine' ? 'active' : ''}`,
                                 onclick: () => State.activeTab = 'mine'
                             }, `Mis Partidas (${State.myMatches.length})`),
-                            
-                            m("button", { 
+
+                            m("button", {
                                 class: `tab-btn ${State.activeTab === 'open' ? 'active' : ''}`,
                                 onclick: () => State.activeTab = 'open'
                             }, `Abiertas para hoy (${State.openMatches.length})`)
                         ]),
 
                         // Contenido Lista
-                        State.loading 
-                        ? m("div", { style: "text-align:center; padding:40px; color:var(--text-muted)" }, "Cargando partidos...")
-                        : (
-                            State.activeTab === 'mine' 
-                            ? (State.myMatches.length === 0 
-                                ? m("div", { class: "empty-state" }, [
-                                    m("h3", "No tienes partidas hoy"),
-                                    m("p", "Reserva una pista o únete a una partida abierta.")
-                                  ])
-                                : m("div", { class: "match-list" }, 
-                                    State.myMatches.map(match => m(MatchCard, { match, isMyMatch: true }))
-                                  )
-                              )
-                            : (State.openMatches.length === 0
-                                ? m("div", { class: "empty-state" }, [
-                                    m("h3", "No hay partidas abiertas"),
-                                    m("p", "Sé el primero en crear una partida pública.")
-                                  ])
-                                : m("div", { class: "match-list" }, 
-                                    State.openMatches.map(match => m(MatchCard, { match, isMyMatch: false }))
-                                  )
-                              )
-                        )
+                        State.loading
+                            ? m("div", { style: "text-align:center; padding:40px; color:var(--text-muted)" }, "Cargando partidos...")
+                            : (
+                                State.activeTab === 'mine'
+                                    ? (State.myMatches.length === 0
+                                        ? m("div", { class: "empty-state" }, [
+                                            m("h3", "No tienes partidas hoy"),
+                                            m("p", "Reserva una pista o únete a una partida abierta.")
+                                        ])
+                                        : m("div", { class: "match-list" },
+                                            State.myMatches.map(match => m(MatchCard, { match, isMyMatch: true }))
+                                        )
+                                    )
+                                    : (State.openMatches.length === 0
+                                        ? m("div", { class: "empty-state" }, [
+                                            m("h3", "No hay partidas abiertas"),
+                                            m("p", "Sé el primero en crear una partida pública.")
+                                        ])
+                                        : m("div", { class: "match-list" },
+                                            State.openMatches.map(match => m(MatchCard, { match, isMyMatch: false }))
+                                        )
+                                    )
+                            )
                     ])
                 ])
             };
@@ -394,4 +559,5 @@
 
     </script>
 </body>
+
 </html>

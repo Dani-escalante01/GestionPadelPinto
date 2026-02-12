@@ -75,14 +75,7 @@ try {
             equipo TEXT -- 'A' o 'B'
         )");
 
-        // Obtener Ranking Global
-        if ($method === 'GET' && $action === 'ranking') {
-            // Ordenamos por Nivel (desc) y luego por Victorias (desc)
-            $res = $db->query("SELECT id, nombre, nivel, victorias, derrotas, foto FROM usuarios ORDER BY nivel DESC, victorias DESC LIMIT 50");
-            $users = [];
-            while($row = $res->fetchArray(SQLITE3_ASSOC)) $users[] = $row;
-            jsonResponse($users);
-        }
+   
 
         // Datos semilla de Pistas
         $count = $db->querySingle("SELECT COUNT(*) FROM pistas");
@@ -96,8 +89,19 @@ try {
         jsonResponse(["msg" => "Base de datos V2 instalada correctamente."]);
     }
 
+         // Obtener Ranking Global
+        if ($method === 'GET' && $action === 'ranking') {
+            // Ordenamos por Nivel (desc) y luego por Victorias (desc)
+            $res = $db->query("SELECT id, nombre, nivel, victorias, derrotas, foto FROM usuarios ORDER BY nivel DESC, victorias DESC LIMIT 50");
+            $users = [];
+            while($row = $res->fetchArray(SQLITE3_ASSOC)) $users[] = $row;
+            jsonResponse($users);
+        }
+    
     // --- 4. USUARIOS Y AUTH ---
     
+
+
     if ($method === 'POST' && $action === 'register') {
         $data = getBody();
         if(empty($data['email']) || empty($data['password'])) jsonResponse(["error"=>"Faltan datos"], 400);

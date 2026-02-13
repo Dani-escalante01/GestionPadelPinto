@@ -585,6 +585,84 @@
         .theme-toggle:hover svg {
             transform: rotate(15deg);
         }
+
+        /* --- MENÚ DE USUARIO DESPLEGABLE --- */
+        .user-menu-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .user-name-btn {
+            background: transparent;
+            border: none;
+            font-family: inherit;
+            font-weight: 800;
+            font-size: 14px;
+            color: var(--text-main);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .user-name-btn:hover {
+            background-color: var(--border);
+        }
+
+        .dark .user-name-btn {
+            color: white;
+        }
+
+        .dark .user-name-btn:hover {
+            background-color: #334155;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 10px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            min-width: 160px;
+            overflow: hidden;
+            z-index: 100;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .dark .user-dropdown {
+            background: #1e293b;
+            border-color: #334155;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .dropdown-item {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 12px 16px;
+            background: transparent;
+            border: none;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            color: #ef4444;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background-color: #fee2e2;
+        }
+
+        .dark .dropdown-item:hover {
+            background-color: rgba(239, 68, 68, 0.15);
+        }
     </style>
 </head>
 
@@ -603,6 +681,7 @@
             courts: [],
             reservations: [],
             loading: true,
+            userMenuOpen: false,
             // Datos del Modal
             modal: {
                 show: false,
@@ -707,7 +786,33 @@
                         m("div", { class: "nav-actions" }, [
                             m(ThemeToggle),
                             Auth.user
-                                ? m("span", { style: "font-weight:bold; font-size: 14px;" }, Auth.user.nombre)
+                                ? m("div", { class: "user-menu-container" }, [
+                                    // Botón con el nombre del usuario
+                                    m("button", {
+                                        class: "user-name-btn",
+                                        onclick: () => State.userMenuOpen = !State.userMenuOpen
+                                    }, [
+                                        Auth.user.nombre,
+                                        m("span", { style: "font-size: 10px; margin-left: 4px;" }, "▼")
+                                    ]),
+                                    // Desplegable
+                                    State.userMenuOpen ? m("div", { class: "user-dropdown" }, [
+                                        m("button", {
+                                            class: "dropdown-item",
+                                            onclick: () => {
+                                                // Lógica para cerrar sesión
+                                                if (typeof Auth.logout === 'function') {
+                                                    Auth.logout();
+                                                } else {
+                                                    Auth.user = null; // Quita los datos del usuario del estado
+                                                    localStorage.removeItem('user'); // Asegura que no se recupere al recargar
+                                                }
+                                                State.userMenuOpen = false;
+                                                m.redraw();
+                                            }
+                                        }, "Cerrar sesión")
+                                    ]) : null
+                                ])
                                 : m("button", {
                                     class: "btn-primary",
                                     onclick: () => window.location.href = "login.html"

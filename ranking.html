@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,60 +9,27 @@
     <script src="api.js"></script>
     <script src="toggleTheme.js"></script>
     <link rel="icon" type="image/svg+xml" href="src/favicon.svg" /> <!-- favicon -->
+    <link rel="stylesheet" href="styles.css">
 
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
     <style>
-        /* --- 1. VARIABLES (Coherencia Visual) --- */
-        :root {
-            --primary: #22c55e;
-            --primary-dark: #16a34a;
-            --dark-bg: #0f172a;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #94a3b8;
-            --border: #e2e8f0;
-            --radius: 24px;
-            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            
-            /* Colores de Podio */
-            --gold: #fbbf24;
-            --silver: #94a3b8;
-            --bronze: #b45309;
+        .dark .rank-card,
+        .dark .podium-card {
+            background-color: #1e293b;
+            border-color: #334155;
         }
 
-        .dark body { background-color: #0f172a; color: #f8fafc; }
-        .dark .navbar, .dark .rank-card, .dark .podium-card { background-color: #1e293b; border-color: #334155; }
-        .dark .rank-pos { background: #334155; color: white; }
-        .dark .rank-header { background: #1e293b; border-bottom-color: #334155; }
-
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #f8fafc;
-            margin: 0;
-            padding: 0;
-            color: var(--text-main);
+        .dark .rank-pos {
+            background: #334155;
+            color: white;
         }
 
-        /* --- NAVBAR (Reutilizable) --- */
-        .navbar {
-            background-color: var(--card-bg);
-            border-bottom: 1px solid var(--border);
-            padding: 15px 0;
-            position: sticky;
-            top: 0;
-            z-index: 50;
+        .dark .rank-header {
+            background: #1e293b;
+            border-bottom-color: #334155;
         }
-
-        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
-        
-        .nav-container { display: flex; justify-content: space-between; align-items: center; }
-        
-        .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; text-decoration: none; color: inherit; }
-        .logo-icon { background: var(--primary); color: white; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
-
-        .nav-links a { margin-left: 20px; text-decoration: none; color: var(--text-muted); font-weight: 700; font-size: 14px; text-transform: uppercase; }
-        .nav-links a.active { color: var(--primary); }
 
         /* --- PODIO (Top 3) --- */
         .podium-section {
@@ -87,9 +55,23 @@
         }
 
         /* Alturas escalonadas */
-        .podium-1 { order: 2; transform: scale(1.1); z-index: 10; border-color: var(--gold); border-width: 2px; }
-        .podium-2 { order: 1; margin-bottom: -20px; }
-        .podium-3 { order: 3; margin-bottom: -40px; }
+        .podium-1 {
+            order: 2;
+            transform: scale(1.1);
+            z-index: 10;
+            border-color: var(--gold);
+            border-width: 2px;
+        }
+
+        .podium-2 {
+            order: 1;
+            margin-bottom: -20px;
+        }
+
+        .podium-3 {
+            order: 3;
+            margin-bottom: -40px;
+        }
 
         .medal-icon {
             font-size: 24px;
@@ -99,25 +81,56 @@
             transform: translateX(-50%);
             background: white;
             border-radius: 50%;
-            width: 40px; height: 40px;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .avatar-large {
-            width: 80px; height: 80px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             object-fit: cover;
             margin: 10px auto;
             border: 4px solid var(--border);
         }
-        .podium-1 .avatar-large { border-color: var(--gold); }
-        .podium-2 .avatar-large { border-color: var(--silver); }
-        .podium-3 .avatar-large { border-color: var(--bronze); }
 
-        .player-name { font-weight: 800; font-size: 1.1rem; margin: 5px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .player-level { font-weight: 700; color: var(--primary); font-size: 0.9rem; }
-        .player-stats { font-size: 0.8rem; color: var(--text-muted); margin-top: 5px; font-weight: 600; }
+        .podium-1 .avatar-large {
+            border-color: var(--gold);
+        }
+
+        .podium-2 .avatar-large {
+            border-color: var(--silver);
+        }
+
+        .podium-3 .avatar-large {
+            border-color: var(--bronze);
+        }
+
+        .player-name {
+            font-weight: 800;
+            font-size: 1.1rem;
+            margin: 5px 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .player-level {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+
+        .player-stats {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+            font-weight: 600;
+        }
 
         /* --- LISTA (Resto) --- */
         .ranking-list {
@@ -139,37 +152,82 @@
             transition: transform 0.2s;
         }
 
-        .rank-card:hover { transform: translateX(5px); border-color: var(--primary); }
+        .rank-card:hover {
+            transform: translateX(5px);
+            border-color: var(--primary);
+        }
 
         .rank-pos {
-            font-size: 14px; font-weight: 900;
-            width: 30px; height: 30px;
+            font-size: 14px;
+            font-weight: 900;
+            width: 30px;
+            height: 30px;
             background: var(--border);
             color: var(--text-muted);
             border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .rank-avatar {
-            width: 40px; height: 40px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             object-fit: cover;
         }
 
-        .rank-info { flex: 1; }
-        .rank-name { font-weight: 700; font-size: 14px; }
-        .rank-detail { font-size: 11px; color: var(--text-muted); }
+        .rank-info {
+            flex: 1;
+        }
 
-        .rank-score { text-align: right; }
-        .score-val { font-size: 16px; font-weight: 900; color: var(--primary); }
-        .score-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; }
+        .rank-name {
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .rank-detail {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .rank-score {
+            text-align: right;
+        }
+
+        .score-val {
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--primary);
+        }
+
+        .score-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 700;
+        }
 
         @media (max-width: 768px) {
-            .podium-section { flex-direction: column; align-items: center; gap: 30px; margin-top: 30px; }
-            .podium-1, .podium-2, .podium-3 { order: unset; margin-bottom: 0; transform: none; width: 100%; }
+            .podium-section {
+                flex-direction: column;
+                align-items: center;
+                gap: 30px;
+                margin-top: 30px;
+            }
+
+            .podium-1,
+            .podium-2,
+            .podium-3 {
+                order: unset;
+                margin-bottom: 0;
+                transform: none;
+                width: 100%;
+            }
         }
     </style>
 </head>
+
 <body>
     <div id="app"></div>
 
@@ -210,15 +268,56 @@
             return {
                 view: () => m("nav", { class: "navbar" }, [
                     m("div", { class: "container nav-container" }, [
-                        m("a", { href: "index.html", class: "brand" }, [
+
+                        // 1. Logo: Usamos DIV para igualar el comportamiento (display: block)
+                        m("div", {
+                            class: "brand",
+                            style: "cursor: pointer;",
+                            onclick: () => window.location.href = "index.html"
+                        }, [
                             m("div", { class: "logo-icon" }, "P"),
                             m("span", "PADELPINTO")
                         ]),
+
+                        // 2. Links: Exactamente igual, manteniendo "Ranking" como activo
                         m("div", { class: "nav-links" }, [
                             m("a", { href: "index.html" }, "Reservar"),
                             m("a", { href: "partidas.html" }, "Partidas"),
-                            m("a", { href: "#", class: "active" }, "Ranking"),
-                            m(ThemeToggle)
+                            m("a", { href: "#", class: "active" }, "Ranking")
+                        ]),
+
+                        // 3. Acciones: Añadido el Toggle de Tema y el Menú de Usuario
+                        m("div", { class: "nav-actions" }, [
+                            m(ThemeToggle),
+                            Auth.user
+                                ? m("div", { class: "user-menu-container" }, [
+                                    m("button", {
+                                        class: "user-name-btn",
+                                        onclick: () => State.userMenuOpen = !State.userMenuOpen
+                                    }, [
+                                        Auth.user.nombre,
+                                        m("span", { style: "font-size: 10px; margin-left: 4px;" }, "▼")
+                                    ]),
+                                    State.userMenuOpen ? m("div", { class: "user-dropdown" }, [
+                                        m("button", {
+                                            class: "dropdown-item",
+                                            onclick: () => {
+                                                if (typeof Auth.logout === 'function') {
+                                                    Auth.logout();
+                                                } else {
+                                                    Auth.user = null;
+                                                    localStorage.removeItem('user');
+                                                }
+                                                State.userMenuOpen = false;
+                                                m.redraw();
+                                            }
+                                        }, "Cerrar sesión")
+                                    ]) : null
+                                ])
+                                : m("button", {
+                                    class: "btn-primary",
+                                    onclick: () => window.location.href = "login.html"
+                                }, "ENTRAR")
                         ])
                     ])
                 ])
@@ -238,14 +337,14 @@
                     if (place === 3) { medal = "🥉"; cssClass = "podium-3"; }
 
                     // Usar nombre o iniciales si no hay foto
-                    const avatarSrc = user.foto && user.foto.length > 10 
-                        ? user.foto 
+                    const avatarSrc = user.foto && user.foto.length > 10
+                        ? user.foto
                         : `https://api.dicebear.com/7.x/initials/svg?seed=${user.nombre}`;
 
                     return m("div", { class: `podium-card ${cssClass} animate-fade-up` }, [
                         m("div", { class: "medal-icon" }, medal),
-                        m("img", { 
-                            class: "avatar-large", 
+                        m("img", {
+                            class: "avatar-large",
                             src: avatarSrc
                         }),
                         m("div", { class: "player-name" }, user.nombre),
@@ -261,15 +360,15 @@
             return {
                 view: (vnode) => {
                     const { user, pos } = vnode.attrs;
-                    
-                    const avatarSrc = user.foto && user.foto.length > 10 
-                        ? user.foto 
+
+                    const avatarSrc = user.foto && user.foto.length > 10
+                        ? user.foto
                         : `https://api.dicebear.com/7.x/initials/svg?seed=${user.nombre}`;
 
                     return m("div", { class: "rank-card animate-fade-up", style: `animation-delay: ${pos * 0.05}s` }, [
                         m("div", { class: "rank-pos" }, pos),
-                        m("img", { 
-                            class: "rank-avatar", 
+                        m("img", {
+                            class: "rank-avatar",
                             src: avatarSrc
                         }),
                         m("div", { class: "rank-info" }, [
@@ -297,27 +396,27 @@
                     return m("div", [
                         m(Navbar),
                         m("div", { class: "container" }, [
-                            
-                            State.loading 
-                            ? m("div", { style: "text-align:center; padding:50px; color:#94a3b8;" }, "Calculando posiciones...")
-                            : [
-                                // SECCIÓN PODIO
-                                m("div", { class: "podium-section" }, [
-                                    top3[1] ? m(PodiumCard, { user: top3[1], place: 2 }) : null,
-                                    top3[0] ? m(PodiumCard, { user: top3[0], place: 1 }) : null,
-                                    top3[2] ? m(PodiumCard, { user: top3[2], place: 3 }) : null,
-                                ]),
 
-                                // SECCIÓN LISTA
-                                m("div", { class: "ranking-list" }, [
-                                    rest.length > 0 
-                                    ? [
-                                        m("h3", { style: "margin-bottom:20px; opacity:0.6; font-size:14px; text-transform:uppercase; letter-spacing:1px;" }, "Resto de Jugadores"),
-                                        rest.map((user, idx) => m(RankingRow, { user, pos: idx + 4 }))
-                                      ]
-                                    : m("div", { style:"text-align:center; color:#94a3b8; padding:20px" }, "No hay más jugadores clasificados.")
-                                ])
-                            ]
+                            State.loading
+                                ? m("div", { style: "text-align:center; padding:50px; color:#94a3b8;" }, "Calculando posiciones...")
+                                : [
+                                    // SECCIÓN PODIO
+                                    m("div", { class: "podium-section" }, [
+                                        top3[1] ? m(PodiumCard, { user: top3[1], place: 2 }) : null,
+                                        top3[0] ? m(PodiumCard, { user: top3[0], place: 1 }) : null,
+                                        top3[2] ? m(PodiumCard, { user: top3[2], place: 3 }) : null,
+                                    ]),
+
+                                    // SECCIÓN LISTA
+                                    m("div", { class: "ranking-list" }, [
+                                        rest.length > 0
+                                            ? [
+                                                m("h3", { style: "margin-bottom:20px; opacity:0.6; font-size:14px; text-transform:uppercase; letter-spacing:1px;" }, "Resto de Jugadores"),
+                                                rest.map((user, idx) => m(RankingRow, { user, pos: idx + 4 }))
+                                            ]
+                                            : m("div", { style: "text-align:center; color:#94a3b8; padding:20px" }, "No hay más jugadores clasificados.")
+                                    ])
+                                ]
                         ])
                     ]);
                 }
@@ -332,4 +431,5 @@
 
     </script>
 </body>
+
 </html>

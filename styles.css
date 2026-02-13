@@ -14,6 +14,11 @@ html {
     --border: #e2e8f0;
     --radius: 24px;
     --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+    /* Colores de Podio */
+    --gold: #fbbf24;
+    --silver: #94a3b8;
+    --bronze: #b45309;
 }
 
 /* Modo Oscuro (gestionado por toggleTheme.js si añade clase .dark al html/body) */

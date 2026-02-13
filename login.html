@@ -1,230 +1,548 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Padel Pinto - Iniciar Sesión</title>
-  <script src="https://unpkg.com/mithril/mithril.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="icon" type="image/svg+xml" href="src/favicon.svg" /> <!-- favicon -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Padel Pinto</title>
+    <script src="https://components.digitalvalue.es/lib/mithril.min.js"></script>
+    <script src="api.js"></script>
+    <script src="toggleTheme.js"></script>
+    <link rel="icon" type="image/svg+xml" href="src/favicon.svg" />
 
-  <style>
-    :root {
-      --padel-green: #2ecc71;
-      --padel-blue: #0f172a;
-    }
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
-    body {
-      font-family: "Plus Jakarta Sans", sans-serif;
-      background-color: #f8fafc;
-    }
+    <style>
+        /* --- 1. VARIABLES & RESET --- */
+        :root {
+            --primary: #22c55e;
+            --primary-dark: #16a34a;
+            --dark-bg: #0f172a;
+            --bg-dirty-white: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius: 24px;
+            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
 
-    /* Animación de entrada suave igual que en la home */
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
+        /* Variables para MODO OSCURO */
+        .dark {
+            --bg-dirty-white: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
 
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+        .dark body {
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
 
-    .animate-fade-up {
-      animation: fadeIn 0.6s ease-out forwards;
-    }
+        .dark .form-side {
+            background-color: #020617;
+            /* Un poco más oscuro que el fondo general */
+        }
 
-    /* Estilo específico para el input al enfocar */
-    .input-field:focus {
-      border-color: var(--padel-green);
-      box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.1);
-      outline: none;
-    }
-  </style>
+        /* Fondo oscuro en modo noche */
+        .dark .login-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .dark .input-field {
+            background-color: #0f172a;
+            border-color: var(--border);
+            color: white;
+        }
+
+        .dark .input-field:focus {
+            border-color: var(--primary);
+            background-color: #0f172a;
+        }
+
+        .dark .label {
+            color: #cbd5e1;
+        }
+
+        .dark .brand-mobile {
+            color: white;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: auto;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* --- 2. LAYOUT SPLIT --- */
+        .split-layout {
+            display: flex;
+            flex: 1;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        .hero-side {
+            display: none;
+            flex: 1.2;
+            position: relative;
+            background-color: var(--dark-bg);
+            overflow: hidden;
+        }
+
+        @media (min-width: 900px) {
+            .hero-side {
+                display: flex;
+            }
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.6;
+            mix-blend-mode: overlay;
+            transform: scale(1.05);
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(15, 23, 42, 0.9), transparent);
+            z-index: 1;
+        }
+
+        .hero-content {
+            z-index: 2;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding-top: 25vh;
+            /* AJUSTE PRECISO: Pone el texto un poco por encima del centro */
+            height: 100%;
+            color: white;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+            line-height: 1;
+            letter-spacing: -1px;
+        }
+
+        .form-side {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-dirty-white);
+            position: relative;
+            padding: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        /* --- NAVBAR FLOTANTE --- */
+        .navbar-floating {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-link-back {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 700;
+            transition: color 0.3s;
+        }
+
+        .dark .nav-link-back {
+            color: #94a3b8;
+        }
+
+        .nav-link-back:hover {
+            color: var(--primary);
+        }
+
+        .brand-mobile {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 18px;
+            color: var(--text-main);
+            text-decoration: none;
+        }
+
+        @media (min-width: 900px) {
+            .brand-mobile {
+                display: none;
+            }
+        }
+
+        /* --- TARJETA DE LOGIN --- */
+        .login-card {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            border-radius: 32px;
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.6s ease-out;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .form-header {
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin: 0 0 10px 0;
+            letter-spacing: -0.5px;
+            color: var(--text-main);
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .label {
+            display: block;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            color: var(--text-main);
+            letter-spacing: 0.5px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+            background-color: #f8fafc;
+            font-size: 14px;
+            font-weight: 600;
+            outline: none;
+            transition: all 0.2s;
+            box-sizing: border-box;
+            color: var(--text-main);
+        }
+
+        .input-field:focus {
+            border-color: var(--primary);
+            background-color: var(--card-bg);
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            margin-top: 10px;
+            box-shadow: 0 10px 20px -5px rgba(34, 197, 94, 0.4);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            background: var(--border);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .error-msg {
+            background: #fee2e2;
+            color: #ef4444;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .link {
+            color: var(--primary);
+            font-weight: 800;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .link:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        /* --- ESTILOS DEL BOTÓN TOGGLE --- */
+        .theme-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            padding: 0;
+            cursor: pointer;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            background-color: var(--card-bg);
+            color: var(--text-muted);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            outline: none;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-1px);
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        /* Toggle en Oscuro */
+        .dark .theme-toggle {
+            background-color: #1e293b;
+            border-color: #334155;
+            color: #fbbf24;
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.1);
+        }
+
+        .dark .theme-toggle:hover {
+            border-color: #fbbf24;
+            background-color: #334155;
+        }
+
+        .theme-toggle svg {
+            transition: transform 0.5s ease;
+        }
+
+        .theme-toggle:hover svg {
+            transform: rotate(15deg);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
 
 <body>
-  <div id="app"></div>
+    <div id="app"></div>
 
-  <script>
-    // --- ESTADO ---
-    const State = {
-      email: "",
-      password: "",
-      isLoading: false,
-      error: "",
-      heroImage:
-        "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?q=80&w=2070&auto=format&fit=crop",
-    };
+    <script>
 
-    // --- ACCIONES ---
-    const Actions = {
-      login: (e) => {
-        e.preventDefault();
-        State.isLoading = true;
+        // --- ESTADO ---
+        const State = {
+            email: "",
+            password: "",
+            loading: false,
+            error: null
+        };
 
-        setTimeout(() => {
-          if (State.email && State.password) {
-            // Redirigimos a la home pasando el parámetro "auth=success"
-            window.location.href = "loggedView.html?auth=success";
-          } else {
-            State.error = "Datos incorrectos o incompletos";
-            State.isLoading = false;
-            m.redraw();
-          }
-        }, 1000);
-      },
-      googleLogin: () => {
-        alert("Funcionalidad de Google en desarrollo");
-      },
-    };
+        // --- ACCIONES ---
+        const Actions = {
+            login: async (e) => {
+                e.preventDefault();
+                State.loading = true;
+                State.error = null;
 
-    // --- COMPONENTES ---
+                if (!State.email || !State.password) {
+                    State.error = "Por favor, introduce tu email y contraseña.";
+                    State.loading = false;
+                    return;
+                }
 
-    // 1. Panel Izquierdo (Imagen Decorativa)
-    const LeftPanel = {
-      view: () =>
-        m(
-          "div",
-          {
-            class:
-              "hidden lg:flex w-1/2 relative bg-slate-900 overflow-hidden",
-          },
-          [
-            m("img", {
-              src: State.heroImage,
-              class:
-                "absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay",
-            }),
-            m("div", { class: "relative z-10 m-auto text-center px-12" }, [
-              m(
-                "div",
-                {
-                  class:
-                    "w-20 h-20 bg-green-500 rounded-2xl flex items-center justify-center text-white font-black italic text-4xl mb-8 mx-auto shadow-2xl shadow-green-500/50",
-                },
-                "P",
-              ),
-              m(
-                "h2",
-                {
-                  class: "text-4xl font-black text-white mb-6 leading-tight",
-                },
-                "Tu comunidad de pádel te espera.",
-              ),
-              m(
-                "p",
-                { class: "text-slate-300 text-lg font-medium" },
-                "Reserva pistas, encuentra rivales y gestiona tu agenda desde un solo lugar.",
-              ),
-            ]),
-          ],
-        ),
-    };
+                try {
+                    const res = await Auth.login(State.email, State.password);
+                    if (res.success) {
+                        window.location.href = "index.html";
+                    } else {
+                        State.error = res.error || "Email o contraseña incorrectos.";
+                    }
+                } catch (err) {
+                    console.error(err);
+                    State.error = "Error al conectar con el servidor.";
+                }
 
-    // 2. Formulario de Login
-    const LoginForm = {
-      view: () =>
-        m("div", { class: "w-full lg:w-1/2 flex items-center justify-center p-8 bg-white" }, [
-          m("div", { class: "w-full max-w-md animate-fade-up" }, [
-            // Cabecera Móvil (Solo visible en pantallas pequeñas)
-            m("div", { class: "lg:hidden flex items-center gap-3 mb-10 justify-center" }, [
-              m("div", { class: "w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center text-white font-black italic shadow-lg" }, "P"),
-              m("span", { class: "font-black text-xl tracking-tight text-slate-800" }, "PADELPINTO")
-            ]),
+                State.loading = false;
+                m.redraw();
+            }
+        };
 
-            // Títulos
-            m("h1", { class: "text-3xl font-black text-slate-800 mb-2" }, "¡Hola de nuevo!"),
-            m("p", { class: "text-slate-400 font-medium mb-8" }, "Introduzca sus datos para acceder a su cuenta."),
+        // --- COMPONENTES ---
 
-            // Formulario
-            m("form", { onsubmit: Actions.login, class: "space-y-5" }, [
-              // Input Email
-              m("div", [
-                m("label", { class: "block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2" }, "Email"),
-                m("input", {
-                  type: "email",
-                  placeholder: "nombre@ejemplo.com",
-                  class: "input-field w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 transition-all placeholder:text-slate-300",
-                  value: State.email,
-                  oninput: (e) => (State.email = e.target.value)
-                })
-              ]),
+        function HeroSide() {
+            return {
+                view: () => m("div", { class: "hero-side" }, [
+                    m("img", {
+                        src: "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=2070",
+                        class: "hero-bg"
+                    }),
+                    m("div", { class: "hero-overlay" }),
+                    m("div", { class: "hero-content" }, [
+                        m("div", {
+                            style: "background: var(--primary); width: 50px; height: 50px; display:flex; align-items:center; justify-content:center; border-radius:12px; font-weight:900; font-size:24px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); color:white;"
+                        }, "P"),
+                        m("h2", { class: "hero-title" }, "Bienvenido de nuevo."),
+                        m("p", { style: "font-size: 1.2rem; opacity: 0.8; font-weight:500; max-width: 400px;" },
+                            "Gestiona tus reservas y conecta con tu comunidad de pádel."
+                        )
+                    ])
+                ])
+            };
+        }
 
-              // Input Password
-              m("div", [
-                m("div", { class: "flex justify-between items-center mb-2" }, [
-                  m("label", { class: "text-xs font-bold text-slate-700 uppercase tracking-wider" }, "Contraseña"),
-                  m("a", { href: "#", class: "text-xs font-bold text-green-600 hover:text-green-500" }, "¿Olvidaste la contraseña?")
-                ]),
-                m("input", {
-                  type: "password",
-                  placeholder: "••••••••",
-                  class: "input-field w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 transition-all placeholder:text-slate-300",
-                  value: State.password,
-                  oninput: (e) => (State.password = e.target.value)
-                })
-              ]),
+        function LoginCard() {
+            return {
+                view: () => m("div", { class: "login-card" }, [
+                    m("form", { onsubmit: Actions.login }, [
 
-              // Mensaje de Error
-              State.error && m("div", { class: "p-4 bg-red-50 text-red-500 text-xs font-bold rounded-xl flex items-center gap-2" }, [
-                m("span", "⚠️"),
-                State.error
-              ]),
+                        m("div", { class: "form-header" }, [
+                            m("h1", "Iniciar Sesión"),
+                            m("p", { class: "subtitle" }, "Introduce tus credenciales para acceder.")
+                        ]),
 
-              // Botón Submit
-              m("button", {
-                type: "submit",
-                disabled: State.isLoading,
-                class: `w-full py-4 rounded-2xl font-black text-sm tracking-wide transition-all transform active:scale-95 shadow-xl ${State.isLoading
-                    ? "bg-slate-100 text-slate-400 cursor-not-allowed shadow-none"
-                    : "bg-green-500 hover:bg-green-400 text-slate-900 shadow-green-200"
-                  }`
-              }, State.isLoading ? "ACCEDIENDO..." : "INICIAR SESIÓN"),
+                        State.error ? m("div", { class: "error-msg animate-fade-up" }, [
+                            m("span", "⚠️"), m("span", State.error)
+                        ]) : null,
 
-              // Separador
-              m("div", { class: "relative py-4" }, [
-                m("div", { class: "absolute inset-0 flex items-center" }, m("div", { class: "w-full border-t border-slate-100" })),
-                m("div", { class: "relative flex justify-center text-xs" },
-                  m("span", { class: "px-4 bg-white text-slate-400 font-bold" }, "O continúa con")
-                )
-              ]),
+                        m("div", { class: "form-group" }, [
+                            m("label", { class: "label" }, "Correo Electrónico"),
+                            m("input", {
+                                type: "email",
+                                class: "input-field",
+                                placeholder: "ejemplo@padel.com",
+                                value: State.email,
+                                oninput: (e) => State.email = e.target.value
+                            })
+                        ]),
 
-              // Botón Google (Visual)
-              m("button", {
-                type: "button",
-                onclick: Actions.googleLogin,
-                class: "w-full py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition flex items-center justify-center gap-3"
-              }, [
-                m("span", { class: "text-lg" }, "G"),
-                "Google"
-              ])
-            ]),
+                        m("div", { class: "form-group" }, [
+                            m("div", { style: "display:flex; justify-content:space-between;" }, [
+                                m("label", { class: "label" }, "Contraseña"),
+                                m("a", { href: "#", style: "font-size:11px; color:var(--primary); font-weight:700; text-decoration:none;" }, "¿Olvidaste la contraseña?")
+                            ]),
+                            m("input", {
+                                type: "password",
+                                class: "input-field",
+                                placeholder: "••••••••",
+                                value: State.password,
+                                oninput: (e) => State.password = e.target.value
+                            })
+                        ]),
 
-            // Footer
-            m("p", { class: "mt-10 text-center text-sm font-medium text-slate-500" }, [
-              "¿No tienes cuenta? ",
-              m("a", { href: "registro.html", class: "text-green-600 font-bold hover:underline" }, "Regístrate gratis")
-            ])
-          ])
-        ])
-    };
+                        m("button", {
+                            type: "submit",
+                            class: "btn-primary",
+                            disabled: State.loading
+                        }, State.loading ? "Verificando..." : "ACCEDER A MI CUENTA"),
 
-    // --- APP WRAPPER ---
-    const App = {
-      view: () =>
-        m("div", { class: "min-h-screen flex" }, [
-          m(LeftPanel),
-          m(LoginForm),
-        ]),
-    };
+                        m("div", { class: "form-footer" }, [
+                            m("span", "¿Aún no tienes cuenta? "),
+                            m("a", { href: "registro.html", class: "link" }, "Regístrate ahora")
+                        ])
+                    ])
+                ])
+            };
+        }
 
-    m.mount(document.getElementById("app"), App);
-  </script>
+        // --- LAYOUT ---
+        function Layout() {
+            return {
+                view: () => {
+                    // IMPORTANTE: Esto activa el CSS del modo oscuro en el HTML
+                    document.documentElement.classList.toggle('dark', ThemeState.darkMode);
+
+                    return m("div", { class: "split-layout" }, [
+                        m(HeroSide),
+                        m("div", { class: "form-side" }, [
+                            m("div", { class: "navbar-floating" }, [
+                                m("a", {
+                                    href: "index.html",
+                                    class: "nav-link-back" // Clase nueva para mejor hover/dark mode
+                                }, "VOLVER AL INICIO"),
+                                m(ThemeToggle)
+                            ]),
+                            m("a", { href: "index.html", class: "brand-mobile" }, [
+                                m("div", { style: "background:var(--primary); color:white; width:30px; height:30px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:bold;" }, "P"),
+                                m("span", { style: "margin-left:10px" }, "PADELPINTO")
+                            ]),
+                            m(LoginCard)
+                        ])
+                    ]);
+                }
+            };
+        }
+
+        m.mount(document.getElementById("app"), Layout);
+    </script>
 </body>
 
 </html>

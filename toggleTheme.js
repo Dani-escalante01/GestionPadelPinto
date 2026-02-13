@@ -3,20 +3,24 @@
  * Módulo para gestionar el modo oscuro en PadelPinto
  */
 
-// 1. Inicializamos el estado del tema
-// Intentamos recuperar la preferencia del usuario del localStorage
 const ThemeState = {
   darkMode: localStorage.getItem("theme") === "dark",
 };
 
 const ThemeActions = {
+  apply: () => {
+    if (ThemeState.darkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  },
   toggle: () => {
     ThemeState.darkMode = !ThemeState.darkMode;
-    // Guardamos la preferencia
     localStorage.setItem("theme", ThemeState.darkMode ? "dark" : "light");
+    ThemeActions.apply(); 
     m.redraw();
   },
-  // Función para obtener las clases dinámicas del contenedor principal
   getMainClasses: () => {
     return ThemeState.darkMode
       ? "dark bg-slate-900 text-white transition-colors duration-500 min-h-screen"
@@ -24,7 +28,8 @@ const ThemeActions = {
   },
 };
 
-// 2. Componente visual del botón
+ThemeActions.apply();// Ejecutar aplicación inicial
+
 const ThemeToggle = {
   view: () => {
     return m(
@@ -50,13 +55,13 @@ const ThemeToggle = {
                 m("line[x1=21][y1=12][x2=23][y2=12]"),
                 m("line[x1=4.22][y1=19.78][x2=5.64][y2=18.36]"),
                 m("line[x1=18.36][y1=5.64][x2=19.78][y2=4.22]"),
-              ]
+              ],
             )
           : m(
               "svg[xmlns=http://www.w3.org/2000/svg][width=20][height=20][viewBox=0 0 24 24][fill=none][stroke=currentColor][stroke-width=2.5][stroke-linecap=round][stroke-linejoin=round]",
-              [m("path[d=M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z]")]
+              [m("path[d=M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z]")],
             ),
-      ]
+      ],
     );
   },
 };

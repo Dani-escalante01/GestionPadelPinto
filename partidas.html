@@ -8,33 +8,17 @@
     <script src="https://components.digitalvalue.es/lib/mithril.min.js"></script>
     <script src="api.js"></script>
     <script src="toggleTheme.js"></script>
-    <link rel="icon" type="image/svg+xml" href="src/favicon.svg" /> <!-- favicon -->
 
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
+    <link rel="icon" type="image/svg+xml" href="src/favicon.svg" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
     <style>
-        /* --- 1. VARIABLES (Coherencia Visual) --- */
-        :root {
-            --primary: #22c55e;
-            --primary-dark: #16a34a;
-            --dark-bg: #0f172a;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #94a3b8;
-            --border: #e2e8f0;
-            --radius: 24px;
-            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        .dark body {
-            background-color: #0f172a;
-            color: #f8fafc;
-        }
-
-        .dark .navbar,
-        .dark .match-card {
-            background-color: #1e293b;
-            border-color: #334155;
+        /* Asegurar que el título sea blanco en modo oscuro */
+        .dark .page-title,
+        .dark .time-big,
+        .dark h3 {
+            color: white;
         }
 
         .dark .tab-btn {
@@ -51,68 +35,10 @@
             border-color: #334155;
         }
 
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #f8fafc;
-            margin: 0;
-            padding: 0;
-            color: var(--text-main);
-        }
-
-        /* --- NAVBAR --- */
-        .navbar {
-            background-color: var(--card-bg);
-            border-bottom: 1px solid var(--border);
-            padding: 15px 0;
-            position: sticky;
-            top: 0;
-            z-index: 50;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .nav-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 800;
-            font-size: 20px;
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .logo-icon {
-            background: var(--primary);
+        .dark .player-avatar {
+            background: #334155;
+            border-color: #1e293b;
             color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .nav-links a {
-            margin-left: 20px;
-            text-decoration: none;
-            color: var(--text-muted);
-            font-weight: 700;
-            font-size: 14px;
-            text-transform: uppercase;
-        }
-
-        .nav-links a.active {
-            color: var(--primary);
         }
 
         /* --- LAYOUT --- */
@@ -136,6 +62,28 @@
             color: var(--text-muted);
             font-weight: 600;
             margin-top: 5px;
+        }
+
+        .date-nav-btn {
+            background: var(--card-bg, white);
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 8px 16px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text-main, #0f172a);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+
+        .date-nav-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
         }
 
         /* --- TABS --- */
@@ -176,19 +124,21 @@
 
         .match-card {
             background: var(--card-bg);
-            border: 1px solid var(--border);
             border-radius: 20px;
             padding: 25px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             box-shadow: var(--shadow);
+            border: 1.5px solid #cbd5e1;
+            /* Borde resaltado para modo claro */
             transition: transform 0.2s;
         }
 
         .match-card:hover {
             transform: translateY(-3px);
             border-color: var(--primary);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15);
         }
 
         .match-time {
@@ -202,6 +152,8 @@
             font-size: 24px;
             font-weight: 900;
             line-height: 1;
+            color: #0f172a;
+            /* Oscuro para modo claro */
         }
 
         .court-name {
@@ -258,12 +210,6 @@
             color: var(--text-main);
         }
 
-        .slots-text {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-muted);
-            margin-left: 10px;
-        }
 
         .match-action .btn {
             padding: 12px 24px;
@@ -290,12 +236,17 @@
             color: white;
         }
 
+        .dark .btn-view {
+            background: #334155;
+            color: white;
+        }
+
         .empty-state {
             text-align: center;
             padding: 60px;
             background: white;
             border-radius: 20px;
-            border: 2px dashed var(--border);
+            border: 2px dashed #cbd5e1;
             color: var(--text-muted);
         }
 
@@ -406,19 +357,53 @@
         };
 
         // --- COMPONENTES ---
-
+        
         function Navbar() {
             return {
                 view: () => m("nav", { class: "navbar" }, [
                     m("div", { class: "container nav-container" }, [
-                        m("a", { href: "index.html", class: "brand" }, [
+                        m("div", { class: "brand", style: "cursor: pointer;", onclick: () => window.location.href = "index.html" }, [
                             m("div", { class: "logo-icon" }, "P"),
                             m("span", "PADELPINTO")
                         ]),
                         m("div", { class: "nav-links" }, [
                             m("a", { href: "index.html" }, "Reservar"),
                             m("a", { href: "#", class: "active" }, "Partidas"),
-                            m(ThemeToggle)
+                            m("a", { href: "ranking.html" }, "Ranking")
+                        ]),
+
+                        // ACCIONES
+                        m("div", { class: "nav-actions" }, [
+                            m(ThemeToggle),
+                            Auth.user
+                                ? m("div", { class: "user-menu-container" }, [
+                                    m("button", {
+                                        class: "user-name-btn",
+                                        onclick: () => State.userMenuOpen = !State.userMenuOpen
+                                    }, [
+                                        Auth.user.nombre,
+                                        m("span", { style: "font-size: 10px; margin-left: 4px;" }, "▼")
+                                    ]),
+                                    State.userMenuOpen ? m("div", { class: "user-dropdown" }, [
+                                        m("button", {
+                                            class: "dropdown-item",
+                                            onclick: () => {
+                                                if (typeof Auth.logout === 'function') {
+                                                    Auth.logout();
+                                                } else {
+                                                    Auth.user = null;
+                                                    localStorage.removeItem('user');
+                                                }
+                                                State.userMenuOpen = false;
+                                                m.redraw();
+                                            }
+                                        }, "Cerrar sesión")
+                                    ]) : null
+                                ])
+                                : m("button", {
+                                    class: "btn-primary",
+                                    onclick: () => window.location.href = "login.html"
+                                }, "ENTRAR")
                         ])
                     ])
                 ])
@@ -462,7 +447,8 @@
                                 Array.from({ length: 4 - match.jugadores.length }).map(() =>
                                     m("div", { class: "player-avatar", style: "border: 2px dashed var(--border); color: transparent;" }, "")
                                 ),
-                                m("span", { class: "slots-text" }, `${match.jugadores.length}/4 Jugadores`)
+                                // Usamos la clase court-status-text para mantener los mismos colores claros/oscuros que en el index
+                                m("span", { class: "court-status-text" }, `${match.jugadores.length}/4 Jugadores`)
                             ])
                         ]),
 
@@ -483,73 +469,79 @@
         // --- VISTA PRINCIPAL ---
         function PartidasView() {
             return {
-                view: () => m("div", [
-                    m(Navbar),
-                    m("div", { class: "page-content" }, [
+                view: () => {
+                    document.documentElement.classList.toggle('dark', ThemeState.darkMode);
 
-                        // Encabezado con selector de fecha simple
-                        m("div", { class: "page-header" }, [
-                            m("div", { style: "display:flex; justify-content:space-between; align-items:center" }, [
-                                m("div", [
-                                    m("h1", { class: "page-title" }, "Partidas"),
-                                    m("p", { class: "page-date" },
-                                        State.currentDate.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
-                                    )
-                                ]),
-                                m("div", { style: "display:flex; gap:10px" }, [
-                                    m("button", {
-                                        style: "padding:10px 15px; border-radius:10px; border:1px solid #e2e8f0; background:white; cursor:pointer;",
-                                        onclick: () => Actions.changeDate(-1)
-                                    }, "← Ayer"),
-                                    m("button", {
-                                        style: "padding:10px 15px; border-radius:10px; border:1px solid #e2e8f0; background:white; cursor:pointer;",
-                                        onclick: () => Actions.changeDate(1)
-                                    }, "Mañana →")
+                    return m("div", {
+                        class: ThemeActions.getMainClasses() // Usamos la función de toggleTheme.js
+                    }, [
+                        m(Navbar),
+                        m("div", { class: "page-content" }, [
+
+                            // Encabezado con selector de fecha simple
+                            m("div", { class: "page-header" }, [
+                                m("div", { style: "display:flex; justify-content:space-between; align-items:center" }, [
+                                    m("div", [
+                                        m("h1", { class: "page-title" }, "Partidas"),
+                                        m("p", { class: "page-date" },
+                                            State.currentDate.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+                                        )
+                                    ]),
+                                    m("div", { style: "display:flex; gap:10px" }, [
+                                        m("button", {
+                                            class: "date-nav-btn", 
+                                            onclick: () => Actions.changeDate(-1)
+                                        }, "← Ayer"),
+                                        m("button", {
+                                            class: "date-nav-btn", 
+                                            onclick: () => Actions.changeDate(1)
+                                        }, "Mañana →")
+                                    ])
                                 ])
-                            ])
-                        ]),
+                            ]),
 
-                        // Tabs
-                        m("div", { class: "tabs" }, [
-                            m("button", {
-                                class: `tab-btn ${State.activeTab === 'mine' ? 'active' : ''}`,
-                                onclick: () => State.activeTab = 'mine'
-                            }, `Mis Partidas (${State.myMatches.length})`),
+                            // Tabs
+                            m("div", { class: "tabs" }, [
+                                m("button", {
+                                    class: `tab-btn ${State.activeTab === 'mine' ? 'active' : ''}`,
+                                    onclick: () => State.activeTab = 'mine'
+                                }, `Mis Partidas (${State.myMatches.length})`),
 
-                            m("button", {
-                                class: `tab-btn ${State.activeTab === 'open' ? 'active' : ''}`,
-                                onclick: () => State.activeTab = 'open'
-                            }, `Abiertas para hoy (${State.openMatches.length})`)
-                        ]),
+                                m("button", {
+                                    class: `tab-btn ${State.activeTab === 'open' ? 'active' : ''}`,
+                                    onclick: () => State.activeTab = 'open'
+                                }, `Abiertas para hoy (${State.openMatches.length})`)
+                            ]),
 
-                        // Contenido Lista
-                        State.loading
-                            ? m("div", { style: "text-align:center; padding:40px; color:var(--text-muted)" }, "Cargando partidos...")
-                            : (
-                                State.activeTab === 'mine'
-                                    ? (State.myMatches.length === 0
-                                        ? m("div", { class: "empty-state" }, [
-                                            m("h3", "No tienes partidas hoy"),
-                                            m("p", "Reserva una pista o únete a una partida abierta.")
-                                        ])
-                                        : m("div", { class: "match-list" },
-                                            State.myMatches.map(match => m(MatchCard, { match, isMyMatch: true }))
+                            // Contenido Lista
+                            State.loading
+                                ? m("div", { style: "text-align:center; padding:40px; color:var(--text-muted)" }, "Cargando partidos...")
+                                : (
+                                    State.activeTab === 'mine'
+                                        ? (State.myMatches.length === 0
+                                            ? m("div", { class: "empty-state" }, [
+                                                m("h3", "No tienes partidas hoy"),
+                                                m("p", "Reserva una pista o únete a una partida abierta.")
+                                            ])
+                                            : m("div", { class: "match-list" },
+                                                State.myMatches.map(match => m(MatchCard, { match, isMyMatch: true }))
+                                            )
                                         )
-                                    )
-                                    : (State.openMatches.length === 0
-                                        ? m("div", { class: "empty-state" }, [
-                                            m("h3", "No hay partidas abiertas"),
-                                            m("p", "Sé el primero en crear una partida pública.")
-                                        ])
-                                        : m("div", { class: "match-list" },
-                                            State.openMatches.map(match => m(MatchCard, { match, isMyMatch: false }))
+                                        : (State.openMatches.length === 0
+                                            ? m("div", { class: "empty-state" }, [
+                                                m("h3", "No hay partidas abiertas"),
+                                                m("p", "Sé el primero en crear una partida pública.")
+                                            ])
+                                            : m("div", { class: "match-list" },
+                                                State.openMatches.map(match => m(MatchCard, { match, isMyMatch: false }))
+                                            )
                                         )
-                                    )
-                            )
+                                )
+                        ])
                     ])
-                ])
-            };
-        }
+                }
+            }
+        };
 
         // --- INIT ---
         m.mount(document.getElementById("app"), {

@@ -232,7 +232,7 @@
             border-radius: var(--radius);
             padding: 25px;
             box-shadow: var(--shadow);
-            border: 1px solid var(--border);
+            border: 1.5px solid #adb4bd;
         }
 
         .cal-header {
@@ -265,11 +265,11 @@
             justify-content: center;
             border-radius: 50%;
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             border: none;
             background: transparent;
-            color: inherit;
+            color: #475569;
             transition: background 0.2s;
         }
 
@@ -292,14 +292,20 @@
 
         .time-btn {
             padding: 10px;
-            border: 1px solid var(--border);
+            border: 1.5px solid #adb4bd;
             border-radius: 12px;
             background: var(--card-bg);
+            background-color: #f1f5f9;
             cursor: pointer;
             font-weight: 700;
-            font-size: 12px;
-            color: var(--text-muted);
+            font-size: 13px;
+            color: #475569;
             transition: all 0.2s;
+        }
+
+        .time-btn:hover {
+            border-color: var(--primary);
+            background-color: #ffffff;
         }
 
         .time-btn.selected {
@@ -322,8 +328,9 @@
             display: flex;
             gap: 20px;
             box-shadow: var(--shadow);
-            border: 1px solid var(--border);
+            border: 1.5px solid #adb4bd;
             transition: transform 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
         .court-card:hover {
@@ -339,6 +346,7 @@
         }
 
         .court-info {
+            color: #334155;
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -352,9 +360,24 @@
         }
 
         .court-title {
+            color: #0f172a;
             font-weight: 800;
             margin: 0;
-            font-size: 16px;
+            font-size: 17px;
+        }
+
+        .court-status-text {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #8f9092;
+            transition: color 0.3s ease;
+        }
+
+        .dark .court-status-text {
+            color: #f7f3f3d1 !important;
         }
 
         .badge {
@@ -376,7 +399,7 @@
         }
 
         .progress-container {
-            background: var(--border);
+            background: #c5cbd1c4;
             height: 6px;
             border-radius: 10px;
             margin: 10px 0;
@@ -425,14 +448,14 @@
         /* --- RANKING BALLS --- */
         .ranking-container {
             display: flex;
-            margin-top: 5px;
+            margin: 5px;
         }
 
         .player-ball {
             width: 24px;
             height: 24px;
             border-radius: 50%;
-            background: var(--border);
+            background: #b1beb69e;
             border: 2px solid white;
             margin-right: -8px;
             font-size: 9px;
@@ -918,8 +941,8 @@
                                     m("h4", { class: "court-title" }, court.nombre),
                                     isPrivate ? m("span", { class: "badge private" }, "PRIVADA") : null
                                 ]),
-                                m("div", { style: "display:flex; justify-content:space-between; margin-top:5px; font-size:12px; color:var(--text-muted)" }, [
-                                    m("span", isFull ? "Completo" : "Disponible"),
+                                m("div", { class: "court-status-text" }, [
+                                    m("span", isFull ? "Completo" : "Disponible - 90 minutos"),
                                     m("span", `${players.length}/4 Jugadores`)
                                 ]),
                                 m("div", { class: "progress-container" }, [

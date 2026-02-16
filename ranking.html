@@ -2,17 +2,19 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ranking - Padel Pinto</title>
-    <script src="https://components.digitalvalue.es/lib/mithril.min.js"></script>
-    <script src="api.js"></script>
-    <script src="toggleTheme.js"></script>
-    <link rel="icon" type="image/svg+xml" href="src/favicon.svg" /> <!-- favicon -->
-    <link rel="stylesheet" href="styles.css">
-
+    <script src="https://components.digitalvalue.es/lib/mithril.min.js" defer></script>
+    <script src="js/api.js" defer></script>
+    <script src="js/components/toggleTheme.js" defer></script>
+    <script src="js/components/Navbar.js" defer></script>
+    <script src="js/components/RankingComponents.js" defer></script>
+    <script src="js/views/Ranking.js" defer></script>
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
+        rel="stylesheet" />
 
     <style>
         .dark .rank-card,
@@ -230,206 +232,6 @@
 
 <body>
     <div id="app"></div>
-
-    <script>
-        // --- ESTADO ---
-        const State = {
-            loading: true,
-            ranking: [] // Inicializado como array vacío para seguridad
-        };
-
-        // --- ACCIONES ---
-        const Actions = {
-            init: async () => {
-                Auth.init();
-                await Actions.loadData();
-            },
-
-            loadData: async () => {
-                State.loading = true;
-                try {
-                    // Llamada segura a la API
-                    const users = await PadelData.getRanking();
-                    // Aseguramos que sea un array, si falla la API usamos []
-                    State.ranking = Array.isArray(users) ? users : [];
-                } catch (e) {
-                    console.error("Error cargando ranking:", e);
-                    State.ranking = [];
-                } finally {
-                    State.loading = false;
-                    m.redraw();
-                }
-            }
-        };
-
-        // --- COMPONENTES ---
-
-        function Navbar() {
-            return {
-                view: () => m("nav", { class: "navbar" }, [
-                    m("div", { class: "container nav-container" }, [
-
-                        // 1. Logo: Usamos DIV para igualar el comportamiento (display: block)
-                        m("div", {
-                            class: "brand",
-                            style: "cursor: pointer;",
-                            onclick: () => window.location.href = "index.html"
-                        }, [
-                            m("div", { class: "logo-icon" }, "P"),
-                            m("span", "PADELPINTO")
-                        ]),
-
-                        // 2. Links: Exactamente igual, manteniendo "Ranking" como activo
-                        m("div", { class: "nav-links" }, [
-                            m("a", { href: "index.html" }, "Reservar"),
-                            m("a", { href: "partidas.html" }, "Partidas"),
-                            m("a", { href: "#", class: "active" }, "Ranking")
-                        ]),
-
-                        // 3. Acciones: Añadido el Toggle de Tema y el Menú de Usuario
-                        m("div", { class: "nav-actions" }, [
-                            m(ThemeToggle),
-                            Auth.user
-                                ? m("div", { class: "user-menu-container" }, [
-                                    m("button", {
-                                        class: "user-name-btn",
-                                        onclick: () => State.userMenuOpen = !State.userMenuOpen
-                                    }, [
-                                        Auth.user.nombre,
-                                        m("span", { style: "font-size: 10px; margin-left: 4px;" }, "▼")
-                                    ]),
-                                    State.userMenuOpen ? m("div", { class: "user-dropdown" }, [
-                                        m("button", {
-                                            class: "dropdown-item",
-                                            onclick: () => {
-                                                if (typeof Auth.logout === 'function') {
-                                                    Auth.logout();
-                                                } else {
-                                                    Auth.user = null;
-                                                    localStorage.removeItem('user');
-                                                }
-                                                State.userMenuOpen = false;
-                                                m.redraw();
-                                            }
-                                        }, "Cerrar sesión")
-                                    ]) : null
-                                ])
-                                : m("button", {
-                                    class: "btn-primary",
-                                    onclick: () => window.location.href = "login.html"
-                                }, "ENTRAR")
-                        ])
-                    ])
-                ])
-            };
-        }
-
-        // Tarjeta para el Podio (Top 3)
-        function PodiumCard() {
-            return {
-                view: (vnode) => {
-                    const { user, place } = vnode.attrs;
-                    if (!user) return null;
-
-                    let medal = "🥇";
-                    let cssClass = "podium-1";
-                    if (place === 2) { medal = "🥈"; cssClass = "podium-2"; }
-                    if (place === 3) { medal = "🥉"; cssClass = "podium-3"; }
-
-                    // Usar nombre o iniciales si no hay foto
-                    const avatarSrc = user.foto && user.foto.length > 10
-                        ? user.foto
-                        : `https://api.dicebear.com/7.x/initials/svg?seed=${user.nombre}`;
-
-                    return m("div", { class: `podium-card ${cssClass} animate-fade-up` }, [
-                        m("div", { class: "medal-icon" }, medal),
-                        m("img", {
-                            class: "avatar-large",
-                            src: avatarSrc
-                        }),
-                        m("div", { class: "player-name" }, user.nombre),
-                        m("div", { class: "player-level" }, `Nivel ${parseFloat(user.nivel).toFixed(2)}`),
-                        m("div", { class: "player-stats" }, `${user.victorias}V - ${user.derrotas}D`)
-                    ]);
-                }
-            };
-        }
-
-        // Fila para el resto de la lista (4º en adelante)
-        function RankingRow() {
-            return {
-                view: (vnode) => {
-                    const { user, pos } = vnode.attrs;
-
-                    const avatarSrc = user.foto && user.foto.length > 10
-                        ? user.foto
-                        : `https://api.dicebear.com/7.x/initials/svg?seed=${user.nombre}`;
-
-                    return m("div", { class: "rank-card animate-fade-up", style: `animation-delay: ${pos * 0.05}s` }, [
-                        m("div", { class: "rank-pos" }, pos),
-                        m("img", {
-                            class: "rank-avatar",
-                            src: avatarSrc
-                        }),
-                        m("div", { class: "rank-info" }, [
-                            m("div", { class: "rank-name" }, user.nombre),
-                            m("div", { class: "rank-detail" }, `${user.victorias} Victorias • ${user.derrotas} Derrotas`)
-                        ]),
-                        m("div", { class: "rank-score" }, [
-                            m("div", { class: "score-val" }, parseFloat(user.nivel).toFixed(2)),
-                            m("div", { class: "score-label" }, "Nivel")
-                        ])
-                    ]);
-                }
-            };
-        }
-
-        // --- VISTA PRINCIPAL ---
-        function RankingView() {
-            return {
-                view: () => {
-                    // PROTECCIÓN: Aseguramos que State.ranking sea un array antes de usar slice
-                    const safeRanking = Array.isArray(State.ranking) ? State.ranking : [];
-                    const top3 = safeRanking.slice(0, 3);
-                    const rest = safeRanking.slice(3);
-
-                    return m("div", [
-                        m(Navbar),
-                        m("div", { class: "container" }, [
-
-                            State.loading
-                                ? m("div", { style: "text-align:center; padding:50px; color:#94a3b8;" }, "Calculando posiciones...")
-                                : [
-                                    // SECCIÓN PODIO
-                                    m("div", { class: "podium-section" }, [
-                                        top3[1] ? m(PodiumCard, { user: top3[1], place: 2 }) : null,
-                                        top3[0] ? m(PodiumCard, { user: top3[0], place: 1 }) : null,
-                                        top3[2] ? m(PodiumCard, { user: top3[2], place: 3 }) : null,
-                                    ]),
-
-                                    // SECCIÓN LISTA
-                                    m("div", { class: "ranking-list" }, [
-                                        rest.length > 0
-                                            ? [
-                                                m("h3", { style: "margin-bottom:20px; opacity:0.6; font-size:14px; text-transform:uppercase; letter-spacing:1px;" }, "Resto de Jugadores"),
-                                                rest.map((user, idx) => m(RankingRow, { user, pos: idx + 4 }))
-                                            ]
-                                            : m("div", { style: "text-align:center; color:#94a3b8; padding:20px" }, "No hay más jugadores clasificados.")
-                                    ])
-                                ]
-                        ])
-                    ]);
-                }
-            };
-        }
-
-        // --- INIT ---
-        m.mount(document.getElementById("app"), {
-            oninit: Actions.init,
-            view: () => m(RankingView)
-        });
-
-    </script>
 </body>
 
 </html>

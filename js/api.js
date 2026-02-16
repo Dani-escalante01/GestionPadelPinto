@@ -3,7 +3,7 @@
  * Centraliza todas las llamadas al servidor y gestiona la sesión.
  */
 
-const API_URL = "backend.php";
+const API_URL = "server/backend.php";
 
 // --- UTILIDADES ---
 const Utils = {

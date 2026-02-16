@@ -72,7 +72,6 @@ const Auth = {
     logout: () => {
         Auth.user = null;
         localStorage.removeItem("padel_user");
-        window.location.href = "login.html"; // O redirigir a donde quieras
     }
 };
 

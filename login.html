@@ -8,84 +8,21 @@
     <script src="https://components.digitalvalue.es/lib/mithril.min.js"></script>
     <script src="api.js"></script>
     <script src="toggleTheme.js"></script>
-    <link rel="icon" type="image/svg+xml" href="src/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="src/favicon.svg" /> <!-- favicon -->
+    <link rel="stylesheet" href="styles.css">
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
 
     <style>
-        /* --- 1. VARIABLES & RESET --- */
-        :root {
-            --primary: #22c55e;
-            --primary-dark: #16a34a;
-            --dark-bg: #0f172a;
-            --bg-dirty-white: #f1f5f9;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --radius: 24px;
-            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Variables para MODO OSCURO */
-        .dark {
-            --bg-dirty-white: #0f172a;
-            --card-bg: #1e293b;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border: #334155;
-        }
-
-        .dark body {
-            background-color: #0f172a;
-            color: #f8fafc;
-        }
-
-        .dark .form-side {
-            background-color: #020617;
-            /* Un poco más oscuro que el fondo general */
-        }
-
-        /* Fondo oscuro en modo noche */
-        .dark .login-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
-        }
-
-        .dark .input-field {
-            background-color: #0f172a;
-            border-color: var(--border);
-            color: white;
-        }
-
-        .dark .input-field:focus {
-            border-color: var(--primary);
-            background-color: #0f172a;
-        }
-
-        .dark .label {
-            color: #cbd5e1;
-        }
-
-        .dark .brand-mobile {
-            color: white;
-        }
-
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            margin: 0;
-            padding: 0;
-            color: var(--text-main);
             height: 100vh;
             display: flex;
             flex-direction: column;
             overflow: auto;
-            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* --- 2. LAYOUT SPLIT --- */
+        /* --- LAYOUT SPLIT (Exclusivo de Login) --- */
         .split-layout {
             display: flex;
             flex: 1;
@@ -97,7 +34,7 @@
             display: none;
             flex: 1.2;
             position: relative;
-            background-color: var(--dark-bg);
+            background-color: #1f325f;
             overflow: hidden;
         }
 
@@ -107,7 +44,7 @@
             }
         }
 
-        .hero-bg {
+        .hero-side .hero-bg {
             position: absolute;
             inset: 0;
             width: 100%;
@@ -125,16 +62,17 @@
             z-index: 1;
         }
 
-        .hero-content {
+        .hero-side .hero-content {
             z-index: 2;
             padding: 60px;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             padding-top: 25vh;
-            /* AJUSTE PRECISO: Pone el texto un poco por encima del centro */
             height: 100%;
             color: white;
+            text-align: left;
+            /* Sobrescribe el center de styles.css */
         }
 
         .hero-title {
@@ -151,7 +89,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background-color: var(--bg-dirty-white);
+            background-color: #f1f5f9;
             position: relative;
             padding: 20px;
             transition: background-color 0.3s ease;
@@ -174,10 +112,6 @@
             font-size: 12px;
             font-weight: 700;
             transition: color 0.3s;
-        }
-
-        .dark .nav-link-back {
-            color: #94a3b8;
         }
 
         .nav-link-back:hover {
@@ -220,11 +154,10 @@
             text-align: left;
         }
 
-        h1 {
+        .login-card h1 {
             font-size: 28px;
             font-weight: 800;
             margin: 0 0 10px 0;
-            letter-spacing: -0.5px;
             color: var(--text-main);
         }
 
@@ -270,30 +203,7 @@
 
         .btn-primary {
             width: 100%;
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 16px;
-            border-radius: 14px;
-            font-weight: 800;
-            font-size: 14px;
-            cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
             margin-top: 10px;
-            box-shadow: 0 10px 20px -5px rgba(34, 197, 94, 0.4);
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-
-        .btn-primary:disabled {
-            background: var(--border);
-            color: var(--text-muted);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
         }
 
         .error-msg {
@@ -321,74 +231,31 @@
             color: var(--primary);
             font-weight: 800;
             text-decoration: none;
-            transition: color 0.2s;
         }
 
-        .link:hover {
-            color: var(--primary-dark);
-            text-decoration: underline;
+        /* --- MODO OSCURO ESPECÍFICO LOGIN --- */
+        .dark .form-side {
+            background-color: #020617;
         }
 
-        /* --- ESTILOS DEL BOTÓN TOGGLE --- */
-        .theme-toggle {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 42px;
-            height: 42px;
-            padding: 0;
-            cursor: pointer;
-            border-radius: 12px;
-            border: 1.5px solid var(--border);
-            background-color: var(--card-bg);
-            color: var(--text-muted);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-            outline: none;
+        .dark .login-card {
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
         }
 
-        .theme-toggle:hover {
-            transform: translateY(-1px);
-            border-color: var(--primary);
-            color: var(--primary);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        .dark .input-field {
+            background-color: #0f172a;
+            border-color: var(--border);
+            color: white;
         }
 
-        .theme-toggle:active {
-            transform: scale(0.95);
+        .dark .label,
+        .dark .brand-mobile {
+            color: white;
         }
 
-        /* Toggle en Oscuro */
-        .dark .theme-toggle {
-            background-color: #1e293b;
-            border-color: #334155;
-            color: #fbbf24;
-            box-shadow: 0 0 15px rgba(251, 191, 36, 0.1);
-        }
-
-        .dark .theme-toggle:hover {
-            border-color: #fbbf24;
-            background-color: #334155;
-        }
-
-        .theme-toggle svg {
-            transition: transform 0.5s ease;
-        }
-
-        .theme-toggle:hover svg {
-            transform: rotate(15deg);
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .dark .nav-link-back {
+            color: #94a3b8;
         }
     </style>
 </head>

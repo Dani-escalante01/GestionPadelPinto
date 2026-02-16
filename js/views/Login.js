@@ -1,5 +1,7 @@
+// js/views/Login.js
+
 // --- ESTADO ---
-const State = {
+const LoginState = {
   email: "",
   password: "",
   loading: false,
@@ -7,31 +9,32 @@ const State = {
 };
 
 // --- ACCIONES ---
-const Actions = {
+const LoginActions = {
   login: async (e) => {
     e.preventDefault();
-    State.loading = true;
-    State.error = null;
+    LoginState.loading = true;
+    LoginState.error = null;
 
-    if (!State.email || !State.password) {
-      State.error = "Por favor, introduce tu email y contraseña.";
-      State.loading = false;
+    if (!LoginState.email || !LoginState.password) {
+      LoginState.error = "Por favor, introduce tu email y contraseña.";
+      LoginState.loading = false;
       return;
     }
 
     try {
-      const res = await Auth.login(State.email, State.password);
+      const res = await Auth.login(LoginState.email, LoginState.password);
       if (res.success) {
-        window.location.href = "index.html";
+        // CORRECCIÓN: En el app.js la ruta raíz es "/"
+        m.route.set("/");
       } else {
-        State.error = res.error || "Email o contraseña incorrectos.";
+        LoginState.error = res.error || "Email o contraseña incorrectos.";
       }
     } catch (err) {
       console.error(err);
-      State.error = "Error al conectar con el servidor.";
+      LoginState.error = "Error al conectar con el servidor.";
     }
 
-    State.loading = false;
+    LoginState.loading = false;
     m.redraw();
   },
 };
@@ -42,7 +45,7 @@ function LoginCard() {
   return {
     view: () =>
       m("div", { class: "login-card" }, [
-        m("form", { onsubmit: Actions.login }, [
+        m("form", { onsubmit: LoginActions.login }, [
           m("div", { class: "form-header" }, [
             m("h1", "Iniciar Sesión"),
             m(
@@ -52,11 +55,11 @@ function LoginCard() {
             ),
           ]),
 
-          State.error
+          LoginState.error
             ? m("div", { class: "error-msg animate-fade-up" }, [
-                m("span", "⚠️"),
-                m("span", State.error),
-              ])
+              m("span", "⚠️"),
+              m("span", LoginState.error),
+            ])
             : null,
 
           m("div", { class: "form-group" }, [
@@ -65,8 +68,8 @@ function LoginCard() {
               type: "email",
               class: "input-field",
               placeholder: "ejemplo@padel.com",
-              value: State.email,
-              oninput: (e) => (State.email = e.target.value),
+              value: LoginState.email,
+              oninput: (e) => (LoginState.email = e.target.value),
             }),
           ]),
 
@@ -91,8 +94,8 @@ function LoginCard() {
               type: "password",
               class: "input-field",
               placeholder: "••••••••",
-              value: State.password,
-              oninput: (e) => (State.password = e.target.value),
+              value: LoginState.password,
+              oninput: (e) => (LoginState.password = e.target.value),
             }),
           ]),
 
@@ -101,16 +104,20 @@ function LoginCard() {
             {
               type: "submit",
               class: "btn-primary",
-              disabled: State.loading,
+              disabled: LoginState.loading,
             },
-            State.loading ? "Verificando..." : "ACCEDER A MI CUENTA",
+            LoginState.loading ? "Verificando..." : "ACCEDER A MI CUENTA",
           ),
 
           m("div", { class: "form-footer" }, [
             m("span", "¿Aún no tienes cuenta? "),
             m(
               "a",
-              { href: "registro.html", class: "link" },
+              {
+                href: "#!/registro",
+                class: "link",
+                onclick: (e) => { e.preventDefault(); m.route.set("/registro"); }
+              },
               "Regístrate ahora",
             ),
           ]),
@@ -120,10 +127,10 @@ function LoginCard() {
 }
 
 // --- LAYOUT ---
-function Layout() {
+function Login() {
   return {
     view: () => {
-      // IMPORTANTE: Esto activa el CSS del modo oscuro en el HTML
+      // CORRECCIÓN: ThemeLoginState -> ThemeState
       document.documentElement.classList.toggle("dark", ThemeState.darkMode);
 
       return m("div", { class: "split-layout" }, [
@@ -133,14 +140,19 @@ function Layout() {
             m(
               "a",
               {
-                href: "index.html",
-                class: "nav-link-back", // Clase nueva para mejor hover/dark mode
+                href: "#!/",
+                class: "nav-link-back",
+                onclick: (e) => { e.preventDefault(); m.route.set("/"); }
               },
               "VOLVER AL INICIO",
             ),
             m(ThemeToggle),
           ]),
-          m("a", { href: "index.html", class: "brand-mobile" }, [
+          m("a", {
+            href: "#!/",
+            class: "brand-mobile",
+            onclick: (e) => { e.preventDefault(); m.route.set("/"); }
+          }, [
             m(
               "div",
               {
@@ -157,5 +169,3 @@ function Layout() {
     },
   };
 }
-
-m.mount(document.getElementById("app"), Layout);

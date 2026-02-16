@@ -11,11 +11,14 @@ const PartidasState = {
 const PartidasActions = {
   init: async () => {
     Auth.init();
-    if (!Auth.user) {
-      m.route.set("/login");
-      return;
+    // Si no hay usuario, no intentamos cargar datos (evita errores de API)
+    // Pero NO redirigimos aquí para que el usuario pueda decidir qué hacer
+    if (Auth.user) {
+      await PartidasActions.loadData();
+    } else {
+      PartidasState.loading = false; // Dejamos de cargar para mostrar el mensaje de error
+      m.redraw();
     }
-    await PartidasActions.loadData();
   },
 
   loadData: async () => {
@@ -67,117 +70,123 @@ const PartidasActions = {
 
 // --- VISTA PRINCIPAL ---
 const PartidasView = {
-  // Importante: Ejecutar init al cargar el componente
   oninit: PartidasActions.init,
-  
+
   view: () => {
-    // Corregido: ThemePartidasState -> ThemeState
     document.documentElement.classList.toggle("dark", ThemeState.darkMode);
 
-    return m(
-      "div",
-      {
-        // Corregido: ThemePartidasActions -> ThemeActions
-        class: ThemeActions.getMainClasses(), 
-      },
-      [
-        m(Navbar),
-        m("div", { class: "page-content container", style: "padding-top: 20px;" }, [
-          // Encabezado
-          m("div", { class: "page-header", style: "margin-bottom: 30px;" }, [
-            m(
-              "div",
-              {
-                style: "display:flex; justify-content:space-between; align-items:center",
-              },
-              [
-                m("div", [
-                  m("h1", { class: "page-title", style: "font-size: 24px; font-weight: 800;" }, "Partidas"),
-                  m(
-                    "p",
-                    { class: "page-date", style: "color: var(--text-muted); text-transform: capitalize;" },
-                    PartidasState.currentDate.toLocaleDateString("es-ES", {
-                      weekday: "long",
-                      day: "numeric",
-                      month: "long",
-                    }),
-                  ),
-                ]),
-                m("div", { style: "display:flex; gap:10px" }, [
-                  m(
-                    "button",
-                    {
-                      class: "date-nav-btn",
-                      onclick: () => PartidasActions.changeDate(-1),
-                    },
-                    "←"
-                  ),
-                  m(
-                    "button",
-                    {
-                      class: "date-nav-btn",
-                      onclick: () => PartidasActions.changeDate(1),
-                    },
-                    "→"
-                  ),
-                ]),
-              ],
-            ),
-          ]),
+    return m("div", { class: ThemeActions.getMainClasses() }, [
+      m(Navbar),
+      m("div", { class: "page-content container", style: "padding-top: 20px;" }, [
 
-          // Tabs
-          m("div", { class: "tabs", style: "display: flex; gap: 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px;" }, [
-            m(
-              "button",
-              {
-                class: `tab-btn ${PartidasState.activeTab === "mine" ? "active" : ""}`,
-                style: "padding: 10px 0; border: none; background: none; cursor: pointer; font-weight: 700; color: " + (PartidasState.activeTab === "mine" ? "var(--primary)" : "var(--text-muted)"),
-                onclick: () => (PartidasState.activeTab = "mine"),
-              },
-              `Mis Partidas (${PartidasState.myMatches.length})`,
-            ),
+        // --- NUEVA SECCIÓN: Control de Acceso ---
+        !Auth.user
+          ? m("div", { class: "empty-state", style: "text-align: center; padding: 60px;" }, [
+            m("div", { style: "font-size: 40px; margin-bottom: 20px;" }, "🔒"),
+            m("h2", "Acceso Restringido"),
+            m("p", { style: "color: var(--text-muted); margin-bottom: 25px;" }, "Debes iniciar sesión para gestionar tus partidas."),
+            m("button", {
+              class: "btn-primary",
+              onclick: () => m.route.set("/login")
+            }, "INICIAR SESIÓN")
+          ])
+          : [
+            // Aquí va todo el contenido original de tu vista (Encabezado, Tabs y Listas)
+            // Envuelto en un array o fragmento para que solo se vea si Auth.user existe.
+            m("div", { class: "page-header", style: "margin-bottom: 30px;" }, [
+              m(
+                "div",
+                {
+                  style: "display:flex; justify-content:space-between; align-items:center",
+                },
+                [
+                  m("div", [
+                    m("h1", { class: "page-title", style: "font-size: 24px; font-weight: 800;" }, "Partidas"),
+                    m(
+                      "p",
+                      { class: "page-date", style: "color: var(--text-muted); text-transform: capitalize;" },
+                      PartidasState.currentDate.toLocaleDateString("es-ES", {
+                        weekday: "long",
+                        day: "numeric",
+                        month: "long",
+                      }),
+                    ),
+                  ]),
+                  m("div", { style: "display:flex; gap:10px" }, [
+                    m(
+                      "button",
+                      {
+                        class: "date-nav-btn",
+                        onclick: () => PartidasActions.changeDate(-1),
+                      },
+                      "←"
+                    ),
+                    m(
+                      "button",
+                      {
+                        class: "date-nav-btn",
+                        onclick: () => PartidasActions.changeDate(1),
+                      },
+                      "→"
+                    ),
+                  ]),
+                ],
+              ),
+            ]),
 
-            m(
-              "button",
-              {
-                class: `tab-btn ${PartidasState.activeTab === "open" ? "active" : ""}`,
-                style: "padding: 10px 0; border: none; background: none; cursor: pointer; font-weight: 700; color: " + (PartidasState.activeTab === "open" ? "var(--primary)" : "var(--text-muted)"),
-                onclick: () => (PartidasState.activeTab = "open"),
-              },
-              `Abiertas (${PartidasState.openMatches.length})`,
-            ),
-          ]),
+            // Tabs
+            m("div", { class: "tabs", style: "display: flex; gap: 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px;" }, [
+              m(
+                "button",
+                {
+                  class: `tab-btn ${PartidasState.activeTab === "mine" ? "active" : ""}`,
+                  style: "padding: 10px 0; border: none; background: none; cursor: pointer; font-weight: 700; color: " + (PartidasState.activeTab === "mine" ? "var(--primary)" : "var(--text-muted)"),
+                  onclick: () => (PartidasState.activeTab = "mine"),
+                },
+                `Mis Partidas (${PartidasState.myMatches.length})`,
+              ),
 
-          // Contenido Lista
-          PartidasState.loading
-            ? m("div", { style: "text-align:center; padding:40px; color:var(--text-muted)" }, "Cargando partidos...")
-            : PartidasState.activeTab === "mine"
-              ? PartidasState.myMatches.length === 0
-                ? m("div", { class: "empty-state", style: "text-align: center; padding: 40px;" }, [
+              m(
+                "button",
+                {
+                  class: `tab-btn ${PartidasState.activeTab === "open" ? "active" : ""}`,
+                  style: "padding: 10px 0; border: none; background: none; cursor: pointer; font-weight: 700; color: " + (PartidasState.activeTab === "open" ? "var(--primary)" : "var(--text-muted)"),
+                  onclick: () => (PartidasState.activeTab = "open"),
+                },
+                `Abiertas (${PartidasState.openMatches.length})`,
+              ),
+            ]),
+
+            // Contenido Lista
+            PartidasState.loading
+              ? m("div", { style: "text-align:center; padding:40px; color:var(--text-muted)" }, "Cargando partidos...")
+              : PartidasState.activeTab === "mine"
+                ? PartidasState.myMatches.length === 0
+                  ? m("div", { class: "empty-state", style: "text-align: center; padding: 40px;" }, [
                     m("h3", "No tienes partidas hoy"),
                     m("p", { style: "color: var(--text-muted)" }, "Reserva una pista o únete a una partida abierta."),
                   ])
-                : m(
+                  : m(
                     "div",
                     { class: "match-list", style: "display: flex; flex-direction: column; gap: 15px;" },
                     PartidasState.myMatches.map((match) =>
                       m(MatchCard, { match, isMyMatch: true }),
                     ),
                   )
-              : PartidasState.openMatches.length === 0
-                ? m("div", { class: "empty-state", style: "text-align: center; padding: 40px;" }, [
+                : PartidasState.openMatches.length === 0
+                  ? m("div", { class: "empty-state", style: "text-align: center; padding: 40px;" }, [
                     m("h3", "No hay partidas abiertas"),
                     m("p", { style: "color: var(--text-muted)" }, "Sé el primero en crear una partida pública."),
                   ])
-                : m(
+                  : m(
                     "div",
                     { class: "match-list", style: "display: flex; flex-direction: column; gap: 15px;" },
                     PartidasState.openMatches.map((match) =>
                       m(MatchCard, { match, isMyMatch: false }),
                     ),
                   ),
-        ]),
-      ],
-    );
+          ]
+      ])
+    ]);
   },
 };

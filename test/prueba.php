@@ -2,7 +2,7 @@
 // rellenar_ranking.php
 // Este script rellena la base de datos con jugadores PRO para probar el ranking
 
-$DB_FILE = __DIR__ . '/padel_pro_v2.db';
+$DB_FILE = __DIR__ . '/server/padel_pro_v2.db';
 $db = new SQLite3($DB_FILE);
 
 // Lista de jugadores falsos con puntuaciones variadas para generar el podio

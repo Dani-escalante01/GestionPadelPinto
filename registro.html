@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,46 +9,42 @@
     <script src="api.js"></script>
     <script src="toggleTheme.js"></script>
     <link rel="icon" type="image/svg+xml" href="src/favicon.svg" /> <!-- favicon -->
+    <link rel="stylesheet" href="styles.css">
 
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
     <style>
-        /* --- 1. VARIABLES & RESET (Coherente con Login) --- */
-        :root {
-            --primary: #22c55e;
-            --primary-dark: #16a34a;
-            --dark-bg: #0f172a;
-            --bg-dirty-white: #f1f5f9;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --radius: 24px;
-            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-        }
-
-        .dark body { background-color: #0f172a; color: #f8fafc; }
-        .dark .form-side { background-color: #020617; }
-        .dark .register-card { background-color: #1e293b; border-color: #334155; }
-        .dark .input-field { background-color: #0f172a; border-color: #334155; color: white; }
-        .dark .label { color: #cbd5e1; }
-        
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            margin: 0;
-            padding: 0;
-            color: var(--text-main);
-            height: 100vh;
+        #app {
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden; 
+        }
+
+        .dark .form-side {
+            background-color: #020617;
+        }
+
+        .dark .register-card {
+            background-color: #1e293b;
+            border-color: #334155;
+        }
+
+        .dark .input-field {
+            background-color: #0f172a;
+            border-color: #334155;
+            color: white;
+        }
+
+        .dark .label {
+            color: #cbd5e1;
         }
 
         /* --- 2. LAYOUT SPLIT --- */
         .split-layout {
             display: flex;
             flex: 1;
-            height: 100%;
+            min-height: 100vh;
             width: 100%;
         }
 
@@ -61,7 +58,9 @@
         }
 
         @media (min-width: 900px) {
-            .hero-side { display: flex; }
+            .hero-side {
+                display: flex;
+            }
         }
 
         .hero-bg {
@@ -76,7 +75,6 @@
         }
 
         .hero-overlay {
-            position: absolute;
             inset: 0;
             background: linear-gradient(to top, rgba(15, 23, 42, 0.9), transparent);
             z-index: 1;
@@ -88,9 +86,10 @@
             padding: 60px;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end;
+            justify-content: center;
             height: 100%;
             color: white;
+            box-sizing: border-box;
         }
 
         .hero-title {
@@ -107,11 +106,15 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center; /* Centrado vertical */
+            justify-content: center;
+            /* Centrado vertical */
             background-color: var(--bg-dirty-white);
             position: relative;
             padding: 20px;
-            overflow-y: auto; /* Permitir scroll si el formulario es alto */
+            overflow-y: auto;
+            /* Permitir scroll si el formulario es alto */
+            min-height: 100vh;
+            /* Asegura que no se encoja */
         }
 
         /* --- NAVBAR FLOTANTE --- */
@@ -136,27 +139,51 @@
             font-size: 18px;
             color: var(--text-main);
         }
-        @media (min-width: 900px) { .brand-mobile { display: none; } }
+
+        @media (min-width: 900px) {
+            .brand-mobile {
+                display: none;
+            }
+        }
 
         /* --- TARJETA DE REGISTRO --- */
         .register-card {
             background-color: var(--card-bg);
             width: 100%;
-            max-width: 450px; /* Un poco más ancha que login */
+            max-width: 450px;
+            /* Un poco más ancha que login */
             padding: 40px;
             border-radius: 32px;
             box-shadow: var(--shadow);
             animation: fadeIn 0.6s ease-out;
-            margin-top: 60px; /* Espacio para navbar móvil */
-            margin-bottom: 20px;
+            margin-top: 80px;
+            /* Aumentado un poco para que no choque con la navbar en móviles */
+            margin-bottom: 40px;
+            /* Margen para que respire abajo al hacer scroll */
+            box-sizing: border-box;
         }
 
-        .form-header { margin-bottom: 25px; text-align: left; }
-        
-        h1 { font-size: 28px; font-weight: 800; margin: 0 0 10px 0; letter-spacing: -0.5px; }
-        .subtitle { color: var(--text-muted); font-size: 14px; font-weight: 500; }
+        .form-header {
+            margin-bottom: 25px;
+            text-align: left;
+        }
 
-        .form-group { margin-bottom: 15px; }
+        h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin: 0 0 10px 0;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
 
         .label {
             display: block;
@@ -246,13 +273,32 @@
             font-weight: 500;
         }
 
-        .link { color: var(--primary); font-weight: 800; text-decoration: none; transition: color 0.2s; }
-        .link:hover { color: var(--primary-dark); text-decoration: underline; }
+        .link {
+            color: var(--primary);
+            font-weight: 800;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .link:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
 
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
+
 <body>
     <div id="app"></div>
 
@@ -295,7 +341,7 @@
                 } else {
                     State.error = res.error || "Error al registrarse.";
                 }
-                
+
                 State.loading = false;
                 m.redraw();
             }
@@ -307,17 +353,17 @@
         function HeroSide() {
             return {
                 view: () => m("div", { class: "hero-side" }, [
-                    m("img", { 
-                        src: "https://images.unsplash.com/photo-1599423300746-b62533397364?q=80&w=2070", 
-                        class: "hero-bg" 
+                    m("img", {
+                        src: "https://images.unsplash.com/photo-1599423300746-b62533397364?q=80&w=2070",
+                        class: "hero-bg"
                     }),
                     m("div", { class: "hero-overlay" }),
                     m("div", { class: "hero-content" }, [
-                        m("div", { 
-                            style: "background: var(--primary); width: 50px; height: 50px; display:flex; align-items:center; justify-content:center; border-radius:12px; font-weight:900; font-size:24px; margin-bottom:20px; box-shadow: 0 10px 20px rgba(0,0,0,0.3);" 
+                        m("div", {
+                            style: "background: var(--primary); width: 50px; height: 50px; display:flex; align-items:center; justify-content:center; border-radius:12px; font-weight:900; font-size:24px; margin-bottom:20px; box-shadow: 0 10px 20px rgba(0,0,0,0.3);"
                         }, "P"),
                         m("h2", { class: "hero-title" }, "Sube de nivel."),
-                        m("p", { style: "font-size: 1.2rem; opacity: 0.8; font-weight:500; max-width: 400px;" }, 
+                        m("p", { style: "font-size: 1.2rem; opacity: 0.8; font-weight:500; max-width: 400px;" },
                             "Crea tu perfil en segundos y empieza a competir en la mejor liga local."
                         )
                     ])
@@ -330,7 +376,7 @@
             return {
                 view: () => m("div", { class: "register-card" }, [
                     m("form", { onsubmit: Actions.register }, [
-                        
+
                         m("div", { class: "form-header" }, [
                             m("h1", "Crear Cuenta"),
                             m("p", { class: "subtitle" }, "Completa tus datos para unirte al club.")
@@ -343,9 +389,9 @@
                         // Nombre
                         m("div", { class: "form-group" }, [
                             m("label", { class: "label" }, "Nombre Completo"),
-                            m("input", { 
-                                type: "text", 
-                                class: "input-field", 
+                            m("input", {
+                                type: "text",
+                                class: "input-field",
                                 placeholder: "Ej. Carlos Pérez",
                                 value: State.form.nombre,
                                 oninput: (e) => Actions.setInput("nombre", e.target.value)
@@ -355,9 +401,9 @@
                         // Email
                         m("div", { class: "form-group" }, [
                             m("label", { class: "label" }, "Correo Electrónico"),
-                            m("input", { 
-                                type: "email", 
-                                class: "input-field", 
+                            m("input", {
+                                type: "email",
+                                class: "input-field",
                                 placeholder: "tu@email.com",
                                 value: State.form.email,
                                 oninput: (e) => Actions.setInput("email", e.target.value)
@@ -367,9 +413,9 @@
                         // Password
                         m("div", { class: "form-group" }, [
                             m("label", { class: "label" }, "Contraseña"),
-                            m("input", { 
-                                type: "password", 
-                                class: "input-field", 
+                            m("input", {
+                                type: "password",
+                                class: "input-field",
                                 placeholder: "Mínimo 6 caracteres",
                                 value: State.form.password,
                                 oninput: (e) => Actions.setInput("password", e.target.value)
@@ -379,7 +425,7 @@
                         // Nivel
                         m("div", { class: "form-group" }, [
                             m("label", { class: "label" }, "Nivel Inicial"),
-                            m("select", { 
+                            m("select", {
                                 class: "input-field",
                                 value: State.form.nivel,
                                 onchange: (e) => Actions.setInput("nivel", e.target.value)
@@ -392,8 +438,8 @@
                             ])
                         ]),
 
-                        m("button", { 
-                            type: "submit", 
+                        m("button", {
+                            type: "submit",
                             class: "btn-primary",
                             disabled: State.loading
                         }, State.loading ? "Creando perfil..." : "REGISTRARME GRATIS"),
@@ -413,7 +459,7 @@
                 view: () => m("div", { class: "split-layout" }, [
                     // Izquierda
                     m(HeroSide),
-                    
+
                     // Derecha
                     m("div", { class: "form-side" }, [
                         // Navbar flotante
@@ -437,4 +483,5 @@
 
     </script>
 </body>
+
 </html>

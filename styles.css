@@ -444,6 +444,19 @@ body {
     color: #475569;
 }
 
+.btn-action.inscribed {
+    background-color: #94a3b8; 
+    color: #f8fafc;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none;
+}
+
+.dark .btn-action.inscribed {
+    background-color: #334155; 
+    color: #94a3b8;
+}
+
 /* --- RANKING BALLS --- */
 .ranking-container {
     display: flex;

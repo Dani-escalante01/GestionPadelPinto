@@ -256,6 +256,9 @@
                     const players = match ? match.jugadores : [];
                     const isFull = players.length >= 4;
                     const isPrivate = match && match.tipo === 'private';
+                    const isUserInscribed = !!(match && Auth.user && players.some(p =>
+                        String(p.usuario_id) === String(Auth.user.id)
+                    ));
 
                     return m("div", { class: "court-card" }, [
                         m("img", {
@@ -278,15 +281,20 @@
                                         style: `width: ${(players.length / 4) * 100}%`
                                     })
                                 ]),
-                                // Ranking Balls
                                 m("div", { class: "ranking-container" },
-                                    players.map(p => m("div", { class: "player-ball", title: p.nombre }, Math.round(p.nivel)))
+                                    players.map(p => m("div", { class: "player-ball", title: p.nombre }, Math.round(p.nivel || 0)))
                                 )
                             ]),
                             m("button", {
-                                class: `btn-action ${isFull ? 'full' : ''}`,
-                                onclick: () => !isFull && Actions.openModal(court, match)
-                            }, match ? (isFull ? "LLENO" : "UNIRSE") : "RESERVAR")
+                                class: `btn-action ${isFull ? 'full' : ''} ${isUserInscribed ? 'inscribed' : ''}`,
+                                onclick: (e) => {
+                                    if (isUserInscribed) return;
+                                    if (!isFull) Actions.openModal(court, match);
+                                },
+                                disabled: isUserInscribed
+                            },
+                                isUserInscribed ? "INSCRITO" : (match ? (isFull ? "LLENO" : "UNIRSE") : "RESERVAR")
+                            )
                         ])
                     ]);
                 }
@@ -338,6 +346,8 @@
                                             ? m("div", [
                                                 m("p", { style: "font-size:12px; margin-bottom:10px; font-weight:700" }, "Introduce el código de invitación:"),
                                                 m("input", {
+                                                    id: "input-match-code",
+                                                    name: "match-code",
                                                     class: "input-code",
                                                     placeholder: "CÓDIGO",
                                                     oninput: (e) => State.modal.inputCode = e.target.value
@@ -385,7 +395,12 @@
                                 m("div", [
                                     m("h4", { class: "footer-heading" }, "Mantente al día"),
                                     m("div", { class: "newsletter-form" }, [
-                                        m("input[type=text]", { class: "newsletter-input", placeholder: "Tu email" }),
+                                        m("input[type=text]", {
+                                            id: "footer-newsletter-email",
+                                            name: "newsletter-email",
+                                            class: "newsletter-input",
+                                            placeholder: "Tu email"
+                                        }),
                                         m("button", { class: "newsletter-btn" }, "OK"),
                                     ]),
                                     m("div", { class: "social-icons" }, [

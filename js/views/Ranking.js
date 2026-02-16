@@ -1,93 +1,85 @@
 // --- ESTADO ---
-const State = {
+const RankingState = {
   loading: true,
-  ranking: [], // Inicializado como array vacío para seguridad
+  ranking: [],
 };
 
 // --- ACCIONES ---
-const Actions = {
+const RankingActions = {
   init: async () => {
     Auth.init();
-    await Actions.loadData();
+    await RankingActions.loadData();
   },
 
   loadData: async () => {
-    State.loading = true;
+    RankingState.loading = true;
     try {
-      // Llamada segura a la API
       const users = await PadelData.getRanking();
-      // Aseguramos que sea un array, si falla la API usamos []
-      State.ranking = Array.isArray(users) ? users : [];
+      RankingState.ranking = Array.isArray(users) ? users : [];
     } catch (e) {
       console.error("Error cargando ranking:", e);
-      State.ranking = [];
+      RankingState.ranking = [];
     } finally {
-      State.loading = false;
-      m.redraw();
+      RankingState.loading = false;
+      m.redraw(); // Forzamos el redibujado para quitar el mensaje de carga
     }
   },
 };
 
 // --- VISTA PRINCIPAL ---
-function RankingView() {
-  return {
-    view: () => {
-      // PROTECCIÓN: Aseguramos que State.ranking sea un array antes de usar slice
-      const safeRanking = Array.isArray(State.ranking) ? State.ranking : [];
-      const top3 = safeRanking.slice(0, 3);
-      const rest = safeRanking.slice(3);
+const RankingView = {
+  // CLAVE: Ejecuta la carga de datos al iniciar el componente
+  oninit: RankingActions.init,
 
-      return m("div", [
-        m(Navbar),
-        m("div", { class: "container" }, [
-          State.loading
-            ? m(
-                "div",
-                { style: "text-align:center; padding:50px; color:#94a3b8;" },
-                "Calculando posiciones...",
-              )
-            : [
-                // SECCIÓN PODIO
-                m("div", { class: "podium-section" }, [
-                  top3[1] ? m(PodiumCard, { user: top3[1], place: 2 }) : null,
-                  top3[0] ? m(PodiumCard, { user: top3[0], place: 1 }) : null,
-                  top3[2] ? m(PodiumCard, { user: top3[2], place: 3 }) : null,
-                ]),
+  view: () => {
+    // Aplicamos el tema oscuro si está activo
+    if (typeof ThemeState !== 'undefined') {
+      document.documentElement.classList.toggle("dark", ThemeState.darkMode);
+    }
 
-                // SECCIÓN LISTA
-                m("div", { class: "ranking-list" }, [
-                  rest.length > 0
-                    ? [
-                        m(
-                          "h3",
-                          {
-                            style:
-                              "margin-bottom:20px; opacity:0.6; font-size:14px; text-transform:uppercase; letter-spacing:1px;",
-                          },
-                          "Resto de Jugadores",
-                        ),
-                        rest.map((user, idx) =>
-                          m(RankingRow, { user, pos: idx + 4 }),
-                        ),
-                      ]
-                    : m(
-                        "div",
-                        {
-                          style:
-                            "text-align:center; color:#94a3b8; padding:20px",
-                        },
-                        "No hay más jugadores clasificados.",
-                      ),
-                ]),
-              ],
-        ]),
-      ]);
-    },
-  };
-}
+    const safeRanking = Array.isArray(RankingState.ranking) ? RankingState.ranking : [];
+    const top3 = safeRanking.slice(0, 3);
+    const rest = safeRanking.slice(3);
 
-// --- INIT ---
-m.mount(document.getElementById("app"), {
-  oninit: Actions.init,
-  view: () => m(RankingView),
-});
+    return m("div", { class: typeof ThemeActions !== 'undefined' ? ThemeActions.getMainClasses() : "" }, [
+      m(Navbar),
+      m("div", { class: "container", style: "padding-top: 40px;" }, [
+        RankingState.loading
+          ? m(
+            "div",
+            { style: "text-align:center; padding:100px; color:var(--text-muted);" },
+            "Calculando posiciones...",
+          )
+          : [
+            // SECCIÓN PODIO
+            m("div", { class: "podium-section" }, [
+              top3[1] ? m(PodiumCard, { user: top3[1], place: 2 }) : null,
+              top3[0] ? m(PodiumCard, { user: top3[0], place: 1 }) : null,
+              top3[2] ? m(PodiumCard, { user: top3[2], place: 3 }) : null,
+            ]),
+
+            // SECCIÓN LISTA
+            m("div", { class: "ranking-list" }, [
+              rest.length > 0
+                ? [
+                  m(
+                    "h3",
+                    {
+                      style:
+                        "margin-bottom:20px; opacity:0.6; font-size:14px; text-transform:uppercase; letter-spacing:1px; color: var(--text-muted)",
+                    },
+                    "Resto de Jugadores",
+                  ),
+                  rest.map((user, idx) =>
+                    m(RankingRow, { user, pos: idx + 4 }),
+                  ),
+                ]
+                : safeRanking.length > 0
+                  ? m("div", { style: "text-align:center; color:var(--text-muted); padding:20px" }, "No hay más jugadores clasificados.")
+                  : m("div", { style: "text-align:center; color:var(--text-muted); padding:20px" }, "No se encontraron datos de ranking.")
+            ]),
+          ],
+      ]),
+    ]);
+  },
+};

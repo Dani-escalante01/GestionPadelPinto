@@ -1,37 +1,43 @@
 // js/components/Navbar.js
+const NavbarState = {
+    userMenuOpen: false
+};
+
 function Navbar() {
     return {
         view: () => {
-            // Obtenemos la página actual de la URL (ej: "ranking.html")
-            const currentPage = window.location.pathname.split("/").pop();
+            const currentRoute = m.route.get();
 
             return m("nav", { class: "navbar" }, [
                 m("div", { class: "container nav-container" }, [
-                    // Logo con enlace a index
+                    // Logo
                     m("div", {
                         class: "brand",
                         style: "cursor: pointer;",
-                        onclick: () => window.location.href = "index.html"
+                        onclick: () => { m.route.set("/"); NavbarState.userMenuOpen = false; }
                     }, [
                         m("div", { class: "logo-icon" }, "P"),
                         m("span", "PADELPINTO")
                     ]),
 
-                    // Enlaces de navegación con lógica de clase activa
+                    // Enlaces de navegación con m.route.set
                     m("div", { class: "nav-links" }, [
                         m("a", {
-                            href: "index.html",
-                            class: (currentPage === "index.html" || currentPage === "") ? "active" : ""
+                            href: "#!/",
+                            class: (currentRoute === "/") ? "active" : "",
+                            onclick: (e) => { e.preventDefault(); m.route.set("/"); }
                         }, "Reservar"),
 
                         m("a", {
-                            href: "partidas.html",
-                            class: (currentPage === "partidas.html") ? "active" : ""
+                            href: "#!/partidas",
+                            class: (currentRoute === "/partidas") ? "active" : "",
+                            onclick: (e) => { e.preventDefault(); m.route.set("/partidas"); }
                         }, "Partidas"),
 
                         m("a", {
-                            href: "ranking.html",
-                            class: (currentPage === "ranking.html") ? "active" : ""
+                            href: "#!/ranking",
+                            class: (currentRoute === "/ranking") ? "active" : "",
+                            onclick: (e) => { e.preventDefault(); m.route.set("/ranking"); }
                         }, "Ranking")
                     ]),
 
@@ -39,16 +45,14 @@ function Navbar() {
                         m(ThemeToggle),
                         Auth.user
                             ? m("div", { class: "user-menu-container" }, [
-                                // Botón con el nombre del usuario
                                 m("button", {
                                     class: "user-name-btn",
-                                    onclick: () => State.userMenuOpen = !State.userMenuOpen
+                                    onclick: () => NavbarState.userMenuOpen = !NavbarState.userMenuOpen
                                 }, [
                                     Auth.user.nombre,
                                     m("span", { style: "font-size: 10px; margin-left: 4px;" }, "▼")
                                 ]),
-                                // Desplegable
-                                State.userMenuOpen ? m("div", { class: "user-dropdown" }, [
+                                NavbarState.userMenuOpen ? m("div", { class: "user-dropdown" }, [
                                     m("button", {
                                         class: "dropdown-item",
                                         onclick: () => {
@@ -58,15 +62,15 @@ function Navbar() {
                                                 Auth.user = null;
                                                 localStorage.removeItem('user');
                                             }
-                                            State.userMenuOpen = false;
-                                            m.redraw();
+                                            NavbarState.userMenuOpen = false;
+                                            m.route.set("/");
                                         }
                                     }, "Cerrar sesión")
                                 ]) : null
                             ])
                             : m("button", {
                                 class: "btn-primary",
-                                onclick: () => window.location.href = "login.html"
+                                onclick: () => m.route.set("/login")
                             }, "ENTRAR")
                     ])
                 ])

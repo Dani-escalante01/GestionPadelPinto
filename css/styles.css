@@ -1974,3 +1974,14 @@ select.input-field {
         transform: translateY(0);
     }
 }
+
+/* Esto hace que las imágenes SVG se comporten como iconos de texto */
+.social-link img {
+    filter: invert(68%) sepia(13%) saturate(544%) hue-rotate(174deg) brightness(91%) contrast(88%); 
+    /* El filtro de arriba es para el color #94a3b8 (text-muted) */
+    transition: filter 0.2s;
+}
+
+.social-link:hover img {
+    filter: brightness(0) invert(1); /* Cambia a blanco al pasar el ratón */
+}

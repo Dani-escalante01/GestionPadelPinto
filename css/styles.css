@@ -1,7 +1,7 @@
 /*forzar a que siempre esté la barra de scroll lateral*/
-html {
+/* html {
     overflow-y: scroll;
-}
+} */
 
 /* --- VARIABLES Y BASE --- */
 :root {

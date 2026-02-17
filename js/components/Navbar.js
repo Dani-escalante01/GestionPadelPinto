@@ -57,12 +57,13 @@ function Navbar() {
                                         class: "dropdown-item",
                                         onclick: () => {
                                             if (typeof Auth.logout === 'function') {
-                                                Auth.logout();
+                                                Auth.logout(); 
                                             } else {
                                                 Auth.user = null;
-                                                localStorage.removeItem('user');
+                                                localStorage.removeItem('padel_user');
                                             }
                                             NavbarState.userMenuOpen = false;
+
                                             m.route.set("/");
                                         }
                                     }, "Cerrar sesión")

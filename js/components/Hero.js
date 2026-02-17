@@ -7,7 +7,8 @@ function Hero() {
           class: "hero-bg",
         }),
         m("div", { class: "hero-content" }, [
-          m("h1", "Juega como un Pro"),
+          m("h1", "Juega con nosotros al Padel"),
+          m("p", "La mejor experiencia para reservar tu pista de padel"),
           m("button", { class: "btn-primary" }, "VER PISTAS DISPONIBLES"),
         ]),
       ]),

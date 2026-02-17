@@ -54,7 +54,7 @@ function CourtCard() {
               class: `btn-action ${isFull ? "full" : ""} ${isUserInscribed ? "inscribed" : ""}`,
               onclick: (e) => {
                 if (isUserInscribed) return;
-                if (!isFull) Actions.openModal(court, match);
+                if (!isFull) HomeActions.openModal(court, match);
               },
               disabled: isUserInscribed,
             },

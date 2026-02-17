@@ -9,18 +9,9 @@ function Hero() {
           class: "hero-bg",
         }),
         m("div", { class: "hero-content" }, [
-          m("h1", userName
-            ? `Bienvenido, ${userName}`
-            : "Juega como un Pro"
-          ),
-          m("button", {
-            class: "btn-primary",
-            onclick: () => {
-              // Ejemplo: Scroll suave hacia las pistas o redirección
-              const el = document.getElementById("reservas");
-              if (el) el.scrollIntoView({ behavior: 'smooth' });
-            }
-          }, "VER PISTAS DISPONIBLES"),
+          m("h1", "Juega con nosotros al Padel"),
+          m("p", "La mejor experiencia para reservar tu pista de padel"),
+          m("button", { class: "btn-primary" }, "VER PISTAS DISPONIBLES"),
         ]),
       ]);
     },

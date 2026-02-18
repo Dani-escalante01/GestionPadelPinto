@@ -60,6 +60,22 @@ const PartidasActions = {
     }
   },
 
+  leaveMatch: async (match) => {
+    if (confirm("¿Seguro que quieres salirte de esta partida?")) {
+      try {
+        const res = await PadelData.abandonarReserva(match.id);
+        if (res.success) {
+          await PartidasActions.loadData();
+          alert("Has salido de la partida");
+        } else {
+          alert(res.error);
+        }
+      } catch (e) {
+        console.error("Error al salir:", e);
+      }
+    }
+  },
+
   changeDate: (offset) => {
     const newDate = new Date(PartidasState.currentDate);
     newDate.setDate(newDate.getDate() + offset);

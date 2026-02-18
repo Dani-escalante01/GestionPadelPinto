@@ -76,17 +76,21 @@ function MatchCard() {
 
         // Columna Acción
         m("div", { class: "match-action" }, [
-          isMyMatch
-            ? m("button", { class: "btn btn-view" }, "INSCRITO")
-            : m(
-                "button",
-                {
-                  class: "btn btn-join",
-                  onclick: () => Actions.joinMatch(match),
-                },
-                "UNIRSE",
-              ),
-        ]),
+  isMyMatch
+    ? m("button", { 
+        class: "btn btn-danger", // Usamos una clase de peligro (roja)
+        style: "background: #fee2e2; color: #ef4444; border: 1px solid #fecaca; padding: 8px 12px; border-radius: 8px; font-weight: 700; cursor: pointer;",
+        onclick: () => PartidasActions.leaveMatch(match) 
+      }, "CANCELAR")
+    : m(
+        "button",
+        {
+          class: "btn btn-join",
+          onclick: () => PartidasActions.joinMatch ? PartidasActions.joinMatch(match) : Actions.joinMatch(match),
+        },
+        "UNIRSE",
+      ),
+]),
       ]);
     },
   };

@@ -45,7 +45,7 @@ const Auth = {
                 url: `${API_URL}?action=login`,
                 body: { email, password }
             });
-            
+
             if (res.status === "ok") {
                 Auth.user = res.user;
                 localStorage.setItem("padel_user", JSON.stringify(Auth.user));
@@ -77,7 +77,7 @@ const Auth = {
 
 // --- LÓGICA DE PÁDEL (DATOS) ---
 const PadelData = {
-    
+
     // Obtener lista de ranking
     getRanking: async () => {
         try {
@@ -103,9 +103,9 @@ const PadelData = {
     getReservas: async (dateStr) => {
         const isoDate = Utils.toIsoDate(dateStr);
         try {
-            return await m.request({ 
-                method: "GET", 
-                url: `${API_URL}?action=reservas&fecha=${isoDate}` 
+            return await m.request({
+                method: "GET",
+                url: `${API_URL}?action=reservas&fecha=${isoDate}`
             });
         } catch (e) {
             console.error(e);
@@ -175,7 +175,24 @@ const PadelData = {
         } catch (e) {
             return { success: false, error: "Error al guardar resultado" };
         }
-    }
+    },
+
+    abandonarReserva: async (reservaId) => {
+        if (!Auth.user) return { success: false, error: "No estás logueado" };
+        try {
+            await m.request({
+                method: "POST",
+                url: `${API_URL}?action=abandonar`,
+                body: {
+                    reserva_id: reservaId,
+                    usuario_id: Auth.user.id
+                }
+            });
+            return { success: true };
+        } catch (e) {
+            return { success: false, error: e.response ? e.response.error : "No se pudo salir" };
+        }
+    },
 };
 
 // Inicializamos la sesión al cargar el script

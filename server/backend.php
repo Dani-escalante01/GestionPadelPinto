@@ -348,15 +348,25 @@ function leave_partida($data, $db) {
     $reservaId = (int)$data['reserva_id'];
     $usuarioId = (int)$data['usuario_id'];
 
+    // 1. Borrar al participante de la tabla participantes
     $stmt = $db->prepare("DELETE FROM participantes WHERE reserva_id = :r AND usuario_id = :u");
     $stmt->bindValue(':r', $reservaId);
     $stmt->bindValue(':u', $usuarioId);
     $stmt->execute();
 
     if ($db->changes() > 0) {
-        $db->exec("UPDATE reservas SET estado = 'abierta' WHERE id = $reservaId AND estado = 'cerrada'");
-        
-        jsonResponse(array("status" => "ok", "msg" => "Has abandonado la partida"));
+        // 2. Comprobar cuántos jugadores quedan ahora en esa reserva
+        $quedanJugadores = $db->querySingle("SELECT COUNT(*) FROM participantes WHERE reserva_id = $reservaId");
+
+        if ($quedanJugadores == 0) {
+            // 3. SI NO QUEDA NADIE: Borramos la reserva para que la pista aparezca como "RESERVAR" (vacia)
+            $db->exec("DELETE FROM reservas WHERE id = $reservaId");
+            jsonResponse(array("status" => "ok", "msg" => "Partida cancelada y eliminada por falta de jugadores"));
+        } else {
+            // 4. SI QUEDAN JUGADORES: Solo nos aseguramos de que el estado vuelva a ser 'abierta' por si estaba llena
+            $db->exec("UPDATE reservas SET estado = 'abierta' WHERE id = $reservaId AND estado = 'cerrada'");
+            jsonResponse(array("status" => "ok", "msg" => "Has abandonado la partida, pero la reserva sigue activa"));
+        }
     } else {
         jsonResponse(array("error" => "No estabas inscrito en esta partida"), 404);
     }

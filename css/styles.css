@@ -1976,11 +1976,28 @@ select.input-field {
 
 /* Esto hace que las imágenes SVG se comporten como iconos de texto */
 .social-link img {
-    filter: invert(68%) sepia(13%) saturate(544%) hue-rotate(174deg) brightness(91%) contrast(88%); 
+    filter: invert(68%) sepia(13%) saturate(544%) hue-rotate(174deg) brightness(91%) contrast(88%);
     /* El filtro de arriba es para el color #94a3b8 (text-muted) */
     transition: filter 0.2s;
 }
 
 .social-link:hover img {
-    filter: brightness(0) invert(1); /* Cambia a blanco al pasar el ratón */
+    filter: brightness(0) invert(1);
+}
+
+.btn-action.btn-danger {
+    background-color: #ef4444;
+    color: white;
+    cursor: pointer;
+    border: 1px solid #dc2626;
+}
+
+.btn-action.btn-danger:hover {
+    background-color: #dc2626;
+    transform: scale(1.02);
+}
+
+.dark .btn-action.btn-danger {
+    background-color: #991b1b;
+    border-color: #7f1d1d;
 }

@@ -95,6 +95,9 @@ function handle_post($action, $db) {
         case 'unirse':
             join_partida($data, $db);
             break;
+        case 'abandonar': 
+            leave_partida($data, $db);
+            break;
         case 'finalizar_partida':
             finish_partida($data, $db);
             break;
@@ -344,6 +347,29 @@ function finish_partida($data, $db) {
     }
 
     jsonResponse(array("status" => "ok", "msg" => "Ranking actualizado"));
+}
+
+/* [POST] Abandonar una Partida */
+function leave_partida($data, $db) {
+    if(empty($data['reserva_id']) || empty($data['usuario_id'])) {
+        jsonResponse(array("error" => "Faltan datos"), 400);
+    }
+
+    $reservaId = (int)$data['reserva_id'];
+    $usuarioId = (int)$data['usuario_id'];
+
+    $stmt = $db->prepare("DELETE FROM participantes WHERE reserva_id = :r AND usuario_id = :u");
+    $stmt->bindValue(':r', $reservaId);
+    $stmt->bindValue(':u', $usuarioId);
+    $stmt->execute();
+
+    if ($db->changes() > 0) {
+        $db->exec("UPDATE reservas SET estado = 'abierta' WHERE id = $reservaId AND estado = 'cerrada'");
+        
+        jsonResponse(array("status" => "ok", "msg" => "Has abandonado la partida"));
+    } else {
+        jsonResponse(array("error" => "No estabas inscrito en esta partida"), 404);
+    }
 }
 
 // --- 6. HELPERS GLOBALES ---

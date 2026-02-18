@@ -48,18 +48,32 @@ function CourtCard() {
               ),
             ),
           ]),
-          m(
-            "button",
-            {
-              class: `btn-action ${isFull ? "full" : ""} ${isUserInscribed ? "inscribed" : ""}`,
+          m("button", {
+              class: `btn-action ${isFull ? "full" : ""} ${isUserInscribed ? "btn-danger" : ""}`,
               onclick: (e) => {
-                if (isUserInscribed) return;
+                // Si el usuario ya está inscrito, la acción es SALIR
+                if (isUserInscribed) {
+                  if (confirm("¿Estás seguro de que quieres salirte de esta partida?")) {
+                    PadelData.abandonarReserva(match.id).then(res => {
+                      if (res.success) {
+                        // Recargar datos o emitir un evento para refrescar la vista
+                        location.reload();
+                      } else {
+                        alert(res.error);
+                      }
+                    });
+                  }
+                  return;
+                }
+
+                // Si no está inscrito, la acción sigue siendo UNIRSE/RESERVAR
                 if (!isFull) HomeActions.openModal(court, match);
               },
-              disabled: isUserInscribed,
+              // Quitamos el disabled para que el botón sea interactivo cuando está inscrito
+              disabled: !isUserInscribed && isFull,
             },
             isUserInscribed
-              ? "INSCRITO"
+              ? "SALIRSE DE LA PARTIDA"
               : match
                 ? isFull
                   ? "LLENO"

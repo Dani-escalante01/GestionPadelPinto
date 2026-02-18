@@ -1,7 +1,12 @@
 <?php
+// Activar reporte de errores (Útil para depurar si falla algo en producción)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 /**
  * BACKEND PADEL PRO V2 - Estructura Router con Switch
- * Compatible con PHP 5.x (5.4 / 5.5 / 5.6)
+ * Compatible con PHP 5.6 (Producción) y PHP 8+ (Local)
  */
 
 // --- 1. CONFIGURACIÓN Y HEADERS ---
@@ -10,20 +15,28 @@ header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json; charset=UTF-8");
 
-// --- 2. INICIALIZACIÓN ---
+
+// --- 2. INICIALIZACIÓN Y AUTO-INSTALACIÓN ---
 $method = $_SERVER['REQUEST_METHOD'];
 $action = isset($_GET['action']) ? $_GET['action'] : null;
 
 try {
-    $DB_FILE = __DIR__ . '/padel_pro_v2.db';
+    $DB_FILE = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'padel_pro_v2.db';
+    
+    // Verificamos si el archivo NO existe o pesa 0 bytes
+    $necesita_instalacion = !file_exists($DB_FILE) || filesize($DB_FILE) === 0;
+
     $db = new SQLite3($DB_FILE);
     $db->enableExceptions(true);
+
+    // Si es la primera vez, instalamos las tablas silenciosamente
+    if ($necesita_instalacion) {
+        auto_install_db($db);
+    }
+
 } catch (Exception $e) {
     jsonResponse(array("error" => "Error de conexión a la BD: " . $e->getMessage()), 500);
 }
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 
 // --- 3. ENRUTADOR PRINCIPAL (SWITCH) ---
 switch($method) {   
@@ -49,8 +62,8 @@ switch($method) {
 
 function handle_get($action, $db) {
     switch($action) {
-        case 'install':
-            install_db($db);
+        case 'echo':
+            jsonResponse(array("status" => "Funcionando", "php_version" => PHP_VERSION));
             break;
         case 'ranking':
             get_ranking($db);
@@ -82,9 +95,6 @@ function handle_post($action, $db) {
         case 'unirse':
             join_partida($data, $db);
             break;
-        case 'abandonar': 
-            leave_partida($data, $db);
-            break;
         case 'finalizar_partida':
             finish_partida($data, $db);
             break;
@@ -97,7 +107,8 @@ function handle_post($action, $db) {
 // --- 5. FUNCIONES DE LÓGICA (CONTROLADORES) ---
 
 // [GET] Instalar Base de Datos
-function install_db($db) {
+// Función automática de instalación (sin jsonResponse al final)
+function auto_install_db($db) {
     $db->exec("CREATE TABLE IF NOT EXISTS usuarios (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nombre TEXT NOT NULL,
@@ -142,8 +153,6 @@ function install_db($db) {
             ('Pista Cristal 1', 'Cristal', 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea'),
             ('Pista Muro Clásica', 'Muro', 'https://images.unsplash.com/photo-1599423300746-b62533397364')");
     }
-
-    jsonResponse(array("msg" => "Base de datos V2 instalada correctamente."));
 }
 
 // [GET] Obtener Ranking
@@ -207,9 +216,8 @@ function register_user($data, $db) {
 
     try {
         $stmt = $db->prepare("INSERT INTO usuarios (nombre, email, password, nivel, foto) VALUES (:n, :e, :p, :l, :f)");
-        $stmt->bindValue(':n', $data['nombre']);
+        $stmt->bindValue(':n', isset($data['nombre']) ? $data['nombre'] : 'Usuario');
         $stmt->bindValue(':e', $data['email']);
-        // Requiere PHP 5.5+
         $stmt->bindValue(':p', password_hash($data['password'], PASSWORD_DEFAULT)); 
         $stmt->bindValue(':l', isset($data['nivel']) ? $data['nivel'] : 2.5);
         $stmt->bindValue(':f', isset($data['foto']) ? $data['foto'] : '');
@@ -232,7 +240,6 @@ function login_user($data, $db) {
     $res = $stmt->execute();
     $user = $res->fetchArray(SQLITE3_ASSOC);
 
-    // Requiere PHP 5.5+
     if ($user && password_verify($data['password'], $user['password'])) {
         unset($user['password']); // No enviar la contraseña al frontend
         jsonResponse(array("status" => "ok", "user" => $user));
@@ -320,7 +327,7 @@ function finish_partida($data, $db) {
     $reservaId = (int)$data['reserva_id'];
     $equipoGanador = $data['ganador'];
     
-    // Escapar marcador para evitar inyección simple (SQLite3::escapeString)
+    // Escapar marcador para evitar inyección simple
     $marcador = $db->escapeString($data['marcador']);
 
     $db->exec("UPDATE reservas SET estado = 'finalizada', resultado = '$marcador' WHERE id = $reservaId");

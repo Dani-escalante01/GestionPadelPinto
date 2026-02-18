@@ -21,9 +21,6 @@ try {
 } catch (Exception $e) {
     jsonResponse(array("error" => "Error de conexión a la BD: " . $e->getMessage()), 500);
 }
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 
 // --- 3. ENRUTADOR PRINCIPAL (SWITCH) ---
 switch($method) {   

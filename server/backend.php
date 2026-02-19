@@ -15,12 +15,17 @@ $method = $_SERVER['REQUEST_METHOD'];
 $action = isset($_GET['action']) ? $_GET['action'] : null;
 
 try {
-    $DB_FILE = __DIR__ . '/padel_pro_v2.db';
     $db = new SQLite3($DB_FILE);
     $db->enableExceptions(true);
+    
+    chmod($DB_FILE, 0666); // Permiso de lectura/escritura para el archivo
+    $db->exec("PRAGMA journal_mode = WAL;"); 
+    $db->exec("PRAGMA busy_timeout = 5000;"); 
+    
 } catch (Exception $e) {
-    jsonResponse(array("error" => "Error de conexión a la BD: " . $e->getMessage()), 500);
+    jsonResponse(array("error" => "Error de conexión: " . $e->getMessage()), 500);
 }
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -209,7 +214,6 @@ function register_user($data, $db) {
         $stmt = $db->prepare("INSERT INTO usuarios (nombre, email, password, nivel, foto) VALUES (:n, :e, :p, :l, :f)");
         $stmt->bindValue(':n', $data['nombre']);
         $stmt->bindValue(':e', $data['email']);
-        // Requiere PHP 5.5+
         $stmt->bindValue(':p', password_hash($data['password'], PASSWORD_DEFAULT)); 
         $stmt->bindValue(':l', isset($data['nivel']) ? $data['nivel'] : 2.5);
         $stmt->bindValue(':f', isset($data['foto']) ? $data['foto'] : '');
@@ -217,7 +221,10 @@ function register_user($data, $db) {
 
         jsonResponse(array("status" => "ok", "id" => $db->lastInsertRowID()));
     } catch (Exception $e) {
-        jsonResponse(array("error" => "El email ya existe o hubo un error"), 409);
+        jsonResponse(array(
+            "error" => $e->getMessage(), 
+            "code" => $e->getCode()
+        ), 409);
     }
 }
 

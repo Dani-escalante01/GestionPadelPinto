@@ -4,6 +4,7 @@
  */
 
 const API_URL = "https://public.digitalvalue.es/github/tests2/botcamp2026/GestionPadelPinto/server/backend.php";
+// const API_URL = "server/backend.php";
 
 // --- UTILIDADES ---
 const Utils = {

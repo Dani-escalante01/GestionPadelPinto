@@ -1,0 +1,37 @@
+# ==========================================
+# BASE DE DATOS (Instrucción de Dani)
+# ==========================================
+# Ignorar la base de datos principal
+server/padel_pro_v2.db
+
+# Ignorar archivos temporales que crea SQLite al escribir
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# ==========================================
+# ARCHIVOS DEL SISTEMA Y EDITORES
+# ==========================================
+# Windows y Mac
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# IDEs (VS Code, WebStorm, etc.)
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ==========================================
+#  LOGS Y VARIABLES DE ENTORNO
+# ==========================================
+*.log
+error_log
+.env
+.env.local

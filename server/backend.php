@@ -15,12 +15,14 @@ $method = $_SERVER['REQUEST_METHOD'];
 $action = isset($_GET['action']) ? $_GET['action'] : null;
 
 try {
+    $DB_FILE = __DIR__ . '/padel_pro_v2.db';
+    
+    @chmod($DB_FILE, 0666);
+    @chmod(__DIR__, 0777);
     $db = new SQLite3($DB_FILE);
     $db->enableExceptions(true);
     
-    chmod($DB_FILE, 0666); // Permiso de lectura/escritura para el archivo
-    $db->exec("PRAGMA journal_mode = WAL;"); 
-    $db->exec("PRAGMA busy_timeout = 5000;"); 
+    
     
 } catch (Exception $e) {
     jsonResponse(array("error" => "Error de conexión: " . $e->getMessage()), 500);

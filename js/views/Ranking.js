@@ -21,18 +21,16 @@ const RankingActions = {
       RankingState.ranking = [];
     } finally {
       RankingState.loading = false;
-      m.redraw(); // Forzamos el redibujado para quitar el mensaje de carga
+      m.redraw();
     }
   },
 };
 
 // --- VISTA PRINCIPAL ---
 const RankingView = {
-  // CLAVE: Ejecuta la carga de datos al iniciar el componente
   oninit: RankingActions.init,
 
   view: () => {
-    // Aplicamos el tema oscuro si está activo
     if (typeof ThemeState !== 'undefined') {
       document.documentElement.classList.toggle("dark", ThemeState.darkMode);
     }
@@ -45,11 +43,7 @@ const RankingView = {
       m(Navbar),
       m("div", { class: "container", style: "padding-top: 40px;" }, [
         RankingState.loading
-          ? m(
-            "div",
-            { style: "text-align:center; padding:100px; color:var(--text-muted);" },
-            "Calculando posiciones...",
-          )
+          ? m("div", { style: "text-align:center; padding:100px; color:var(--text-muted);" }, "Calculando posiciones...",)
           : [
             // SECCIÓN PODIO
             m("div", { class: "podium-section" }, [
@@ -61,18 +55,13 @@ const RankingView = {
             // SECCIÓN LISTA
             m("div", { class: "ranking-list" }, [
               rest.length > 0
-                ? [
-                  m(
-                    "h3",
-                    {
-                      style:
-                        "margin-bottom:20px; opacity:0.6; font-size:14px; text-transform:uppercase; letter-spacing:1px; color: var(--text-muted)",
-                    },
-                    "Resto de Jugadores",
-                  ),
-                  rest.map((user, idx) =>
-                    m(RankingRow, { user, pos: idx + 4 }),
-                  ),
+                ? [m("h3", {
+                  style: "margin-bottom:20px; opacity:0.6; font-size:14px; text-transform:uppercase; letter-spacing:1px; color: var(--text-muted)"
+                },
+                  "Resto de Jugadores",),
+                rest.map((user, idx) =>
+                  m(RankingRow, { user, pos: idx + 4 }),
+                ),
                 ]
                 : safeRanking.length > 0
                   ? m("div", { style: "text-align:center; color:var(--text-muted); padding:20px" }, "No hay más jugadores clasificados.")

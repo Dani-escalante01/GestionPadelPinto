@@ -1,27 +1,5 @@
-const HOURS = [
-  "09:00",
-  "10:30",
-  "12:00",
-  "13:30",
-  "16:30",
-  "18:00",
-  "19:30",
-  "21:00",
-];
-const MONTHS = [
-  "Enero",
-  "Febrero",
-  "Marzo",
-  "Abril",
-  "Mayo",
-  "Junio",
-  "Julio",
-  "Agosto",
-  "Septiembre",
-  "Octubre",
-  "Noviembre",
-  "Diciembre",
-];
+const HOURS = ["09:00", "10:30", "12:00", "13:30", "16:30", "18:00", "19:30", "21:00",];
+const MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
 // --- ESTADO GLOBAL ---
 const HomeState = {
@@ -125,60 +103,33 @@ const HomeActions = {
 };
 
 // --- LAYOUT PRINCIPAL ---
-const Home = { 
-  oninit: HomeActions.init, 
+const Home = {
+  oninit: HomeActions.init,
   view: () => {
     document.documentElement.classList.toggle("dark", ThemeState.darkMode);
-
-    return m(
-      "div",
-      {
-        class: ThemeActions.getMainClasses(),
-      },
-      [
-        m(Navbar),
-        m(Hero),
-        m("main", { class: "main-layout" }, [
-          m("aside", { class: "sidebar" }, [
-            m(CalendarWidget),
-            m(TimeSelector),
-          ]),
-          m("section", { class: "content" }, [
-            m(
-              "div",
-              {
-                style: "display:flex; justify-content:space-between; align-items:center; margin-bottom:20px",
-              },
-              [
-                m("h2", { style: "font-weight:800; margin:0" }, "Pistas Disponibles"),
-                m(
-                  "span",
-                  {
-                    style: "background:var(--primary); color:white; padding:5px 10px; border-radius:20px; font-weight:bold; font-size:12px",
-                  },
-                  `${HomeState.selectedTime}H`,
-                ),
-              ],
-            ),
-            HomeState.loading
-              ? m("p", { style: "color:var(--text-muted)" }, "Cargando pistas...")
-              : m(
-                "div",
-                { class: "courts-list" },
-                HomeState.courts.map((court) => {
-                  const match = HomeState.reservations.find(
-                    (r) =>
-                      parseInt(r.pista_id) === parseInt(court.id) &&
-                      r.hora === HomeState.selectedTime,
-                  );
-                  return m(CourtCard, { court, match });
-                }),
-              ),
-          ]),
+    return m("div", { class: ThemeActions.getMainClasses() }, [
+      m(Navbar),
+      m(Hero),
+      m("main", { class: "main-layout" }, [
+        m("aside", { class: "sidebar" }, [
+          m(CalendarWidget),
+          m(TimeSelector),
         ]),
-        m(BookingModal),
-        m(Footer),
-      ],
-    );
+        m("section", { class: "content" }, [
+          m("div", { style: "display:flex; justify-content:space-between; align-items:center; margin-bottom:20px" }, [
+            m("h2", { style: "font-weight:800; margin:0" }, "Pistas Disponibles"),
+            m("span", { style: "background:var(--primary); color:white; padding:5px 10px; border-radius:20px; font-weight:bold; font-size:12px" }, `${HomeState.selectedTime}H`),
+          ]),
+          HomeState.loading
+            ? m("p", { style: "color:var(--text-muted)" }, "Cargando pistas...")
+            : m("div", { class: "courts-list" }, HomeState.courts.map((court) => {
+              const match = HomeState.reservations.find((r) => parseInt(r.pista_id) === parseInt(court.id) && r.hora === HomeState.selectedTime);
+              return m(CourtCard, { court, match });
+            })),
+        ]),
+      ]),
+      m(BookingModal),
+      m(Footer),
+    ]);
   },
 };

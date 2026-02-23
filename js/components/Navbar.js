@@ -1,4 +1,3 @@
-// js/components/Navbar.js
 const NavbarState = {
     userMenuOpen: false
 };

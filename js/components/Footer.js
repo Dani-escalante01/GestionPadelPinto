@@ -10,12 +10,12 @@ function Footer() {
                 m("div", { class: "footer-logo" }, "P"),
                 m("span", { class: "footer-brand-name" }, "PADELPINTO "),
               ]),
-              m(
-                "p",
-                { class: "footer-desc" },
-                "La plataforma líder para la gestión de pistas y comunidades de pádel. Reserva, juega y conecta con otros jugadores en un solo lugar.",
+              m("p", { 
+                class: "footer-desc" 
+              }, "La plataforma líder para la gestión de pistas y comunidades de pádel. Reserva, juega y conecta con otros jugadores en un solo lugar.",
               ),
             ]),
+
             // Columna 2: Enlaces rápidos
             m("div", [
               m("h4", { class: "footer-heading" }, "Navegación"),
@@ -26,6 +26,7 @@ function Footer() {
                 m("li", { class: "footer-nav-item" }, "Torneos"),
               ]),
             ]),
+
             // Columna 3: Newsletter/Social
             m("div", [
               m("h4", { class: "footer-heading" }, "Mantente al día"),
@@ -37,7 +38,7 @@ function Footer() {
                   placeholder: "Tu email",
                 }),
                 m("button", { class: "newsletter-btn" }, "OK"),
-              ]),
+              ]), 
               m("div", { class: "social-icons" }, [
                 // Instagram
                 m("a", {

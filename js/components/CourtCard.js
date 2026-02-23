@@ -14,9 +14,7 @@ function CourtCard() {
       return m("div", { class: "court-card" }, [
         m("img", {
           class: "court-img",
-          src:
-            court.foto_url ||
-            "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea",
+          src: court.foto_url || "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea",
         }),
         m("div", { class: "court-info" }, [
           m("div", [
@@ -36,48 +34,43 @@ function CourtCard() {
                 style: `width: ${(players.length / 4) * 100}%`,
               }),
             ]),
-            m(
-              "div",
-              { class: "ranking-container" },
+            m("div", { class: "ranking-container" },
               players.map((p) =>
-                m(
-                  "div",
-                  { class: "player-ball", title: p.nombre },
-                  Math.round(p.nivel || 0),
-                ),
+                m("div", { class: "player-ball", title: p.nombre }, Math.round(p.nivel || 0),),
               ),
             ),
           ]),
-          m("button", {
-              class: `btn-action ${isFull ? "full" : ""} ${isUserInscribed ? "btn-danger" : ""}`,
-              onclick: (e) => {
-                // Si el usuario ya está inscrito, la acción es SALIR
-                if (isUserInscribed) {
-                  if (confirm("¿Estás seguro de que quieres salirte de esta partida?")) {
-                    PadelData.abandonarReserva(match.id).then(res => {
-                      if (res.success) {
-                        // Recargar datos o emitir un evento para refrescar la vista
-                        location.reload();
-                      } else {
-                        alert(res.error);
-                      }
-                    });
-                  }
-                  return;
-                }
 
-                // Si no está inscrito, la acción sigue siendo UNIRSE/RESERVAR
-                if (!isFull) HomeActions.openModal(court, match);
-              },
-              // Quitamos el disabled para que el botón sea interactivo cuando está inscrito
-              disabled: !isUserInscribed && isFull,
+          m("button", {
+            class: `btn-action ${isFull ? "full" : ""} ${isUserInscribed ? "btn-danger" : ""}`,
+            onclick: (e) => {
+              // Si el usuario ya está inscrito, la acción es SALIR
+              if (isUserInscribed) {
+                if (confirm("¿Estás seguro de que quieres salirte de esta partida?")) {
+                  PadelData.abandonarReserva(match.id).then(res => {
+                    if (res.success) {
+                      location.reload();// Recargar datos o emitir un evento para refrescar la vista
+                    } else {
+                      alert(res.error);
+                    }
+                  });
+                }
+                return;
+              }
+
+              // Si no está inscrito, la acción sigue siendo UNIRSE/RESERVAR
+              if (!isFull) HomeActions.openModal(court, match);
             },
+
+            // Quitamos el disabled para que el botón sea interactivo cuando está inscrito
+            disabled: !isUserInscribed && isFull,
+          },
+
             isUserInscribed
               ? "SALIRSE DE LA PARTIDA"
-              : match
-                ? isFull
-                  ? "LLENO"
-                  : "UNIRSE"
+              : match ? isFull
+                ? "LLENO"
+                : "UNIRSE"
                 : "RESERVAR",
           ),
         ]),

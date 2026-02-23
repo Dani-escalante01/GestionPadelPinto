@@ -47,9 +47,9 @@ function LoginCard() {
         ]) : null,
         m("div", { class: "form-group" }, [
           m("label", { class: "label" }, "Correo Electrónico"),
-          m("input", { 
-            type: "email", class: "input-field", placeholder: "ejemplo@padel.com", 
-            value: LoginState.email, oninput: (e) => (LoginState.email = e.target.value) 
+          m("input", {
+            type: "text", class: "input-field", //input: "text" hay q cambiarlo a input: "email" (ahora mismo hay varios emails de prueba con tildes y con email no deja pero con text sí)
+            value: LoginState.email, oninput: (e) => (LoginState.email = e.target.value)
           }),
         ]),
         m("div", { class: "form-group" }, [
@@ -57,19 +57,19 @@ function LoginCard() {
             m("label", { class: "label" }, "Contraseña"),
             m("a", { href: "#", style: "font-size:11px; color:var(--primary); font-weight:700; text-decoration:none;" }, "¿Olvidaste la contraseña?"),
           ]),
-          m("input", { 
-            type: "password", class: "input-field", placeholder: "••••••••", 
-            value: LoginState.password, oninput: (e) => (LoginState.password = e.target.value) 
+          m("input", {
+            type: "password", class: "input-field",
+            value: LoginState.password, oninput: (e) => (LoginState.password = e.target.value)
           }),
         ]),
-        m("button", { type: "submit", class: "btn-primary", disabled: LoginState.loading }, 
+        m("button", { type: "submit", class: "btn-primary", disabled: LoginState.loading },
           LoginState.loading ? "Verificando..." : "ACCEDER A MI CUENTA"
         ),
         m("div", { class: "form-footer" }, [
           m("span", "¿Aún no tienes cuenta? "),
-          m("a", { 
-            href: "#!/registro", class: "link", 
-            onclick: (e) => { e.preventDefault(); m.route.set("/registro"); } 
+          m("a", {
+            href: "#!/registro", class: "link",
+            onclick: (e) => { e.preventDefault(); m.route.set("/registro"); }
           }, "Regístrate ahora"),
         ]),
       ]),
@@ -82,20 +82,20 @@ function Login() {
   return {
     view: () => {
       document.documentElement.classList.toggle("dark", ThemeState.darkMode);
-      
+
       return m("div", { class: "split-layout" }, [
         m(HeroSide),
         m("div", { class: "form-side" }, [
           m("div", { class: "navbar-floating" }, [
-            m("a", { 
-              href: "#!/", class: "nav-link-back", 
-              onclick: (e) => { e.preventDefault(); m.route.set("/"); } 
+            m("a", {
+              href: "#!/", class: "nav-link-back",
+              onclick: (e) => { e.preventDefault(); m.route.set("/"); }
             }, "VOLVER AL INICIO"),
             m(ThemeToggle),
           ]),
-          m("a", { 
-            href: "#!/", class: "brand-mobile", 
-            onclick: (e) => { e.preventDefault(); m.route.set("/"); } 
+          m("a", {
+            href: "#!/", class: "brand-mobile",
+            onclick: (e) => { e.preventDefault(); m.route.set("/"); }
           }, [
             m("div", { style: "background:var(--primary); color:white; width:30px; height:30px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:bold;" }, "P"),
             m("span", { style: "margin-left:10px" }, "PADELPINTO"),

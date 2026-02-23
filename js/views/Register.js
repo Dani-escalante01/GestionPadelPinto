@@ -52,21 +52,21 @@ function RegisterCard() {
         m("div", { class: "form-group" }, [
           m("label", { class: "label" }, "Nombre Completo"),
           m("input", {
-            type: "text", class: "input-field", placeholder: "Ej. Carlos Pérez",
+            type: "text", class: "input-field",
             value: RegisterState.form.nombre, oninput: (e) => RegisterActions.setInput("nombre", e.target.value)
           }),
         ]),
         m("div", { class: "form-group" }, [
           m("label", { class: "label" }, "Correo Electrónico"),
           m("input", {
-            type: "email", class: "input-field", placeholder: "tu@email.com",
+            type: "email", class: "input-field",
             value: RegisterState.form.email, oninput: (e) => RegisterActions.setInput("email", e.target.value)
           }),
         ]),
         m("div", { class: "form-group" }, [
           m("label", { class: "label" }, "Contraseña"),
           m("input", {
-            type: "password", class: "input-field", placeholder: "Mínimo 6 caracteres",
+            type: "password", class: "input-field",
             value: RegisterState.form.password, oninput: (e) => RegisterActions.setInput("password", e.target.value)
           }),
         ]),

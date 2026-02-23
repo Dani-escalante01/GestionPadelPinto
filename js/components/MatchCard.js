@@ -26,11 +26,8 @@ function MatchCard() {
             match.jugadores.map((p) =>
               m("div", {
                 class: "player-avatar",
-                title: p.nombre,
-                style:
-                  p.usuario_id == Auth.user.id
-                    ? "border-color:var(--primary)"
-                    : "",
+                title: `${p.nombre} (Nivel ${p.nivel})`,
+                style: getLevelColor(p.nivel) + (p.usuario_id == Auth.user.id ? "box-shadow: 0 0 0 3px var(--primary);" : ""),
               }, Math.round(p.nivel)),
             ),
             // Huecos libres

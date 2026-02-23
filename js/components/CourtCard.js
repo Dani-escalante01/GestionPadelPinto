@@ -36,7 +36,11 @@ function CourtCard() {
             ]),
             m("div", { class: "ranking-container" },
               players.map((p) =>
-                m("div", { class: "player-ball", title: p.nombre }, Math.round(p.nivel || 0),),
+                m("div", {
+                  class: "player-ball",
+                  title: `${p.nombre} (Nivel ${p.nivel})`,
+                  style: getLevelColor(p.nivel)
+                }, Math.round(p.nivel || 0)),
               ),
             ),
           ]),
@@ -49,7 +53,7 @@ function CourtCard() {
                 if (confirm("¿Estás seguro de que quieres salirte de esta partida?")) {
                   PadelData.abandonarReserva(match.id).then(res => {
                     if (res.success) {
-                      location.reload();// Recargar datos o emitir un evento para refrescar la vista
+                      location.reload();
                     } else {
                       alert(res.error);
                     }
@@ -65,7 +69,6 @@ function CourtCard() {
             // Quitamos el disabled para que el botón sea interactivo cuando está inscrito
             disabled: !isUserInscribed && isFull,
           },
-
             isUserInscribed
               ? "SALIRSE DE LA PARTIDA"
               : match ? isFull

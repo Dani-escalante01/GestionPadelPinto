@@ -1,6 +1,12 @@
 const HOURS = ["09:00", "10:30", "12:00", "13:30", "16:30", "18:00", "19:30", "21:00",];
 const MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
+const getLevelColor = (nivel) => {
+  const n = Math.min(Math.max(nivel, 1), 7);
+  const hue = 120 - ((n - 1) * 20); 
+  return `background-color: hsl(${hue}, 70%, 45%); color: white; border: none;`;
+};
+
 // --- ESTADO GLOBAL ---
 const HomeState = {
   selectedDate: new Date(),

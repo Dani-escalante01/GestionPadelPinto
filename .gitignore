@@ -2,7 +2,7 @@
 # BASE DE DATOS (Instrucción de Dani)
 # ==========================================
 # Ignorar la base de datos principal
-server/padel_pro_v2.db
+server/data/padel_pro_v2.db
 
 # Ignorar archivos temporales que crea SQLite al escribir
 *.db-journal

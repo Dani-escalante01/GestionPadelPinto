@@ -14,7 +14,7 @@ header("Content-Type: application/json; charset=UTF-8");
 $method = $_SERVER['REQUEST_METHOD'];
 $action = isset($_GET['action']) ? $_GET['action'] : null;
 
-$DB_FILE = __DIR__ . '/padel_pro_v2.db';
+$DB_FILE = __DIR__ . '/data/padel_pro_v2.db';
 
 try {
     $db = new SQLite3($DB_FILE, SQLITE3_OPEN_CREATE | SQLITE3_OPEN_READWRITE);

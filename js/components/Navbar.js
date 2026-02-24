@@ -1,8 +1,9 @@
-import { ThemeState, ThemeActions, ThemeToggle } from "../components/toggleTheme.js";
-import { Utils, Auth, PadelData } from "../api.js";
+import { ThemeToggle } from "../components/toggleTheme.js";
+import { Auth } from "../api.js";
 
 export const NavbarState = {
-    userMenuOpen: false
+    userMenuOpen: false,
+    mobileMenuOpen: false
 };
 
 export const Navbar = {
@@ -11,34 +12,59 @@ export const Navbar = {
 
         return m("nav", { class: "navbar" }, [
             m("div", { class: "container nav-container" }, [
+
+                // BOTÓN HAMBURGUESA (Solo visible en móvil vía CSS)
+                m("button", {
+                    class: "mobile-menu-btn",
+                    onclick: () => NavbarState.mobileMenuOpen = !NavbarState.mobileMenuOpen
+                }, [
+                    m("span", { class: NavbarState.mobileMenuOpen ? "icon-close" : "icon-menu" }, NavbarState.mobileMenuOpen ? "✕" : "☰")
+                ]),
+
                 // Logo
                 m("div", {
                     class: "brand",
                     style: "cursor: pointer;",
-                    onclick: () => { m.route.set("/"); NavbarState.userMenuOpen = false; }
+                    onclick: () => {
+                        m.route.set("/");
+                        NavbarState.userMenuOpen = false;
+                        NavbarState.mobileMenuOpen = false; 
+                    }
                 }, [
                     m("div", { class: "logo-icon" }, "P"),
                     m("span", "PADELPINTO")
                 ]),
 
-                // Enlaces de navegación con m.route.set
-                m("div", { class: "nav-links" }, [
+                // Enlaces de navegación (Ahora con clase dinámica para móvil)
+                m("div", { class: `nav-links ${NavbarState.mobileMenuOpen ? "active" : ""}` }, [
                     m("a", {
                         href: "#!/",
                         class: (currentRoute === "/") ? "active" : "",
-                        onclick: (e) => { e.preventDefault(); m.route.set("/"); }
+                        onclick: (e) => {
+                            e.preventDefault();
+                            m.route.set("/");
+                            NavbarState.mobileMenuOpen = false;
+                        }
                     }, "Reservar"),
 
                     m("a", {
                         href: "#!/partidas",
                         class: (currentRoute === "/partidas") ? "active" : "",
-                        onclick: (e) => { e.preventDefault(); m.route.set("/partidas"); }
+                        onclick: (e) => {
+                            e.preventDefault();
+                            m.route.set("/partidas");
+                            NavbarState.mobileMenuOpen = false;
+                        }
                     }, "Partidas"),
 
                     m("a", {
                         href: "#!/ranking",
                         class: (currentRoute === "/ranking") ? "active" : "",
-                        onclick: (e) => { e.preventDefault(); m.route.set("/ranking"); }
+                        onclick: (e) => {
+                            e.preventDefault();
+                            m.route.set("/ranking");
+                            NavbarState.mobileMenuOpen = false;
+                        }
                     }, "Ranking")
                 ]),
 
@@ -64,7 +90,6 @@ export const Navbar = {
                                             localStorage.removeItem('padel_user');
                                         }
                                         NavbarState.userMenuOpen = false;
-
                                         m.route.set("/");
                                     }
                                 }, "Cerrar sesión")

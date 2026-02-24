@@ -231,6 +231,15 @@
     color: #cbd5e1;
 }
 
+.dark .nav-links {
+    background-color: #1e293b;
+    border-right: 1px solid #334155;
+}
+
+.dark .mobile-menu-btn {
+    color: white;
+}
+
 /* Ajustes Footer Modo Oscuro */
 .dark .footer-container {
     background-color: #020617;

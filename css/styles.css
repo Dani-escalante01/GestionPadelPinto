@@ -1,9 +1,12 @@
+/* ==========================================================================
+   1. VARIABLES, CONFIGURACIÓN BASE Y RESET
+   ========================================================================== */
+
 /*forzar a que siempre esté la barra de scroll lateral*/
-/* html {
-    overflow-y: scroll;
+/* html { 
+    overflow-y: scroll; 
 } */
 
-/* --- VARIABLES Y BASE --- */
 :root {
     --primary: #22c55e;
     --primary-dark: #16a34a;
@@ -14,14 +17,36 @@
     --border: #e2e8f0;
     --radius: 24px;
     --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-
     /* Colores de Podio */
     --gold: #fbbf24;
     --silver: #94a3b8;
     --bronze: #b45309;
 }
 
-/* Modo Oscuro (gestionado por toggleTheme.js si añade clase .dark al html/body) */
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: #f8fafc;
+    margin: 0;
+    padding: 0;
+    color: var(--text-main);
+    transition: background-color 0.3s, color 0.3s;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+}
+
+#app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ==========================================================================
+   2. MODO OSCURO (DARK MODE)
+   ========================================================================== */
+
 .dark body {
     background-color: #0f172a !important;
     color: #f8fafc;
@@ -53,16 +78,101 @@
     color: #0f172a;
 }
 
-body {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    background-color: #f8fafc;
-    margin: 0;
-    padding: 0;
-    color: var(--text-main);
-    transition: background-color 0.3s, color 0.3s;
+.dark .court-status-text {
+    color: #f7f3f3d1 !important;
 }
 
-/* --- LAYOUT GENERAL --- */
+.dark .progress-container {
+    background: #334155;
+}
+
+.dark .btn-action.full {
+    background: #0f172a;
+    color: #475569;
+}
+
+.dark .btn-action.inscribed {
+    background-color: #334155;
+    color: #94a3b8;
+}
+
+.dark .player-ball {
+    background: #334155;
+    border-color: #1e293b;
+    color: white;
+}
+
+.dark .modal-content {
+    background: #1e293b;
+    color: white;
+}
+
+.dark .user-name-btn {
+    color: white;
+}
+
+.dark .user-name-btn:hover {
+    background: #334155;
+    border-color: #475569;
+    color: white;
+}
+
+.dark .user-dropdown {
+    background: #1e293b;
+    border-color: #334155;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+.dark .dropdown-item:hover {
+    background-color: rgba(239, 68, 68, 0.15);
+}
+
+.dark .rank-card,
+.dark .podium-card {
+    background-color: #1e293b;
+    border-color: #334155;
+}
+
+.dark .rank-pos {
+    background: #334155;
+    color: white;
+}
+
+.dark .rank-header {
+    background: #1e293b;
+    border-bottom-color: #334155;
+}
+
+.dark .page-title,
+.dark .time-big,
+.dark h3 {
+    color: white;
+}
+
+.dark .tab-btn {
+    color: #cbd5e1;
+}
+
+.dark .tab-btn.active {
+    color: white;
+    border-bottom-color: var(--primary);
+}
+
+.dark .empty-state {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+.dark .player-avatar {
+    background: #334155;
+    border-color: #1e293b;
+    color: white;
+}
+
+/* ==========================================================================
+   3. LAYOUT GENERAL Y CONTENEDORES
+   ========================================================================== */
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -80,17 +190,10 @@ body {
     flex-direction: column;
 }
 
-@media (min-width: 768px) {
-    .main-layout {
-        flex-direction: row;
-    }
-}
-
 .sidebar {
     width: 100%;
     max-width: 320px;
     flex-shrink: 0;
-    /* Efecto flotante sobre el Hero */
     position: relative;
     z-index: 10;
 }
@@ -99,7 +202,32 @@ body {
     flex: 1;
 }
 
-/* --- NAVBAR --- */
+.page-content {
+    padding: 40px 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.page-header {
+    margin-bottom: 30px;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0;
+}
+
+.page-date {
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-top: 5px;
+}
+
+/* ==========================================================================
+   4. NAVEGACIÓN (NAVBAR)
+   ========================================================================== */
+
 .navbar {
     background-color: var(--card-bg);
     border-bottom: 1px solid var(--border);
@@ -135,12 +263,6 @@ body {
     display: none;
 }
 
-@media(min-width: 768px) {
-    .nav-links {
-        display: block;
-    }
-}
-
 .nav-links a {
     text-decoration: none;
     color: var(--text-muted);
@@ -171,7 +293,10 @@ body {
     margin: 0;
 }
 
-/* --- HERO SECTION --- */
+/* ==========================================================================
+   5. HERO SECTION
+   ========================================================================== */
+
 .hero {
     height: 400px;
     background-color: var(--dark-bg);
@@ -195,6 +320,21 @@ body {
 .hero-content {
     position: relative;
     z-index: 2;
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    color: white;
+    box-sizing: border-box;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin-bottom: 15px;
+    line-height: 1;
+    letter-spacing: -1px;
 }
 
 .hero h1 {
@@ -203,12 +343,10 @@ body {
     margin: 0 0 20px 0;
 }
 
-.btn-primary:hover {
-    background: var(--primary-dark);
-    transform: scale(1.05);
-}
+/* ==========================================================================
+   6. CALENDARIO Y SELECTOR DE HORA
+   ========================================================================== */
 
-/* --- CALENDARIO --- */
 .calendar-widget {
     background: var(--card-bg);
     border-radius: var(--radius);
@@ -273,7 +411,6 @@ body {
     color: white;
 }
 
-/* --- SELECTOR DE HORA --- */
 .time-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -305,7 +442,31 @@ body {
     border-color: var(--primary);
 }
 
-/* --- TARJETAS DE PISTA --- */
+.date-nav-btn {
+    background: var(--card-bg, white);
+    border: 1.5px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text-main, #0f172a);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.date-nav-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* ==========================================================================
+   7. COMPONENTES: TARJETAS DE PISTA (COURT CARDS)
+   ========================================================================== */
+
 .courts-list {
     display: grid;
     grid-template-columns: 1fr;
@@ -367,10 +528,6 @@ body {
     transition: color 0.3s ease;
 }
 
-.dark .court-status-text {
-    color: #f7f3f3d1 !important;
-}
-
 .badge {
     font-size: 10px;
     padding: 4px 8px;
@@ -395,10 +552,6 @@ body {
     border-radius: 10px;
     margin: 10px 0;
     overflow: hidden;
-}
-
-.dark .progress-container {
-    background: #334155;
 }
 
 .progress-bar {
@@ -431,11 +584,6 @@ body {
     cursor: pointer;
 }
 
-.dark .btn-action.full {
-    background: #0f172a;
-    color: #475569;
-}
-
 .btn-action.inscribed {
     background-color: #94a3b8;
     color: #f8fafc;
@@ -444,12 +592,190 @@ body {
     box-shadow: none;
 }
 
-.dark .btn-action.inscribed {
-    background-color: #334155;
-    color: #94a3b8;
+.btn-action.btn-danger {
+    background-color: #ef4444;
+    color: white;
+    cursor: pointer;
+    border: 1px solid #dc2626;
 }
 
-/* --- RANKING BALLS --- */
+.btn-action.btn-danger:hover {
+    background-color: #dc2626;
+    transform: scale(1.02);
+}
+
+.dark .btn-action.btn-danger {
+    background-color: #991b1b;
+    border-color: #7f1d1d;
+}
+
+/* ==========================================================================
+   8. COMPONENTES: PARTIDAS (MATCH CARDS)
+   ========================================================================== */
+
+.tabs {
+    display: flex;
+    gap: 30px;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 30px;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    padding: 15px 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    color: var(--text-main);
+}
+
+.tab-btn.active {
+    color: var(--text-main);
+    border-bottom-color: var(--primary);
+}
+
+.match-list {
+    display: grid;
+    gap: 20px;
+}
+
+.match-card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: var(--shadow);
+    border: 1.5px solid #cbd5e1;
+    transition: transform 0.2s;
+}
+
+.match-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--primary);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15);
+}
+
+.match-time {
+    text-align: center;
+    padding-right: 25px;
+    border-right: 2px solid var(--border);
+    min-width: 90px;
+}
+
+.time-big {
+    font-size: 24px;
+    font-weight: 900;
+    line-height: 1;
+    color: #0f172a;
+}
+
+.court-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-top: 5px;
+}
+
+.match-info {
+    flex: 1;
+    padding: 0 25px;
+}
+
+.match-type {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+.type-public {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.type-private {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.players-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.player-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--border);
+    border: 2px solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.match-action .btn {
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: none;
+    font-weight: 800;
+    font-size: 12px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: 0.2s;
+}
+
+.btn-join {
+    background: var(--primary);
+    color: white;
+}
+
+.btn-join:hover {
+    background: var(--primary-dark);
+}
+
+.btn-view {
+    background: var(--dark-bg);
+    color: white;
+}
+
+.dark .btn-view {
+    background: #334155;
+    color: white;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px;
+    background: white;
+    border-radius: 20px;
+    border: 2px dashed #cbd5e1;
+    color: var(--text-muted);
+}
+
+/* ==========================================================================
+   9. ELEMENTOS DE RANKING Y BOLAS
+   ========================================================================== */
+
 .ranking-container {
     display: flex;
     margin: 5px;
@@ -470,13 +796,186 @@ body {
     color: var(--text-main);
 }
 
-.dark .player-ball {
-    background: #334155;
-    border-color: #1e293b;
-    color: white;
+.podium-section {
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 20px;
+    margin-bottom: 20px;
 }
 
-/* --- MODAL --- */
+.podium-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    position: relative;
+    width: 100%;
+    max-width: 220px;
+    transition: transform 0.3s;
+}
+
+.podium-1 {
+    order: 2;
+    transform: scale(1.1);
+    z-index: 10;
+    border-color: var(--gold);
+    border-width: 2px;
+}
+
+.podium-2 {
+    order: 1;
+    margin-bottom: -20px;
+}
+
+.podium-3 {
+    order: 3;
+    margin-bottom: -40px;
+}
+
+.medal-icon {
+    font-size: 24px;
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 10px auto;
+    border: 4px solid var(--border);
+}
+
+.podium-1 .avatar-large {
+    border-color: var(--gold);
+}
+
+.podium-2 .avatar-large {
+    border-color: var(--silver);
+}
+
+.podium-3 .avatar-large {
+    border-color: var(--bronze);
+}
+
+.player-name {
+    font-weight: 800;
+    font-size: 1.1rem;
+    margin: 5px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.player-level {
+    font-weight: 700;
+    color: var(--primary);
+    font-size: 0.9rem;
+}
+
+.player-stats {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 5px;
+    font-weight: 600;
+}
+
+.ranking-list {
+    max-width: 800px;
+    margin: 0 auto 60px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.rank-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 15px 25px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: transform 0.2s;
+}
+
+.rank-card:hover {
+    transform: translateX(5px);
+    border-color: var(--primary);
+}
+
+.rank-pos {
+    font-size: 14px;
+    font-weight: 900;
+    width: 30px;
+    height: 30px;
+    background: var(--border);
+    color: var(--text-muted);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rank-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.rank-info {
+    flex: 1;
+}
+
+.rank-name {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.rank-detail {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.rank-score {
+    text-align: right;
+}
+
+.score-val {
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--primary);
+}
+
+.score-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+
+
+/* ==========================================================================
+   10. MODALES
+   ========================================================================== */
+
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -498,11 +997,6 @@ body {
     border-radius: 30px;
     overflow: hidden;
     animation: fadeIn 0.3s ease-out;
-}
-
-.dark .modal-content {
-    background: #1e293b;
-    color: white;
 }
 
 .modal-header {
@@ -548,19 +1042,10 @@ body {
     cursor: pointer;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
+/* ==========================================================================
+   11. BOTÓN THEME TOGGLE (MODO OSCURO)
+   ========================================================================== */
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* --- BOTÓN TOGGLE PROFESIONAL --- */
 .theme-toggle {
     display: inline-flex;
     align-items: center;
@@ -570,7 +1055,6 @@ body {
     padding: 0;
     cursor: pointer;
     border-radius: 12px;
-    /* Un poco menos redondeado para look más moderno */
     border: 1.5px solid var(--border);
     background-color: var(--card-bg);
     color: var(--text-muted);
@@ -579,7 +1063,6 @@ body {
     outline: none;
 }
 
-/* Efecto al pasar el ratón */
 .theme-toggle:hover {
     transform: translateY(-1px);
     border-color: var(--primary);
@@ -587,13 +1070,11 @@ body {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-/* Efecto de clic (pulsación) */
 .theme-toggle:active {
     transform: translateY(0);
     transform: scale(0.95);
 }
 
-/* Estilo específico cuando estamos en MODO OSCURO */
 .dark .theme-toggle {
     background-color: #1e293b;
     border-color: #334155;
@@ -606,7 +1087,6 @@ body {
     background-color: #334155;
 }
 
-/* Animación para el icono interior */
 .theme-toggle svg {
     transition: transform 0.5s ease;
 }
@@ -615,7 +1095,10 @@ body {
     transform: rotate(15deg);
 }
 
-/* --- MENÚ DE USUARIO DESPLEGABLE --- */
+/* ==========================================================================
+   12. MENÚ DE USUARIO DESPLEGABLE
+   ========================================================================== */
+
 .user-menu-container {
     position: relative;
     display: inline-block;
@@ -641,16 +1124,6 @@ body {
     background-color: var(--border);
 }
 
-.dark .user-name-btn {
-    color: white;
-}
-
-.dark .user-name-btn:hover {
-    background: #334155;
-    border-color: #475569;
-    color: white;
-}
-
 .user-dropdown {
     position: absolute;
     top: 100%;
@@ -664,12 +1137,6 @@ body {
     overflow: hidden;
     z-index: 100;
     animation: fadeIn 0.2s ease-out;
-}
-
-.dark .user-dropdown {
-    background: #1e293b;
-    border-color: #334155;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
 }
 
 .dropdown-item {
@@ -691,11 +1158,254 @@ body {
     background-color: #fee2e2;
 }
 
-.dark .dropdown-item:hover {
-    background-color: rgba(239, 68, 68, 0.15);
+/* ==========================================================================
+   13. FORMULARIOS (LOGIN Y REGISTRO) - LAYOUT SPLIT
+   ========================================================================== */
+
+.split-layout {
+    display: flex;
+    flex: 1;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
 }
 
-/* --- FOOTER STYLES --- */
+.hero-side {
+    display: none;
+    flex: 1.2;
+    position: relative;
+    background-color: #1f325f;
+    overflow: hidden;
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(15, 23, 42, 0.9), transparent);
+    z-index: 1;
+}
+
+.form-side {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-dirty-white);
+    position: relative;
+    padding: 20px;
+    height: 100vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+.dark .form-side {
+    background-color: #020617;
+}
+
+.login-card,
+.register-card {
+    background-color: var(--card-bg);
+    width: 100%;
+    max-width: 450px;
+    padding: 40px;
+    border-radius: 32px;
+    box-shadow: var(--shadow);
+    animation: fadeIn 0.6s ease-out;
+    margin-top: 80px;
+    margin-bottom: 40px;
+    box-sizing: border-box;
+}
+
+.dark .login-card,
+.dark .register-card {
+    background-color: #1e293b;
+    border-color: #334155;
+}
+
+.form-header {
+    margin-bottom: 25px;
+    text-align: left;
+}
+
+h1 {
+    font-size: 28px;
+    font-weight: 800;
+    margin: 0 0 10px 0;
+    letter-spacing: -0.5px;
+}
+
+.subtitle {
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.label {
+    display: block;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    color: var(--text-main);
+    letter-spacing: 0.5px;
+}
+
+.dark .label {
+    color: #cbd5e1;
+}
+
+.input-field {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 2px solid var(--bg-dirty-white);
+    background-color: #f8fafc;
+    font-size: 14px;
+    font-weight: 600;
+    outline: none;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.input-field:focus {
+    border-color: var(--primary);
+    background-color: white;
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+}
+
+.dark .input-field {
+    background-color: #0f172a;
+    border-color: #334155;
+    color: white;
+}
+
+.dark .input-field:focus {
+    background-color: #0f172a;
+    border-color: var(--primary);
+    color: white;
+}
+
+select.input-field {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%231e293b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 0.65em auto;
+    cursor: pointer;
+}
+
+.btn-primary {
+    width: 100%;
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 16px;
+    margin-top: 6px;
+    border-radius: 14px;
+    font-weight: 800;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+    box-shadow: 0 10px 20px -5px rgba(34, 197, 94, 0.4);
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+.btn-primary:disabled {
+    background: var(--border);
+    color: var(--text-muted);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.error-msg {
+    background: #fee2e2;
+    color: #ef4444;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.form-footer {
+    margin-top: 25px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.link {
+    color: var(--primary);
+    font-weight: 800;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.link:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+.navbar-floating {
+    position: absolute;
+    top: 20px;
+    right: 40px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-link-back {
+    text-decoration: none;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 700;
+    transition: color 0.3s;
+}
+
+.nav-link-back:hover {
+    color: var(--primary);
+}
+
+.dark .nav-link-back {
+    color: #94a3b8;
+}
+
+.brand-mobile {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--text-main);
+}
+
+.dark .brand-mobile {
+    color: #cbd5e1;
+}
+
+/* ==========================================================================
+   14. FOOTER
+   ========================================================================== */
+
 .footer-container {
     background-color: #0f172a;
     color: white;
@@ -713,12 +1423,6 @@ body {
     grid-template-columns: 1fr;
     gap: 48px;
     margin-bottom: 48px;
-}
-
-@media (min-width: 768px) {
-    .footer-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
 }
 
 .footer-brand {
@@ -855,13 +1559,6 @@ body {
     letter-spacing: 1px;
 }
 
-@media (min-width: 768px) {
-    .footer-bottom {
-        flex-direction: row;
-        justify-content: space-between;
-    }
-}
-
 .footer-legal-links {
     display: flex;
     gap: 24px;
@@ -876,10 +1573,9 @@ body {
     color: #cbd5e1;
 }
 
-/* --- DARK MODE ADJUSTMENTS FOR FOOTER --- */
+/* Ajustes Footer Modo Oscuro */
 .dark .footer-container {
     background-color: #020617;
-    /* Slate-950 */
     border-top: 1px solid #1e293b;
 }
 
@@ -917,504 +1613,71 @@ body {
     color: var(--primary, #22c55e);
 }
 
-/*ESTILOS DE LOS HTML QUE SE BORRARAN*/
-body {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: auto;
-}
+/* ==========================================================================
+   15. ANIMACIONES Y OTROS
+   ========================================================================= */
 
-/* --- LAYOUT SPLIT (Exclusivo de Login) --- */
-.split-layout {
-    display: flex;
-    flex: 1;
-    min-height: 100vh;
-    width: 100%;
-}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
 
-.hero-side {
-    display: none;
-    flex: 1.2;
-    position: relative;
-    background-color: #1f325f;
-    overflow: hidden;
-}
-
-@media (min-width: 900px) {
-    .hero-side {
-        display: flex;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
-.hero-bg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0.6;
-    mix-blend-mode: overlay;
-    transform: scale(1.05);
+.social-link img {
+    filter: invert(68%) sepia(13%) saturate(544%) hue-rotate(174deg) brightness(91%) contrast(88%);
+    transition: filter 0.2s;
 }
 
-.hero-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgba(15, 23, 42, 0.9), transparent);
-    z-index: 1;
+.social-link:hover img {
+    filter: brightness(0) invert(1);
 }
 
-.hero-content {
-    position: relative;
-    z-index: 2;
-    padding: 60px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 100%;
-    color: white;
-    box-sizing: border-box;
-    /* Sobrescribe el center de styles.css */
-}
+/* ==========================================================================
+   16. RESPONSIVE
+   ========================================================================= */
 
-.hero-title {
-    font-size: 3.5rem;
-    font-weight: 900;
-    margin-bottom: 15px;
-    line-height: 1;
-    letter-spacing: -1px;
-}
-
-.form-side {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    /* Centrado vertical */
-    background-color: var(--bg-dirty-white);
-    position: relative;
-    padding: 20px;
-    overflow-y: auto;
-    /* Permitir scroll si el formulario es alto */
-    min-height: 100vh;
-    /* Asegura que no se encoja */
-}
-
-/* --- NAVBAR FLOTANTE --- */
-.navbar-floating {
-    position: absolute;
-    top: 20px;
-    right: 40px;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.nav-link-back {
-    text-decoration: none;
-    color: var(--text-muted);
-    font-size: 12px;
-    font-weight: 700;
-    transition: color 0.3s;
-}
-
-.nav-link-back:hover {
-    color: var(--primary);
-}
-
-.brand-mobile {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 800;
-    font-size: 18px;
-    color: var(--text-main);
-}
-
-@media (min-width: 900px) {
-    .brand-mobile {
-        display: none;
+@media (min-width: 768px) {
+    .main-layout {
+        flex-direction: row;
     }
-}
 
-/* --- TARJETA DE LOGIN --- */
-.login-card {
-    background-color: var(--card-bg);
-    width: 100%;
-    max-width: 450px;
-    /* Un poco más ancha que login */
-    padding: 40px;
-    border-radius: 32px;
-    box-shadow: var(--shadow);
-    animation: fadeIn 0.6s ease-out;
-    margin-top: 80px;
-    /* Aumentado un poco para que no choque con la navbar en móviles */
-    margin-bottom: 40px;
-    /* Margen para que respire abajo al hacer scroll */
-    box-sizing: border-box;
-}
+    .nav-links {
+        display: block;
+    }
 
-.form-header {
-    margin-bottom: 25px;
-    text-align: left;
-}
+    .footer-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
 
-h1 {
-    font-size: 28px;
-    font-weight: 800;
-    margin: 0 0 10px 0;
-    letter-spacing: -0.5px;
-}
-
-.subtitle {
-    color: var(--text-muted);
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.label {
-    display: block;
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-    color: var(--text-main);
-    letter-spacing: 0.5px;
-}
-
-.input-field {
-    width: 100%;
-    padding: 12px 16px;
-    border-radius: 12px;
-    border: 2px solid var(--bg-dirty-white);
-    background-color: #f8fafc;
-    font-size: 14px;
-    font-weight: 600;
-    outline: none;
-    transition: all 0.2s;
-    box-sizing: border-box;
-}
-
-.input-field:focus {
-    border-color: var(--primary);
-    background-color: white;
-    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
-}
-
-
-.btn-primary:hover {
-    background: var(--primary-dark);
-    transform: translateY(-2px);
-}
-
-.btn-primary:disabled {
-    background: var(--border);
-    color: var(--text-muted);
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
-
-.error-msg {
-    background: #fee2e2;
-    color: #ef4444;
-    padding: 12px;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 700;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.form-footer {
-    margin-top: 25px;
-    text-align: center;
-    font-size: 13px;
-    color: var(--text-muted);
-    font-weight: 500;
-}
-
-.link {
-    color: var(--primary);
-    font-weight: 800;
-    text-decoration: none;
-    transition: color 0.2s;
-}
-
-/* --- MODO OSCURO ESPECÍFICO LOGIN --- */
-.dark .form-side {
-    background-color: #020617;
-}
-
-.dark .login-card {
-    background-color: #1e293b;
-    border-color: #334155;
-}
-
-.dark .input-field {
-    background-color: #0f172a;
-    border-color: #334155;
-    color: white;
-}
-
-.dark .label,
-.dark .brand-mobile {
-    color: #cbd5e1;
-}
-
-.dark .nav-link-back {
-    color: #94a3b8;
-}
-
-/* Asegurar que el título sea blanco en modo oscuro */
-.dark .page-title,
-.dark .time-big,
-.dark h3 {
-    color: white;
-}
-
-.dark .tab-btn {
-    color: #cbd5e1;
-}
-
-.dark .tab-btn.active {
-    color: white;
-    border-bottom-color: var(--primary);
-}
-
-.dark .empty-state {
-    background: #1e293b;
-    border-color: #334155;
-}
-
-.dark .player-avatar {
-    background: #334155;
-    border-color: #1e293b;
-    color: white;
-}
-
-/* --- LAYOUT --- */
-.page-content {
-    padding: 40px 20px;
-    max-width: 1000px;
-    margin: 0 auto;
-}
-
-.page-header {
-    margin-bottom: 30px;
-}
-
-.page-title {
-    font-size: 2rem;
-    font-weight: 800;
-    margin: 0;
-}
-
-.page-date {
-    color: var(--text-muted);
-    font-weight: 600;
-    margin-top: 5px;
-}
-
-.date-nav-btn {
-    background: var(--card-bg, white);
-    border: 1.5px solid #cbd5e1;
-    border-radius: 10px;
-    padding: 8px 16px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-    color: var(--text-main, #0f172a);
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-
-.date-nav-btn:hover {
-    border-color: var(--primary);
-    color: var(--primary);
-}
-
-/* --- TABS --- */
-.tabs {
-    display: flex;
-    gap: 30px;
-    border-bottom: 2px solid var(--border);
-    margin-bottom: 30px;
-}
-
-.tab-btn {
-    background: none;
-    border: none;
-    padding: 15px 0;
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--text-muted);
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    margin-bottom: -2px;
-    transition: all 0.2s;
-}
-
-.tab-btn:hover {
-    color: var(--text-main);
-}
-
-.tab-btn.active {
-    color: var(--text-main);
-    border-bottom-color: var(--primary);
-}
-
-/* --- MATCH CARD --- */
-.match-list {
-    display: grid;
-    gap: 20px;
-}
-
-.match-card {
-    background: var(--card-bg);
-    border-radius: 20px;
-    padding: 25px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: var(--shadow);
-    border: 1.5px solid #cbd5e1;
-    /* Borde resaltado para modo claro */
-    transition: transform 0.2s;
-}
-
-.match-card:hover {
-    transform: translateY(-3px);
-    border-color: var(--primary);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15);
-}
-
-.match-time {
-    text-align: center;
-    padding-right: 25px;
-    border-right: 2px solid var(--border);
-    min-width: 90px;
-}
-
-.time-big {
-    font-size: 24px;
-    font-weight: 900;
-    line-height: 1;
-    color: #0f172a;
-    /* Oscuro para modo claro */
-}
-
-.court-name {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    margin-top: 5px;
-}
-
-.match-info {
-    flex: 1;
-    padding: 0 25px;
-}
-
-.match-type {
-    display: inline-block;
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
-    padding: 4px 8px;
-    border-radius: 6px;
-    margin-bottom: 8px;
-}
-
-.type-public {
-    background: #dcfce7;
-    color: #166534;
-}
-
-.type-private {
-    background: #fef3c7;
-    color: #d97706;
-}
-
-.players-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 5px;
-}
-
-.player-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: var(--border);
-    border: 2px solid white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    font-weight: 800;
-    color: var(--text-main);
-}
-
-
-.match-action .btn {
-    padding: 12px 24px;
-    border-radius: 12px;
-    border: none;
-    font-weight: 800;
-    font-size: 12px;
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: 0.2s;
-}
-
-.btn-join {
-    background: var(--primary);
-    color: white;
-}
-
-.btn-join:hover {
-    background: var(--primary-dark);
-}
-
-.btn-view {
-    background: var(--dark-bg);
-    color: white;
-}
-
-.dark .btn-view {
-    background: #334155;
-    color: white;
-}
-
-.empty-state {
-    text-align: center;
-    padding: 60px;
-    background: white;
-    border-radius: 20px;
-    border: 2px dashed #cbd5e1;
-    color: var(--text-muted);
+    .footer-bottom {
+        flex-direction: row;
+        justify-content: space-between;
+    }
 }
 
 @media (max-width: 768px) {
+    .podium-section {
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+        margin-top: 30px;
+    }
+
+    .podium-1,
+    .podium-2,
+    .podium-3 {
+        order: unset;
+        margin-bottom: 0;
+        transform: none;
+        width: 100%;
+    }
+
     .match-card {
         flex-direction: column;
         align-items: flex-start;
@@ -1447,531 +1710,12 @@ h1 {
     }
 }
 
-.dark .rank-card,
-.dark .podium-card {
-    background-color: #1e293b;
-    border-color: #334155;
-}
-
-.dark .rank-pos {
-    background: #334155;
-    color: white;
-}
-
-.dark .rank-header {
-    background: #1e293b;
-    border-bottom-color: #334155;
-}
-
-/* --- PODIO (Top 3) --- */
-.podium-section {
-    padding: 40px 20px;
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    gap: 20px;
-    margin-bottom: 20px;
-}
-
-.podium-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    text-align: center;
-    box-shadow: var(--shadow);
-    position: relative;
-    width: 100%;
-    max-width: 220px;
-    transition: transform 0.3s;
-}
-
-/* Alturas escalonadas */
-.podium-1 {
-    order: 2;
-    transform: scale(1.1);
-    z-index: 10;
-    border-color: var(--gold);
-    border-width: 2px;
-}
-
-.podium-2 {
-    order: 1;
-    margin-bottom: -20px;
-}
-
-.podium-3 {
-    order: 3;
-    margin-bottom: -40px;
-}
-
-.medal-icon {
-    font-size: 24px;
-    position: absolute;
-    top: -15px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: white;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.avatar-large {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin: 10px auto;
-    border: 4px solid var(--border);
-}
-
-.podium-1 .avatar-large {
-    border-color: var(--gold);
-}
-
-.podium-2 .avatar-large {
-    border-color: var(--silver);
-}
-
-.podium-3 .avatar-large {
-    border-color: var(--bronze);
-}
-
-.player-name {
-    font-weight: 800;
-    font-size: 1.1rem;
-    margin: 5px 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.player-level {
-    font-weight: 700;
-    color: var(--primary);
-    font-size: 0.9rem;
-}
-
-.player-stats {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    margin-top: 5px;
-    font-weight: 600;
-}
-
-/* --- LISTA (Resto) --- */
-.ranking-list {
-    max-width: 800px;
-    margin: 0 auto 60px auto;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.rank-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 15px 25px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    transition: transform 0.2s;
-}
-
-.rank-card:hover {
-    transform: translateX(5px);
-    border-color: var(--primary);
-}
-
-.rank-pos {
-    font-size: 14px;
-    font-weight: 900;
-    width: 30px;
-    height: 30px;
-    background: var(--border);
-    color: var(--text-muted);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.rank-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.rank-info {
-    flex: 1;
-}
-
-.rank-name {
-    font-weight: 700;
-    font-size: 14px;
-}
-
-.rank-detail {
-    font-size: 11px;
-    color: var(--text-muted);
-}
-
-.rank-score {
-    text-align: right;
-}
-
-.score-val {
-    font-size: 16px;
-    font-weight: 900;
-    color: var(--primary);
-}
-
-.score-label {
-    font-size: 10px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    font-weight: 700;
-}
-
-@media (max-width: 768px) {
-    .podium-section {
-        flex-direction: column;
-        align-items: center;
-        gap: 30px;
-        margin-top: 30px;
-    }
-
-    .podium-1,
-    .podium-2,
-    .podium-3 {
-        order: unset;
-        margin-bottom: 0;
-        transform: none;
-        width: 100%;
-    }
-}
-
-#app {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-.dark .form-side {
-    background-color: #020617;
-}
-
-.dark .register-card {
-    background-color: #1e293b;
-    border-color: #334155;
-}
-
-.dark .input-field {
-    background-color: #0f172a;
-    border-color: #334155;
-    color: white;
-}
-
-.dark .input-field:focus {
-    background-color: #0f172a;
-    border-color: var(--primary);
-    color: white;
-}
-
-.dark .label {
-    color: #cbd5e1;
-}
-
-/* --- 2. LAYOUT SPLIT --- */
-.split-layout {
-    display: flex;
-    flex: 1;
-    min-height: 100vh;
-    width: 100%;
-}
-
-/* Lado Izquierdo (Imagen Full) */
-.hero-side {
-    display: none;
-    flex: 1.2;
-    position: relative;
-    background-color: var(--dark-bg);
-    overflow: hidden;
-}
-
 @media (min-width: 900px) {
     .hero-side {
         display: flex;
     }
-}
 
-.hero-bg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0.6;
-    mix-blend-mode: overlay;
-    transform: scale(1.05);
-}
-
-.hero-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgba(15, 23, 42, 0.9), transparent);
-    z-index: 1;
-}
-
-.hero-content {
-    position: relative;
-    z-index: 2;
-    padding: 60px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 100%;
-    color: white;
-    box-sizing: border-box;
-}
-
-.hero-title {
-    font-size: 3.5rem;
-    font-weight: 900;
-    margin-bottom: 15px;
-    line-height: 1;
-    letter-spacing: -1px;
-}
-
-/* Lado Derecho (Formulario Scrollable) */
-.form-side {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    /* Centrado vertical */
-    background-color: var(--bg-dirty-white);
-    position: relative;
-    padding: 20px;
-    overflow-y: auto;
-    /* Permitir scroll si el formulario es alto */
-    min-height: 100vh;
-    /* Asegura que no se encoja */
-}
-
-/* --- NAVBAR FLOTANTE --- */
-.navbar-floating {
-    position: absolute;
-    top: 20px;
-    right: 40px;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.brand-mobile {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 800;
-    font-size: 18px;
-    color: var(--text-main);
-}
-
-@media (min-width: 900px) {
     .brand-mobile {
         display: none;
     }
-}
-
-/* --- TARJETA DE REGISTRO --- */
-.register-card {
-    background-color: var(--card-bg);
-    width: 100%;
-    max-width: 450px;
-    /* Un poco más ancha que login */
-    padding: 40px;
-    border-radius: 32px;
-    box-shadow: var(--shadow);
-    animation: fadeIn 0.6s ease-out;
-    margin-top: 80px;
-    /* Aumentado un poco para que no choque con la navbar en móviles */
-    margin-bottom: 40px;
-    /* Margen para que respire abajo al hacer scroll */
-    box-sizing: border-box;
-}
-
-.form-header {
-    margin-bottom: 25px;
-    text-align: left;
-}
-
-h1 {
-    font-size: 28px;
-    font-weight: 800;
-    margin: 0 0 10px 0;
-    letter-spacing: -0.5px;
-}
-
-.subtitle {
-    color: var(--text-muted);
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.label {
-    display: block;
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-    color: var(--text-main);
-    letter-spacing: 0.5px;
-}
-
-.input-field {
-    width: 100%;
-    padding: 12px 16px;
-    border-radius: 12px;
-    border: 2px solid var(--bg-dirty-white);
-    background-color: #f8fafc;
-    font-size: 14px;
-    font-weight: 600;
-    outline: none;
-    transition: all 0.2s;
-    box-sizing: border-box;
-}
-
-.input-field:focus {
-    border-color: var(--primary);
-    background-color: white;
-    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
-}
-
-/* Estilo especial para Select */
-select.input-field {
-    appearance: none;
-    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%231e293b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-    background-repeat: no-repeat;
-    background-position: right 1rem center;
-    background-size: 0.65em auto;
-    cursor: pointer;
-}
-
-.btn-primary {
-    width: 100%;
-    background: var(--primary);
-    color: white;
-    border: none;
-    padding: 16px;
-    border-radius: 14px;
-    font-weight: 800;
-    font-size: 14px;
-    cursor: pointer;
-    transition:
-        transform 0.2s,
-        background 0.2s;
-    box-shadow: 0 10px 20px -5px rgba(34, 197, 94, 0.4);
-}
-
-.btn-primary:hover {
-    background: var(--primary-dark);
-    transform: translateY(-2px);
-}
-
-.btn-primary:disabled {
-    background: var(--border);
-    color: var(--text-muted);
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
-
-.error-msg {
-    background: #fee2e2;
-    color: #ef4444;
-    padding: 12px;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 700;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.form-footer {
-    margin-top: 25px;
-    text-align: center;
-    font-size: 13px;
-    color: var(--text-muted);
-    font-weight: 500;
-}
-
-.link {
-    color: var(--primary);
-    font-weight: 800;
-    text-decoration: none;
-    transition: color 0.2s;
-}
-
-.link:hover {
-    color: var(--primary-dark);
-    text-decoration: underline;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Esto hace que las imágenes SVG se comporten como iconos de texto */
-.social-link img {
-    filter: invert(68%) sepia(13%) saturate(544%) hue-rotate(174deg) brightness(91%) contrast(88%);
-    /* El filtro de arriba es para el color #94a3b8 (text-muted) */
-    transition: filter 0.2s;
-}
-
-.social-link:hover img {
-    filter: brightness(0) invert(1);
-}
-
-.btn-action.btn-danger {
-    background-color: #ef4444;
-    color: white;
-    cursor: pointer;
-    border: 1px solid #dc2626;
-}
-
-.btn-action.btn-danger:hover {
-    background-color: #dc2626;
-    transform: scale(1.02);
-}
-
-.dark .btn-action.btn-danger {
-    background-color: #991b1b;
-    border-color: #7f1d1d;
 }

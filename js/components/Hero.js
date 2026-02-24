@@ -10,7 +10,7 @@ function Hero() {
         }),
         m("div", { class: "hero-content" }, [
           m("h1", "Juega con nosotros al Padel"),
-          m("p", "La mejor experiencia para reservar tu pista de padel"),
+          m("p", { style: "margin-top: 0px; margin-bottom: 20px" }, "La mejor experiencia para reservar tu pista de padel"),
           m("button", { class: "btn-primary" }, "VER PISTAS DISPONIBLES"),
         ]),
       ]);

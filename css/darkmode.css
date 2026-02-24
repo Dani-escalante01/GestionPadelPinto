@@ -1,5 +1,46 @@
 /* ==========================================================================
-   2. MODO OSCURO (DARK MODE)
+   BOTÓN THEME TOGGLE (MODO OSCURO)
+   ========================================================================== */
+
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    cursor: pointer;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background-color: var(--card-bg);
+    color: var(--text-muted);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    outline: none;
+}
+
+.theme-toggle:hover {
+    transform: translateY(-1px);
+    border-color: var(--primary);
+    color: var(--primary);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.theme-toggle:active {
+    transform: translateY(0);
+    transform: scale(0.95);
+}
+
+.theme-toggle svg {
+    transition: transform 0.5s ease;
+}
+
+.theme-toggle:hover svg {
+    transform: rotate(15deg);
+}
+
+/* ==========================================================================
+   MODO OSCURO (DARK MODE)
    ========================================================================== */
 
 .dark body {
@@ -153,6 +194,7 @@
 .dark .theme-toggle:hover {
     border-color: #fbbf24;
     background-color: #334155;
+    color: #fbbf24;
 }
 
 .dark .form-side {
@@ -227,45 +269,4 @@
 
 .dark .social-link:hover {
     color: var(--primary, #22c55e);
-}
-
-/* ==========================================================================
-   BOTÓN THEME TOGGLE (MODO OSCURO)
-   ========================================================================== */
-
-.theme-toggle {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
-    padding: 0;
-    cursor: pointer;
-    border-radius: 12px;
-    border: 1.5px solid var(--border);
-    background-color: var(--card-bg);
-    color: var(--text-muted);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    outline: none;
-}
-
-.theme-toggle:hover {
-    transform: translateY(-1px);
-    border-color: var(--primary);
-    color: var(--primary);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-.theme-toggle:active {
-    transform: translateY(0);
-    transform: scale(0.95);
-}
-
-.theme-toggle svg {
-    transition: transform 0.5s ease;
-}
-
-.theme-toggle:hover svg {
-    transform: rotate(15deg);
 }

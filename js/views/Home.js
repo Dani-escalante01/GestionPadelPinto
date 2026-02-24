@@ -50,7 +50,7 @@ const HomeActions = {
 
   openModal: (court, match = null) => {
     if (!Auth.user) {
-      alert("Inicia sesión primero");
+      alert("Para reservar o unirte debes iniciar sesión");
       m.route.set("/login");
       return;
     }

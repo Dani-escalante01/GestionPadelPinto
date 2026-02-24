@@ -1,0 +1,271 @@
+/* ==========================================================================
+   2. MODO OSCURO (DARK MODE)
+   ========================================================================== */
+
+.dark body {
+    background-color: #0f172a !important;
+    color: #f8fafc;
+}
+
+.dark .navbar,
+.dark .calendar-widget,
+.dark .court-card,
+.dark .time-btn,
+.dark .match-card,
+.dark .date-nav-btn {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: white;
+}
+
+.dark .court-title,
+.dark h2,
+.dark h3 {
+    color: white;
+}
+
+.dark .time-btn {
+    color: #cbd5e1;
+}
+
+.dark .btn-action {
+    background-color: #f8fafc;
+    color: #0f172a;
+}
+
+.dark .court-status-text {
+    color: #f7f3f3d1 !important;
+}
+
+.dark .progress-container {
+    background: #334155;
+}
+
+.dark .btn-action.full {
+    background: #0f172a;
+    color: #475569;
+}
+
+.dark .btn-action.inscribed {
+    background-color: #334155;
+    color: #94a3b8;
+}
+
+.dark .player-ball {
+    background: #334155;
+    border-color: #1e293b;
+    color: white;
+}
+
+.dark .modal-content {
+    background: #1e293b;
+    color: white;
+}
+
+.dark .user-name-btn {
+    color: white;
+}
+
+.dark .user-name-btn:hover {
+    background: #334155;
+    border-color: #475569;
+    color: white;
+}
+
+.dark .user-dropdown {
+    background: #1e293b;
+    border-color: #334155;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+.dark .dropdown-item:hover {
+    background-color: rgba(239, 68, 68, 0.15);
+}
+
+.dark .rank-card,
+.dark .podium-card {
+    background-color: #1e293b;
+    border-color: #334155;
+}
+
+.dark .rank-pos {
+    background: #334155;
+    color: white;
+}
+
+.dark .rank-header {
+    background: #1e293b;
+    border-bottom-color: #334155;
+}
+
+.dark .page-title,
+.dark .time-big,
+.dark h3 {
+    color: white;
+}
+
+.dark .tab-btn {
+    color: #cbd5e1;
+}
+
+.dark .tab-btn.active {
+    color: white;
+    border-bottom-color: var(--primary);
+}
+
+.dark .empty-state {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+.dark .player-avatar {
+    background: #334155;
+    border-color: #1e293b;
+    color: white;
+}
+
+.dark .cal-day {
+    color: #c8c8c8;
+}
+
+.dark .cal-day:hover {
+    background: #334155;
+    color: white;
+}
+
+.dark .btn-action.btn-danger {
+    background-color: #991b1b;
+    border-color: #7f1d1d;
+}
+
+.dark .btn-view {
+    background: #334155;
+    color: white;
+}
+
+.dark .theme-toggle {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #fbbf24;
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.1);
+}
+
+.dark .theme-toggle:hover {
+    border-color: #fbbf24;
+    background-color: #334155;
+}
+
+.dark .form-side {
+    background-color: #020617;
+}
+
+.dark .login-card,
+.dark .register-card {
+    background-color: #1e293b;
+    border-color: #334155;
+}
+
+.dark .label {
+    color: #cbd5e1;
+}
+
+.dark .input-field {
+    background-color: #0f172a;
+    border-color: #334155;
+    color: white;
+}
+
+.dark .input-field:focus {
+    background-color: #0f172a;
+    border-color: var(--primary);
+    color: white;
+}
+
+.dark .nav-link-back {
+    color: #94a3b8;
+}
+
+.dark .brand-mobile {
+    color: #cbd5e1;
+}
+
+/* Ajustes Footer Modo Oscuro */
+.dark .footer-container {
+    background-color: #020617;
+    border-top: 1px solid #1e293b;
+}
+
+.dark .footer-desc {
+    color: #64748b;
+}
+
+.dark .footer-nav-list {
+    color: #94a3b8;
+}
+
+.dark .newsletter-input {
+    background-color: #0f172a;
+    border: 1px solid #1e293b;
+}
+
+.dark .newsletter-input:focus {
+    border-color: var(--primary, #22c55e);
+}
+
+.dark .footer-bottom {
+    border-top-color: #0f172a;
+    color: #475569;
+}
+
+.dark .footer-logo {
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
+}
+
+.dark .social-icons {
+    color: #475569;
+}
+
+.dark .social-link:hover {
+    color: var(--primary, #22c55e);
+}
+
+/* ==========================================================================
+   BOTÓN THEME TOGGLE (MODO OSCURO)
+   ========================================================================== */
+
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    cursor: pointer;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background-color: var(--card-bg);
+    color: var(--text-muted);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    outline: none;
+}
+
+.theme-toggle:hover {
+    transform: translateY(-1px);
+    border-color: var(--primary);
+    color: var(--primary);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.theme-toggle:active {
+    transform: translateY(0);
+    transform: scale(0.95);
+}
+
+.theme-toggle svg {
+    transition: transform 0.5s ease;
+}
+
+.theme-toggle:hover svg {
+    transform: rotate(15deg);
+}

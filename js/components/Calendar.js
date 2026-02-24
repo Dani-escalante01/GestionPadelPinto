@@ -1,5 +1,6 @@
-function CalendarWidget() {
-  return {
+import { HomeState, Home, HomeActions, HOURS, MONTHS } from "../views/Home.js";
+
+export const CalendarWidget = {
     view: () => {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -66,10 +67,8 @@ function CalendarWidget() {
       ]);
     },
   };
-}
 
-function TimeSelector() {
-  return {
+export const TimeSelector = {
     view: () => m("div", { class: "time-grid" },
       HOURS.map((h) => m("button", {
         class: `time-btn ${HomeState.selectedTime === h ? "selected" : ""}`,
@@ -77,4 +76,3 @@ function TimeSelector() {
       }, h))
     ),
   };
-}

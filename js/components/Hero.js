@@ -1,4 +1,6 @@
-function Hero() {
+import { Utils, Auth, PadelData } from "../api.js";
+
+export function Hero() {
   return {
     view: () => {
       const userName = Auth.user ? Auth.user.nombre : null;// Verificamos si el usuario existe en el objeto Auth

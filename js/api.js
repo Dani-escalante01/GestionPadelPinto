@@ -7,7 +7,7 @@ const API_URL = "https://public.digitalvalue.es/github/tests2/botcamp2026/Gestio
 // const API_URL = "server/backend.php";
 
 // --- UTILIDADES ---
-const Utils = {
+export const Utils = {
     // Convierte "15/08/2024" -> "2024-08-15"
     toIsoDate: (dateStr) => {
         if (!dateStr) return new Date().toISOString().split('T')[0];
@@ -23,7 +23,7 @@ const Utils = {
 };
 
 // --- GESTIÓN DE USUARIO (AUTH) ---
-const Auth = {
+export const Auth = {
     user: null,
 
     // Cargar usuario guardado al iniciar la app
@@ -77,7 +77,7 @@ const Auth = {
 };
 
 // --- LÓGICA DE PÁDEL (DATOS) ---
-const PadelData = {
+export const PadelData = {
 
     // Obtener lista de ranking
     getRanking: async () => {

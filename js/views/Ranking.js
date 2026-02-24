@@ -1,11 +1,16 @@
+import { ThemeState, ThemeActions, ThemeToggle } from "../components/toggleTheme.js";
+import { Navbar, NavbarState } from "../components/Navbar.js";
+import { Utils, Auth, PadelData } from "../api.js";
+import { PodiumCard, RankingRow } from "../components/RankingComponents.js"
+
 // --- ESTADO ---
-const RankingState = {
+export const RankingState = {
   loading: true,
   ranking: [],
 };
 
 // --- ACCIONES ---
-const RankingActions = {
+export const RankingActions = {
   init: async () => {
     Auth.init();
     await RankingActions.loadData();
@@ -27,7 +32,7 @@ const RankingActions = {
 };
 
 // --- VISTA PRINCIPAL ---
-const RankingView = {
+export const RankingView = {
   oninit: RankingActions.init,
 
   view: () => {

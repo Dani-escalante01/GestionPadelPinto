@@ -1,0 +1,44 @@
+/* ==========================================================================
+   VARIABLES, CONFIGURACIÓN BASE Y RESET
+   ========================================================================== */
+
+/*forzar a que siempre esté la barra de scroll lateral*/
+/* html { 
+    overflow-y: scroll; 
+} */
+
+:root {
+    --primary: #22c55e;
+    --primary-dark: #16a34a;
+    --dark-bg: #0f172a;
+    --card-bg: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #94a3b8;
+    --border: #e2e8f0;
+    --radius: 24px;
+    --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    /* Colores de Podio */
+    --gold: #fbbf24;
+    --silver: #94a3b8;
+    --bronze: #b45309;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: #f8fafc;
+    margin: 0;
+    padding: 0;
+    color: var(--text-main);
+    transition: background-color 0.3s, color 0.3s;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+}
+
+#app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}

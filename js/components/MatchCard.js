@@ -1,4 +1,8 @@
-function MatchCard() {
+import { getLevelColor, HomeState, HomeActions, Home, HOURS, MONTHS } from "../views/Home.js";
+import { Utils, Auth, PadelData } from "../api.js";
+import { PartidasActions } from "../views/Partidas.js";
+
+export function MatchCard() {
   return {
     view: (vnode) => {
       const match = vnode.attrs.match;
@@ -60,4 +64,4 @@ function MatchCard() {
       ]);
     },
   };
-}
+};

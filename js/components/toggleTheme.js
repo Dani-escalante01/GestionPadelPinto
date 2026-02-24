@@ -1,13 +1,13 @@
 /**
  * toggletheme.js
- * Módulo para gestionar el modo oscuro en PadelPinto
+ * Módulo para gestionar el modo oscuro
  */
 
-const ThemeState = {
+export const ThemeState = {
   darkMode: localStorage.getItem("theme") === "dark",
 };
 
-const ThemeActions = {
+export const ThemeActions = {
   apply: () => {
     if (ThemeState.darkMode) {
       document.documentElement.classList.add("dark");
@@ -30,7 +30,7 @@ const ThemeActions = {
 
 ThemeActions.apply();// Ejecutar aplicación inicial
 
-const ThemeToggle = {
+export const ThemeToggle = {
   view: () => {
     return m(
       "button",

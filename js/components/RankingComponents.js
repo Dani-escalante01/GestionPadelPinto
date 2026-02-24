@@ -1,6 +1,5 @@
 // Tarjeta para el Podio (Top 3)
-function PodiumCard() {
-  return {
+export const PodiumCard = {
     view: (vnode) => {
       const { user, place } = vnode.attrs;
       if (!user) return null;
@@ -31,11 +30,10 @@ function PodiumCard() {
       ]);
     },
   };
-}
+
 
 // Fila para el resto de la lista (4º en adelante)
-function RankingRow() {
-  return {
+export const RankingRow = {
     view: (vnode) => {
       const { user, pos } = vnode.attrs;
 
@@ -63,4 +61,3 @@ function RankingRow() {
       );
     },
   };
-}

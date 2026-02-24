@@ -1,4 +1,4 @@
-function HeroSide() {
+export function HeroSide() {
   return {
     view: () => {
       // Detectamos si estamos en la ruta de registro

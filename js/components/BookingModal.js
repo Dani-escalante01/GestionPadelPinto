@@ -1,4 +1,6 @@
-function BookingModal() {
+import { HomeState, Home, HomeActions, HOURS, MONTHS } from "../views/Home.js";
+
+export function BookingModal() {
   return {
     view: () => {
       if (!HomeState.modal.show) return null;
@@ -66,4 +68,4 @@ function BookingModal() {
       ]);
     },
   };
-}
+};

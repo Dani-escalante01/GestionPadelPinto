@@ -1,12 +1,16 @@
+import { HeroSide } from "../components/AuthHero.js";
+import { ThemeState, ThemeActions, ThemeToggle } from "../components/toggleTheme.js";
+import { Utils, Auth, PadelData } from "../api.js";
+
 /* --- ESTADO --- */
-const RegisterState = {
+export const RegisterState = {
   form: { nombre: "", email: "", password: "", nivel: "", },
   loading: false,
   error: null,
 };
 
 /* --- ACCIONES --- */
-const RegisterActions = {
+export const RegisterActions = {
   setInput: (field, value) => {
     RegisterState.form[field] = value;
     RegisterState.error = null;
@@ -38,7 +42,7 @@ const RegisterActions = {
 };
 
 /* --- COMPONENTES --- */
-function RegisterCard() {
+export function RegisterCard() {
   return {
     view: () => m("div", { class: "register-card" }, [
       m("form", { onsubmit: RegisterActions.register }, [
@@ -99,7 +103,7 @@ function RegisterCard() {
 }
 
 /* --- LAYOUT --- */
-const RegisterView = {
+export const RegisterView = {
   view: () => {
     if (typeof ThemeState !== 'undefined') {
       document.documentElement.classList.toggle("dark", ThemeState.darkMode);

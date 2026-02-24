@@ -1,4 +1,4 @@
-function Footer() {
+export function Footer() {
   return {
     view: () =>
       m("footer", { class: "footer-container" }, [
@@ -84,4 +84,4 @@ function Footer() {
         ]),
       ]),
   };
-}
+};

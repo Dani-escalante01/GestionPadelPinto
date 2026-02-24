@@ -1,0 +1,107 @@
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================= */
+
+@media (min-width: 768px) {
+    .main-layout {
+        flex-direction: row;
+    }
+
+    .nav-links {
+        display: block;
+    }
+
+    .footer-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .footer-bottom {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 768px) {
+    .podium-section {
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+        margin-top: 30px;
+    }
+
+    .podium-1,
+    .podium-2,
+    .podium-3 {
+        order: unset;
+        margin-bottom: 0;
+        transform: none;
+        width: 100%;
+    }
+
+    .match-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .match-time {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding-right: 0;
+        padding-bottom: 15px;
+        width: 100%;
+        text-align: left;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .match-info {
+        padding: 0;
+        width: 100%;
+    }
+
+    .match-action {
+        width: 100%;
+    }
+
+    .match-action .btn {
+        width: 100%;
+    }
+}
+
+@media (min-width: 900px) {
+    .hero-side {
+        display: flex;
+    }
+
+    .brand-mobile {
+        display: none;
+    }
+}
+
+/* ==========================================================================
+   ANIMACIONES Y OTROS
+   ========================================================================= */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.social-link img {
+    filter: invert(68%) sepia(13%) saturate(544%) hue-rotate(174deg) brightness(91%) contrast(88%);
+    transition: filter 0.2s;
+}
+
+.social-link:hover img {
+    filter: brightness(0) invert(1);
+}
+

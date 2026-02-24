@@ -1,5 +1,10 @@
+import { Navbar, NavbarState } from "../components/Navbar.js";
+import { MatchCard } from '../components/MatchCard.js';
+import { ThemeState, ThemeActions, ThemeToggle } from "../components/toggleTheme.js";
+import { Utils, Auth, PadelData } from "../api.js";
+
 /* --- ESTADO --- */
-const PartidasState = {
+export const PartidasState = {
   loading: true,
   activeTab: "mine", /* 'mine' (Mías) | 'open' (Abiertas) */
   currentDate: new Date(),
@@ -8,7 +13,7 @@ const PartidasState = {
 };
 
 /* --- ACCIONES --- */
-const PartidasActions = {
+export const PartidasActions = {
   init: async () => {
     Auth.init();
     if (Auth.user) {
@@ -60,7 +65,7 @@ const PartidasActions = {
 };
 
 /* --- VISTA PRINCIPAL --- */
-const PartidasView = {
+export const PartidasView = {
   oninit: PartidasActions.init,
   view: () => {
     document.documentElement.classList.toggle("dark", ThemeState.darkMode);

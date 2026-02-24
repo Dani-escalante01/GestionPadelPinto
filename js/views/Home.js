@@ -1,14 +1,23 @@
-const HOURS = ["09:00", "10:30", "12:00", "13:30", "16:30", "18:00", "19:30", "21:00",];
-const MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+import { Navbar, NavbarState } from "../components/Navbar.js";
+import { Hero } from '../components/Hero.js';
+import { BookingModal } from "../components/BookingModal.js";
+import { Footer } from "../components/Footer.js";
+import { CalendarWidget, TimeSelector } from "../components/Calendar.js";
+import { CourtCard } from "../components/CourtCard.js";
+import { ThemeState, ThemeActions, ThemeToggle } from "../components/toggleTheme.js";
+import { Utils, Auth, PadelData } from "../api.js";
 
-const getLevelColor = (nivel) => {
+export const HOURS = ["09:00", "10:30", "12:00", "13:30", "16:30", "18:00", "19:30", "21:00",];
+export const MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+export const getLevelColor = (nivel) => {
   const n = Math.min(Math.max(nivel, 1), 7);
-  const hue = 120 - ((n - 1) * 20); 
+  const hue = 120 - ((n - 1) * 20);
   return `background-color: hsl(${hue}, 70%, 45%); color: white; border: none;`;
 };
 
 // --- ESTADO GLOBAL ---
-const HomeState = {
+export const HomeState = {
   selectedDate: new Date(),
   selectedTime: "10:30",
   courts: [],
@@ -27,7 +36,7 @@ const HomeState = {
 };
 
 // --- ACCIONES (Lógica de Negocio) ---
-const HomeActions = {
+export const HomeActions = {
   init: async () => {
     Auth.init();
     const pistas = await PadelData.getPistas();
@@ -109,7 +118,7 @@ const HomeActions = {
 };
 
 // --- LAYOUT PRINCIPAL ---
-const Home = {
+export const Home = {
   oninit: HomeActions.init,
   view: () => {
     document.documentElement.classList.toggle("dark", ThemeState.darkMode);

@@ -1,4 +1,7 @@
-function CourtCard() {
+import { Utils, Auth, PadelData } from "../api.js"
+import { getLevelColor, HomeState, HomeActions, Home, HOURS, MONTHS } from "../views/Home.js";
+
+export function CourtCard() {
   return {
     view: (vnode) => {
       const { court, match } = vnode.attrs;
@@ -80,4 +83,4 @@ function CourtCard() {
       ]);
     },
   };
-}
+};

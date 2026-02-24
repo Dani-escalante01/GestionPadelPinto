@@ -1,5 +1,9 @@
+import { HeroSide } from "../components/AuthHero.js";
+import { ThemeState, ThemeActions, ThemeToggle } from "../components/toggleTheme.js";
+import { Utils, Auth, PadelData } from "../api.js"
+
 /* --- ESTADO --- */
-const LoginState = {
+export const LoginState = {
   email: "",
   password: "",
   loading: false,
@@ -7,7 +11,7 @@ const LoginState = {
 };
 
 /* --- ACCIONES --- */
-const LoginActions = {
+export const LoginActions = {
   login: async (e) => {
     e.preventDefault();
     LoginState.loading = true;
@@ -34,7 +38,7 @@ const LoginActions = {
 };
 
 /* --- COMPONENTES --- */
-function LoginCard() {
+export function LoginCard() {
   return {
     view: () => m("div", { class: "login-card" }, [
       m("form", { onsubmit: LoginActions.login }, [
@@ -78,7 +82,7 @@ function LoginCard() {
 }
 
 /* --- LAYOUT ---*/
-function Login() {
+export function Login() {
   return {
     view: () => {
       document.documentElement.classList.toggle("dark", ThemeState.darkMode);
@@ -105,4 +109,4 @@ function Login() {
       ]);
     },
   };
-}
+};
